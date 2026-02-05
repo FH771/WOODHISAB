@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>কাঠের সাইজ লিস্ট - BFIDC</title>
     <style>
+        /* লগইন ডিজাইন */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2e7d32; display: flex; justify-content: center; align-items: center; z-index: 10000; }
         .login-box { background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 320px; }
         .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 6px; font-size: 16px; text-align: center; box-sizing: border-box; }
@@ -27,7 +28,7 @@
         .user-tag { font-size: 10px; background: #e3f2fd; padding: 2px 6px; border-radius: 10px; color: #1976d2; font-weight: bold; }
 
         .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm; margin: 20px auto; box-sizing: border-box; border: 1px solid #ddd; page-break-after: always; position: relative; }
-        .header-text { text-align: center; margin-bottom: 15px; font-size: 15px; font-weight: bold; line-height: 1.6; }
+        .header-text { text-align: center; margin-bottom: 15px; font-size: 14px; font-weight: bold; line-height: 1.6; min-height: 50px; }
         .table-container { display: flex; border: 1px solid black; min-height: 800px; }
         .sub-table { width: 50%; border-collapse: collapse; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 3px; text-align: center; font-size: 12px; height: 24px; }
@@ -41,9 +42,9 @@
 <div id="login-screen">
     <div class="login-box">
         <h2 style="color:#2e7d32">BFIDC কাপ্তাই</h2>
-        <input type="text" id="userName" placeholder="আপনার নাম/ইউজার আইডি">
+        <input type="text" id="userName" placeholder="আপনার নাম/আইডি">
         <input type="password" id="passInput" placeholder="পাসওয়ার্ড">
-        <button onclick="checkPass()">Login</button>
+        <button id="loginBtn">Login</button>
     </div>
 </div>
 
@@ -86,30 +87,49 @@
 </div>
 
 <script>
+    // গুরুত্বপূর্ণ: পাসওয়ার্ড সেট করা হয়েছে এখানে
     const ADMIN_PASS = "1234", USER_PASS = "0000"; 
+
+    // সেশন চেক
     let currentUser = localStorage.getItem('woodUser') || "";
     let isAdmin = localStorage.getItem('woodAdmin') === 'true';
     let items = JSON.parse(localStorage.getItem('woodData')) || [];
     let historyRecords = JSON.parse(localStorage.getItem('woodHistory')) || [];
     let editIdx = -1;
 
-    window.onload = function() { if (currentUser) launch(); };
-
-    function checkPass() {
-        const name = document.getElementById('userName').value.trim();
-        const pass = document.getElementById('passInput').value;
-        if (!name) { alert("নাম দিন"); return; }
-        if (pass === ADMIN_PASS) { isAdmin = true; currentUser = name; sessionSave(); launch(); }
-        else if (pass === USER_PASS) { isAdmin = false; currentUser = name; sessionSave(); launch(); }
-        else { alert("ভুল পাসওয়ার্ড!"); }
+    // লগইন চেক (অটোমেটিক)
+    if (currentUser) {
+        showMain();
     }
 
-    function sessionSave() {
+    // লগইন বাটন ইভেন্ট
+    document.getElementById('loginBtn').addEventListener('click', function() {
+        const name = document.getElementById('userName').value.trim();
+        const pass = document.getElementById('passInput').value;
+
+        if (!name) { alert("নাম দিন"); return; }
+
+        if (pass === ADMIN_PASS) {
+            isAdmin = true;
+            currentUser = name;
+            saveSession();
+            showMain();
+        } else if (pass === USER_PASS) {
+            isAdmin = false;
+            currentUser = name;
+            saveSession();
+            showMain();
+        } else {
+            alert("ভুল পাসওয়ার্ড!");
+        }
+    });
+
+    function saveSession() {
         localStorage.setItem('woodUser', currentUser);
         localStorage.setItem('woodAdmin', isAdmin);
     }
 
-    function launch() {
+    function showMain() {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('main-wrapper').style.display = 'block';
         document.getElementById('user-display').innerText = "ইউজার: " + currentUser;
@@ -118,13 +138,16 @@
         updateSL();
     }
 
-    function logout() { localStorage.removeItem('woodUser'); localStorage.removeItem('woodAdmin'); location.reload(); }
+    function logout() {
+        localStorage.clear();
+        location.reload();
+    }
 
+    // হিস্ট্রি ফাংশন
     function toggleHistory() {
         const p = document.getElementById('history-panel');
         p.style.display = p.style.display === 'block' ? 'none' : 'block';
         
-        // অ্যাডমিন সবারটা দেখবে, ইউজার শুধু নিজেরটা
         let filtered = isAdmin ? historyRecords : historyRecords.filter(h => h.user === currentUser);
         
         document.getElementById('history-list').innerHTML = filtered.map(h => `
@@ -148,6 +171,7 @@
         window.print();
     }
 
+    // মেইন ক্যালকুলেশন লজিক (আগের মতোই)
     function updateSL() {
         let type = document.getElementById('type').value;
         document.getElementById('slNo').value = (type === 'log') ? 
@@ -184,7 +208,7 @@
         document.getElementById('val1').value = itm.v1;
         document.getElementById('val2').value = itm.v2;
         if(itm.type === 'gas') document.getElementById('valExtra').value = itm.ve;
-        document.getElementById('addBtn').innerText = "আপডেট করুন (Update)";
+        document.getElementById('addBtn').innerText = "আপডেট করুন";
         document.getElementById('addBtn').style.background = "#0288d1";
         window.scrollTo(0,0);
     }
