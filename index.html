@@ -2,20 +2,24 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>BFIDC Professional Wood System</title>
+    <title>BFIDC Professional Wood System - Stable Version</title>
     <style>
         @page { size: A4; margin: 10mm; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1b5e20; margin: 0; }
         
+        /* Login UI */
         #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; }
         .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
         .login-box button { background: #2e7d32; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-        #main-wrapper { display: none; background: #f0f2f5; min-height: 100vh; padding-top: 20px; }
-        .no-print { background: white; padding: 25px; max-width: 980px; margin: 0 auto; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        #main-wrapper { display: none; background: #f0f2f5; min-height: 100vh; padding-top: 10px; }
+        .no-print { background: white; padding: 20px; max-width: 980px; margin: 0 auto 10px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        .page { background: white; width: 210mm; height: 297mm; padding: 12mm; margin: 20px auto; box-sizing: border-box; display: flex; flex-direction: column; box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative; }
+        /* Header Stats & Settings */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; border-bottom: 1px solid #eee; }
+        
+        .page { background: white; width: 210mm; height: 297mm; padding: 12mm; margin: 10px auto; box-sizing: border-box; display: flex; flex-direction: column; box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative; }
         .header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid black; padding-bottom: 10px; }
         .page.size-wood-mode .header { display: none; }
         
@@ -24,15 +28,16 @@
         .sub-table:first-child { border-right: 1.5px solid black; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 4px; text-align: center; font-size: 11px; height: 24px; }
         
-        /* নিচের হিসাব বক্স */
         .summary-box { margin-top: 10px; border: 2px solid black; padding: 10px; font-weight: bold; display: flex; justify-content: space-between; font-size: 13px; background: #fff; }
 
-        .btn-edit { background: #0288d1; color: white; border: none; padding: 2px 5px; border-radius: 3px; cursor: pointer; font-size: 10px; margin-right: 2px; }
+        /* Buttons */
+        .btn-edit { background: #0288d1; color: white; border: none; padding: 2px 5px; border-radius: 3px; cursor: pointer; font-size: 10px; }
         .btn-del { background: #d32f2f; color: white; border: none; padding: 2px 5px; border-radius: 3px; cursor: pointer; font-size: 10px; }
-        
+        .btn-settings { background: #546e7a; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+
         @media print { 
             body { background: white; }
-            .no-print, #history-panel, .btn-edit, .btn-del { display: none !important; }
+            .no-print, #history-panel, #settings-panel, .btn-edit, .btn-del { display: none !important; }
             .page { margin: 0; box-shadow: none; border: none; } 
         }
     </style>
@@ -50,6 +55,22 @@
 
 <div id="main-wrapper">
     <div class="no-print">
+        <div class="top-bar">
+            <strong>ব্যবহারকারী: <span id="active-user"></span></strong>
+            <div>
+                <button class="btn-settings" onclick="toggleSettings()">পাসওয়ার্ড পরিবর্তন</button>
+                <button onclick="logout()" style="background:#555; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; margin-left:5px;">Log Out</button>
+            </div>
+        </div>
+
+        <div id="settings-panel" style="display:none; background:#f9f9f9; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #ddd;">
+            <h4>পাসওয়ার্ড পরিবর্তন করুন</h4>
+            <div style="display:flex; gap:10px;">
+                <input type="password" id="newPass" placeholder="নতুন পাসওয়ার্ড" style="padding:8px; border-radius:5px; border:1px solid #ccc;">
+                <button onclick="changePassword()" style="background:#2e7d32; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Save Password</button>
+            </div>
+        </div>
+
         <div class="input-grid" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 15px;">
             <div><label>গাছ নং</label><input type="number" id="tNo" value="1"></div>
             <div><label>পিস নং</label><input type="number" id="pNo" value="1"></div>
@@ -87,16 +108,54 @@
 <script>
     let items = [];
     let history = JSON.parse(localStorage.getItem('woodHistory')) || [];
-    let currentUser = "";
+    let currentUser = localStorage.getItem('activeUser') || "";
     let editIdx = -1;
+
+    // পাসওয়ার্ড চেক করার জন্য (Default: 1234)
+    let savedPass = localStorage.getItem('appPassword') || "1234";
+
+    // অটো লগইন চেক (রিফ্রেশ দিলে লগআউট হবে না)
+    window.onload = function() {
+        if(currentUser) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-wrapper').style.display = 'block';
+            document.getElementById('active-user').innerText = currentUser;
+            renderPages();
+        }
+    }
 
     function login() {
         const id = document.getElementById('userId').value.trim();
+        const pass = document.getElementById('passInput').value;
+        
         if (!id) { alert("User ID দিন"); return; }
+        if (pass !== savedPass) { alert("ভুল পাসওয়ার্ড!"); return; }
+
         currentUser = id;
+        localStorage.setItem('activeUser', id);
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('main-wrapper').style.display = 'block';
+        document.getElementById('active-user').innerText = id;
         renderPages();
+    }
+
+    function logout() {
+        localStorage.removeItem('activeUser');
+        location.reload();
+    }
+
+    function toggleSettings() {
+        const panel = document.getElementById('settings-panel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function changePassword() {
+        const newP = document.getElementById('newPass').value;
+        if(newP.length < 4) { alert("পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে!"); return; }
+        savedPass = newP;
+        localStorage.setItem('appPassword', newP);
+        alert("পাসওয়ার্ড পরিবর্তন সফল হয়েছে!");
+        toggleSettings();
     }
 
     function toggleInputs() {
@@ -140,7 +199,7 @@
     }
 
     function finishWork() {
-        if(items.length === 0) return alert("ট্যাবলে কোনো ডাটা নেই!");
+        if(items.length === 0) return alert("টেবিলে কোনো ডাটা নেই!");
         if(confirm("কাজ শেষ? এটি সেভ হয়ে টেবিল খালি হয়ে যাবে।")) {
             manualSave();
             items = [];
@@ -176,10 +235,8 @@
                 table += `</table>`;
             }
             table += `</div>`;
-            
             pageDiv.innerHTML = header + table;
             
-            // প্রতিটি পৃষ্ঠার শেষে সামারি বক্স (শুধুমাত্র শেষ পৃষ্ঠায় ডাটা থাকবে)
             if (p === pageCount - 1) {
                 pageDiv.innerHTML += `<div class="summary-box">
                     <span>গাছ: ${listType==='log'?trees.size:'0'}</span>
@@ -199,7 +256,7 @@
         document.getElementById('ve').value = itm.ve;
         document.getElementById('tNo').value = itm.tNo;
         document.getElementById('pNo').value = itm.pNo;
-        document.getElementById('addBtn').innerText = "Update";
+        document.getElementById('addBtn').innerText = "Update Now";
         document.getElementById('addBtn').style.background = "#0288d1";
     }
 
