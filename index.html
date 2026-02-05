@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC Professional Wood System</title>
+    <title>BFIDC Professional Wood System - Updated</title>
     <style>
         @page { size: A4; margin: 10mm; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1b5e20; margin: 0; padding: 0; }
@@ -16,12 +16,11 @@
 
         #main-wrapper { display: none; background: #f0f2f5; min-height: 100vh; padding-top: 10px; }
         
-        /* Control Panel (Responsive) */
         .no-print { background: white; padding: 20px; max-width: 980px; margin: 0 auto 10px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 95%; box-sizing: border-box; }
         
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; flex-wrap: wrap; gap: 10px; }
         
-        /* Input Grid - Desktop 6 col, Mobile 2 col */
+        /* Input Grid */
         .input-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 15px; }
         .input-grid label { font-size: 12px; font-weight: bold; display: block; margin-bottom: 4px; }
         .input-grid input, .input-grid select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
@@ -42,17 +41,14 @@
         
         .summary-box { margin-top: 10px; border: 2px solid black; padding: 10px; font-weight: bold; display: flex; justify-content: space-between; font-size: 13px; background: #fff; }
 
-        /* Action Buttons */
         .btn-edit { background: #0288d1; color: white; border: none; padding: 2px 5px; border-radius: 3px; cursor: pointer; font-size: 10px; }
         .btn-del { background: #d32f2f; color: white; border: none; padding: 2px 5px; border-radius: 3px; cursor: pointer; font-size: 10px; }
 
-        /* Mobile Adjustments */
         @media screen and (max-width: 768px) {
             .input-grid { grid-template-columns: repeat(2, 1fr); }
             .btn-group button { flex: 1 1 45%; font-size: 13px; padding: 15px 5px; }
-            .page { width: 98%; margin: 5px auto; padding: 5mm; min-height: auto; height: auto; transform-origin: top center; }
+            .page { width: 98%; margin: 5px auto; padding: 5mm; min-height: auto; height: auto; }
             #pages-area { overflow-x: auto; }
-            .top-bar { font-size: 13px; }
         }
 
         @media print { 
@@ -89,7 +85,7 @@
         </div>
 
         <div class="input-grid">
-            <div><label>গাছ নং</label><input type="number" id="tNo" value="1"></div>
+            <div><label>গাছ নং</label><input type="number" id="tNo" value="1" oninput="resetPieceNo()"></div>
             <div><label>পিস নং</label><input type="number" id="pNo" value="1"></div>
             <div><label>ধরণ</label>
                 <select id="type" onchange="toggleInputs()">
@@ -112,10 +108,9 @@
     </div>
 
     <div id="history-panel" class="no-print" style="display:none;">
-        <h3>History</h3>
         <div style="overflow-x: auto;">
             <table style="width:100%; border-collapse:collapse; text-align:center; font-size: 13px;">
-                <thead><tr style="background:#eee;"><th>তারিখ</th><th>ধরণ</th><th>পিস</th><th>CFT</th><th>Action</th></tr></thead>
+                <thead><tr style="background:#eee;"><th>তারিখ</th><th>ধরণ</th><th>পিস</th><th>CFT</th><th>User</th><th>Action</th></tr></thead>
                 <tbody id="hist-list"></tbody>
             </table>
         </div>
@@ -132,6 +127,7 @@
     let editIdx = -1;
     let savedPass = localStorage.getItem('appPassword') || "1234";
 
+    // অটো লগইন চেক
     window.onload = function() {
         if(currentUser) {
             document.getElementById('login-screen').style.display = 'none';
@@ -139,6 +135,11 @@
             document.getElementById('active-user').innerText = currentUser;
             renderPages();
         }
+    }
+
+    // গাছ নং পরিবর্তন করলে পিস নং ১ হয়ে যাবে
+    function resetPieceNo() {
+        document.getElementById('pNo').value = 1;
     }
 
     function login() {
@@ -219,6 +220,7 @@
         let list = (type === 'log') ? itemsLog : itemsGas;
         if(list.length === 0) return alert("ডাটা নেই!");
         let total = list.reduce((a, b) => a + b.cft, 0).toFixed(2);
+        // ইউজারের নামসহ সেভ হচ্ছে
         history.unshift({ user: currentUser, date: new Date().toLocaleString(), data: [...list], total, type });
         localStorage.setItem('woodHistory', JSON.stringify(history));
         alert("সফলভাবে সেভ হয়েছে!");
@@ -238,11 +240,12 @@
     }
 
     function delItem(idx) { if(confirm("মুছে ফেলবেন?")) { let t = document.getElementById('type').value; if(t==='log') itemsLog.splice(idx,1); else itemsGas.splice(idx,1); renderPages(); } }
+    
     function toggleHistory() {
         const p = document.getElementById('history-panel'); p.style.display = p.style.display==='none'?'block':'none';
         let l = document.getElementById('hist-list'); l.innerHTML = "";
-        history.filter(h => h.user === currentUser).forEach((h, i) => {
-            l.innerHTML += `<tr><td>${h.date}</td><td>${h.type}</td><td>${h.data.length}</td><td>${h.total}</td>
+        history.forEach((h, i) => {
+            l.innerHTML += `<tr><td>${h.date}</td><td>${h.type}</td><td>${h.data.length}</td><td>${h.total}</td><td>${h.user}</td>
                 <td><button onclick="openHist(${i})" style="background:#4caf50; color:white; border:none; padding:4px; border-radius:3px;">Open</button>
                 <button onclick="delHist(${i})" style="background:red; color:white; border:none; padding:4px; border-radius:3px; margin-left:3px;">Del</button></td></tr>`;
         });
