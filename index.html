@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC Wood System - History Edit Pro</title>
+    <title>BFIDC Wood System - Updated Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @page { size: A4; margin: 10mm; }
@@ -31,15 +31,12 @@
         .sub-table { width: 50%; border-collapse: collapse; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 4px; text-align: center; font-size: 11px; height: 26px; }
         
-        /* Delete Button in Table */
         .del-btn { color: red; cursor: pointer; border: none; background: none; font-size: 12px; padding: 0 5px; }
-        .no-print-inline { display: inline-block; }
-
         .summary-box { margin-top: 10px; border: 2.5px solid black; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; font-size: 15px; }
 
         @media print { 
             .no-print, .del-btn, #login-screen, #history-modal { display: none !important; } 
-            .page { margin: 0; border: none; width: 210mm; display: flex !important; } 
+            .page { margin: 0; border: none; width: 210mm; display: flex !important; box-shadow: none; } 
             .table-container { flex-direction: row !important; }
             .sub-table { width: 50% !important; }
         }
@@ -122,7 +119,7 @@
 
     function logout() { sessionStorage.clear(); location.reload(); }
 
-    // Navigation Logic
+    // Navigation
     document.addEventListener('keydown', (e) => {
         const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
         const idx = inputs.indexOf(document.activeElement);
@@ -138,10 +135,11 @@
     });
 
     function toggleInputs() {
-        let isWood = document.getElementById('type').value === 'wood';
+        let type = document.getElementById('type').value;
+        let isWood = (type === 'wood');
         document.getElementById('ve-box').style.display = isWood ? 'block' : 'none';
-        document.getElementById('l1').innerText = isWood ? 'চওড়া' : 'বেড়';
-        renderPages();
+        document.getElementById('l1').innerText = isWood ? 'চওড়া (ইঞ্চি)' : 'বেড় (ইঞ্চি)';
+        renderPages(); // ধরণ বদলালে হেডার আপডেট হবে
     }
 
     function resetPieceNo() { document.getElementById('pNo').value = 1; }
@@ -159,7 +157,7 @@
         document.getElementById('pNo').value++;
         renderPages();
         document.getElementById('v1').value = ""; document.getElementById('v2').value = "";
-        if(document.getElementById('ve')) document.getElementById('ve').value = "";
+        if(ve) document.getElementById('ve').value = "";
         document.getElementById('v1').focus();
     }
 
@@ -172,17 +170,15 @@
 
     function renderPages() {
         const area = document.getElementById('pages-area'); area.innerHTML = "";
-        if (items.length === 0 && area) { area.innerHTML = "<p style='text-align:center; color:#666;'>কোনো ডাটা নেই।</p>"; return; }
-
         let total = 0, trees = new Set();
-        let type = document.getElementById('type').value;
+        let currentType = document.getElementById('type').value;
         let pageCount = Math.ceil(items.length / 60) || 1;
 
         for (let p = 0; p < pageCount; p++) {
             let pageDiv = document.createElement('div'); pageDiv.className = 'page';
             let table = `<div class="table-container">`;
             for (let col = 0; col < 2; col++) {
-                table += `<table class="sub-table"><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>CFT</th><th class="no-print">Action</th></tr>`;
+                table += `<table class="sub-table"><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>CFT</th><th class="no-print">X</th></tr>`;
                 for (let r = 0; r < 30; r++) {
                     let idx = (p*60) + (col*30) + r;
                     if(idx < items.length) {
@@ -192,16 +188,17 @@
                             <td>${itm.tNo}/${itm.pNo}</td>
                             <td>${m}</td>
                             <td>${itm.cft}</td>
-                            <td class="no-print"><button class="del-btn" onclick="deleteItem(${idx})"><i class="fas fa-trash"></i></button></td>
+                            <td class="no-print"><button class="del-btn" onclick="deleteItem(${idx})">×</button></td>
                         </tr>`;
                         total += itm.cft; trees.add(itm.tNo);
                     } else table += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="no-print">&nbsp;</td></tr>`;
                 } table += `</table>`;
             }
 
-            let headerHTML = (type === 'log') 
-                ? `<div style="text-align:center"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের লিস্ট</h3></div>`
-                : `<div style="height: 40px;"></div>`; 
+            // হেডার কন্ডিশন: ধরণ অনুযায়ী লেখা বদলাবে
+            let headerHTML = (currentType === 'log') 
+                ? `<div style="text-align:center"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>`
+                : `<div style="text-align:center"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>সাইজ কাঠের মেজারমেন্ট স্লিপ</h3></div>`; 
 
             pageDiv.innerHTML = headerHTML + table + `</div>`;
             if (p === pageCount - 1) {
@@ -221,7 +218,7 @@
             data: [...items] 
         });
         localStorage.setItem('woodHistory', JSON.stringify(history));
-        alert("History-তে সেভ হয়েছে!");
+        alert("Save Done!");
     }
 
     function showHistory() {
@@ -231,13 +228,10 @@
         else {
             content.innerHTML = history.reverse().map((h, i) => `
                 <div style="border-bottom:1px solid #eee; padding:10px; display:flex; justify-content:space-between; align-items:center;">
+                    <div><div style="font-size:11px;">${h.date} (${h.type})</div></div>
                     <div>
-                        <div style="font-size:12px; font-weight:bold;">${h.date}</div>
-                        <div style="font-size:10px; color:#666;">Type: ${h.type}, Items: ${h.data.length}</div>
-                    </div>
-                    <div>
-                        <button onclick="loadHistory(${history.length-1-i})" style="padding:5px 10px; background:#2e7d32; color:white; border:none; border-radius:4px; font-size:11px; cursor:pointer;">Load/Edit</button>
-                        <button onclick="deleteHistory(${history.length-1-i})" style="padding:5px 10px; background:red; color:white; border:none; border-radius:4px; font-size:11px; cursor:pointer; margin-left:5px;"><i class="fas fa-trash"></i></button>
+                        <button onclick="loadHistory(${history.length-1-i})" style="padding:4px 8px; background:#2e7d32; color:white; border:none; border-radius:4px; font-size:10px;">Load</button>
+                        <button onclick="delHistory(${history.length-1-i})" style="padding:4px 8px; background:red; color:white; border:none; border-radius:4px; font-size:10px; margin-left:4px;">Del</button>
                     </div>
                 </div>`).join('');
         }
@@ -246,17 +240,13 @@
 
     function loadHistory(idx) {
         let history = JSON.parse(localStorage.getItem('woodHistory'));
-        let selected = history[idx];
-        items = [...selected.data]; // ডাটা কপি করে মেইন লিস্টে আনা হলো
-        document.getElementById('type').value = selected.type;
-        toggleInputs(); 
-        renderPages(); 
-        closeHistory();
-        alert("ডাটা লোড হয়েছে। এখন আপনি এডিট বা নতুন যোগ করতে পারবেন।");
+        items = [...history[idx].data];
+        document.getElementById('type').value = history[idx].type;
+        toggleInputs(); renderPages(); closeHistory();
     }
 
-    function deleteHistory(idx) {
-        if(confirm("এই হিস্ট্রিটি স্থায়ীভাবে মুছে ফেলবেন?")) {
+    function delHistory(idx) {
+        if(confirm("হিস্ট্রি মুছে ফেলবেন?")) {
             let history = JSON.parse(localStorage.getItem('woodHistory'));
             history.splice(idx, 1);
             localStorage.setItem('woodHistory', JSON.stringify(history));
@@ -265,15 +255,7 @@
     }
 
     function closeHistory() { document.getElementById('history-modal').style.display = 'none'; }
-    
-    function finishWork() { 
-        if(confirm("সব ডাটা মুছে নতুন কাজ শুরু করবেন? (মুছে ফেলার আগে Save করে নিন)")) { 
-            items=[]; 
-            renderPages(); 
-            document.getElementById('tNo').value = 1;
-            document.getElementById('pNo').value = 1;
-        } 
-    }
+    function finishWork() { if(confirm("সব ডাটা ক্লিয়ার করবেন?")) { items=[]; renderPages(); } }
 </script>
 </body>
 </html>
