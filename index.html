@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC Wood System - Pro Update</title>
+    <title>BFIDC Wood System - Final Fix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @page { size: A4; margin: 10mm; }
@@ -95,7 +95,6 @@
 
 <script>
     let items = [];
-    // ডিফল্ট লগইন আইডি admin এবং পাসওয়ার্ড 1234 সেট করা হয়েছে
     let masterUser = localStorage.getItem('masterUser') || "admin";
     let masterPass = localStorage.getItem('masterPass') || "1234";
 
@@ -106,7 +105,7 @@
             sessionStorage.setItem('sessionActive', 'true');
             sessionStorage.setItem('sessionUser', id);
             showMain(id);
-        } else { alert("ভুল আইডি বা পাসওয়ার্ড! ডিফল্ট: admin / 1234"); }
+        } else { alert("ভুল আইডি বা পাসওয়ার্ড!"); }
     }
 
     function showMain(user) {
@@ -120,7 +119,7 @@
 
     function logout() { sessionStorage.clear(); location.reload(); }
 
-    // Navigation (Arrow Keys & Enter)
+    // Navigation
     document.addEventListener('keydown', (e) => {
         const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
         const idx = inputs.indexOf(document.activeElement);
@@ -140,7 +139,7 @@
         let isWood = (type === 'wood');
         document.getElementById('ve-box').style.display = isWood ? 'block' : 'none';
         document.getElementById('l1').innerText = isWood ? 'চওড়া (ইঞ্চি)' : 'বেড় (ইঞ্চি)';
-        renderPages(); // ধরণ বদলালে হেডার টেক্সট আপডেট হবে
+        renderPages(); // ধরণ বদলালে শুধু ওই ধরণের ডাটা দেখাবে
     }
 
     function resetPieceNo() { document.getElementById('pNo').value = 1; }
@@ -152,7 +151,6 @@
         let type = document.getElementById('type').value;
         if(!v1 || !v2) return;
 
-        // গোল কাঠের সূত্র: (বেড়/৪)^২ * লম্বা / ১৪৪ | সাইজ কাঠের সূত্র: চওড়া * পুরুত্ব * লম্বা / ১৪৪
         let cft = (type === 'log') ? (Math.pow((v1/4), 2)*v2)/144 : (v1*ve*v2)/144;
         items.push({ tNo: document.getElementById('tNo').value, pNo: document.getElementById('pNo').value, type, v1, v2, ve, cft: parseFloat(cft.toFixed(2)) });
         
@@ -165,6 +163,7 @@
 
     function deleteItem(index) {
         if(confirm("এই পিসটি মুছে ফেলবেন?")) {
+            // আসল ইন্ডেক্স খুঁজে ডিলিট করা
             items.splice(index, 1);
             renderPages();
         }
@@ -172,9 +171,13 @@
 
     function renderPages() {
         const area = document.getElementById('pages-area'); area.innerHTML = "";
-        let total = 0, trees = new Set();
         let currentType = document.getElementById('type').value;
-        let pageCount = Math.ceil(items.length / 60) || 1;
+        
+        // বর্তমান টাইপ অনুযায়ী ডাটা ফিল্টার করা
+        let filteredItems = items.filter(itm => itm.type === currentType);
+        
+        let total = 0, trees = new Set();
+        let pageCount = Math.ceil(filteredItems.length / 60) || 1;
 
         for (let p = 0; p < pageCount; p++) {
             let pageDiv = document.createElement('div'); pageDiv.className = 'page';
@@ -183,30 +186,39 @@
                 table += `<table class="sub-table"><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>CFT</th><th class="no-print">X</th></tr>`;
                 for (let r = 0; r < 30; r++) {
                     let idx = (p*60) + (col*30) + r;
-                    if(idx < items.length) {
-                        let itm = items[idx];
+                    if(idx < filteredItems.length) {
+                        let itm = filteredItems[idx];
+                        // আসল items লিস্টের ইনডেক্স খুঁজে বের করা (ডিলিট করার জন্য)
+                        let realIdx = items.indexOf(itm);
                         let m = itm.type === 'log' ? `${itm.v1}"x${itm.v2}'` : `${itm.v1}"x${itm.ve}"x${itm.v2}'`;
                         table += `<tr>
                             <td>${itm.tNo}/${itm.pNo}</td>
                             <td>${m}</td>
                             <td>${itm.cft}</td>
-                            <td class="no-print"><button class="del-btn" onclick="deleteItem(${idx})">×</button></td>
+                            <td class="no-print"><button class="del-btn" onclick="deleteItem(${realIdx})">×</button></td>
                         </tr>`;
                         total += itm.cft; trees.add(itm.tNo);
                     } else table += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="no-print">&nbsp;</td></tr>`;
                 } table += `</table>`;
             }
 
-            // হেডার টেক্সট কন্ডিশন
-            let titleText = (currentType === 'log') ? "গোল কাঠের মেজারমেন্ট স্লিপ" : "সাইজ কাঠের মেজারমেন্ট স্লিপ";
-            let headerHTML = `<div style="text-align:center">
-                                <h2>বিএফআইডিসি, কাপ্তাই</h2>
-                                <h3>${titleText}</h3>
-                             </div>`;
+            // হেডার: আপনার দেওয়া ছবির মতো হুবহু
+            let headerHTML = "";
+            if(currentType === 'log') {
+                headerHTML = `<div style="text-align:center">
+                    <h2 style="margin:5px 0;">বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2>
+                    <h3 style="margin:5px 0; border-bottom:1px solid black; display:inline-block; padding:0 20px;">গোল কাঠের মেজারমেন্ট স্লিপ</h3>
+                </div>`;
+            } else {
+                headerHTML = `<div style="text-align:center">
+                    <h2 style="margin:5px 0;">বিএফআইডিসি, কাপ্তাই</h2>
+                    <h3 style="margin:5px 0; border-bottom:1px solid black; display:inline-block; padding:0 20px;">সাইজ কাঠের মেজারমেন্ট স্লিপ</h3>
+                </div>`;
+            }
 
             pageDiv.innerHTML = headerHTML + table + `</div>`;
             if (p === pageCount - 1) {
-                pageDiv.innerHTML += `<div class="summary-box"><span>গাছ: ${trees.size}</span><span>পিস: ${items.length}</span><span>মোট: ${total.toFixed(2)} CFT</span></div>`;
+                pageDiv.innerHTML += `<div class="summary-box"><span>গাছ: ${trees.size}</span><span>পিস: ${filteredItems.length}</span><span>মোট: ${total.toFixed(2)} CFT</span></div>`;
             }
             area.appendChild(pageDiv);
         }
@@ -222,47 +234,29 @@
             data: [...items] 
         });
         localStorage.setItem('woodHistory', JSON.stringify(history));
-        alert("হিস্ট্রিতে সেভ হয়েছে!");
+        alert("সেভ হয়েছে!");
     }
 
     function showHistory() {
         let history = JSON.parse(localStorage.getItem('woodHistory') || "[]");
         let content = document.getElementById('history-content');
-        if(history.length === 0) { content.innerHTML = "হিস্ট্রি খালি।"; }
-        else {
-            content.innerHTML = history.reverse().map((h, i) => `
-                <div style="border-bottom:1px solid #eee; padding:10px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><div style="font-size:11px; font-weight:bold;">${h.date}</div><div style="font-size:10px;">Type: ${h.type} | Items: ${h.data.length}</div></div>
-                    <div>
-                        <button onclick="loadHistory(${history.length-1-i})" style="padding:4px 8px; background:#2e7d32; color:white; border:none; border-radius:4px; font-size:10px;">Load</button>
-                        <button onclick="delHistory(${history.length-1-i})" style="padding:4px 8px; background:red; color:white; border:none; border-radius:4px; font-size:10px; margin-left:4px;">Del</button>
-                    </div>
-                </div>`).join('');
-        }
+        content.innerHTML = history.length === 0 ? "খালি" : history.reverse().map((h, i) => `
+            <div style="border-bottom:1px solid #eee; padding:8px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:11px;">${h.date} (${h.type})</span>
+                <button onclick="loadHistory(${history.length-1-i})" style="padding:4px 8px; background:#2e7d32; color:white; border:none; border-radius:4px; font-size:10px;">Load</button>
+            </div>`).join('');
         document.getElementById('history-modal').style.display = 'flex';
     }
 
     function loadHistory(idx) {
         let history = JSON.parse(localStorage.getItem('woodHistory'));
-        let selected = history[idx];
-        items = [...selected.data];
-        document.getElementById('type').value = selected.type;
-        toggleInputs(); 
-        renderPages(); 
-        closeHistory();
-    }
-
-    function delHistory(idx) {
-        if(confirm("হিস্ট্রি ডিলিট করবেন?")) {
-            let history = JSON.parse(localStorage.getItem('woodHistory'));
-            history.splice(idx, 1);
-            localStorage.setItem('woodHistory', JSON.stringify(history));
-            showHistory();
-        }
+        items = [...history[idx].data];
+        document.getElementById('type').value = history[idx].type;
+        toggleInputs(); renderPages(); closeHistory();
     }
 
     function closeHistory() { document.getElementById('history-modal').style.display = 'none'; }
-    function finishWork() { if(confirm("সব ডাটা মুছে ফেলবেন? (মুছার আগে সেভ করে নিন)")) { items=[]; renderPages(); } }
+    function finishWork() { if(confirm("সব ডাটা ক্লিয়ার করবেন?")) { items=[]; renderPages(); } }
 </script>
 </body>
 </html>
