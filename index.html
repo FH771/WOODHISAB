@@ -22,19 +22,19 @@
         .sub-table:first-child { border-right: 2px solid black; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 3px; text-align: center; font-size: 11px; height: 22px; }
         
-        /* বিশেষ সামারি বক্স */
+        /* সামারি বক্স */
         .summary-box { 
             margin-top: 20px; 
             padding: 15px; 
             border: 2px solid #000; 
-            background: #f9f9f9;
+            background: #fff;
             text-align: left;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
-            line-height: 1.8;
+            line-height: 2;
         }
-        .warning-text { color: red; font-weight: bold; animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
+        .warning-text { color: red; font-weight: bold; }
+        #alert-msg { display:none; background: #ffcccc; color: #cc0000; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 10px; font-weight: bold; }
 
         @media print {
             .no-print { display: none !important; }
@@ -47,11 +47,10 @@
 
 <div class="no-print">
     <h3 style="text-align:center; margin-top:0;">বিএফআইডিসি কাঠের হিসাব এন্ট্রি</h3>
-    <div id="alert-box" style="display:none; background: #ffebee; border: 1px solid red; color: red; padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: center; font-weight: bold;">
-        ⚠️ সাবধান: সর্বমোট ঘনফুট ৪৩০ অতিক্রম করেছে!
-    </div>
+    <div id="alert-msg">⚠️ সাবধান: মোট ঘনফুট ৪৩০ অতিক্রম করেছে!</div>
+    
     <div class="input-grid">
-        <div><label>গ্যাস নং</label><input type="number" id="gasNo" value="154" onchange="updateSL()"></div>
+        <div><label>গাছ নং</label><input type="number" id="treeNo" value="154" onchange="updateSL()"></div>
         <div><label>লগ নং</label><input type="number" id="logNo" value="1" onchange="updateSL()"></div>
         <div><label>ক্র.নং (SL)</label><input type="text" id="slNo" value="154/1" readonly style="background:#eee;"></div>
         <div>
@@ -79,9 +78,9 @@
     const rowsPerCol = 40;
 
     function updateSL() {
-        let g = document.getElementById('gasNo').value;
+        let t = document.getElementById('treeNo').value;
         let l = document.getElementById('logNo').value;
-        document.getElementById('slNo').value = g + "/" + l;
+        document.getElementById('slNo').value = t + "/" + l;
     }
 
     function toggleInputs() {
@@ -108,28 +107,24 @@
             items.push({ 
                 sl, type, v1, v2, vextra, 
                 cft: parseFloat(cft.toFixed(2)),
-                gNo: document.getElementById('gasNo').value
+                tNo: document.getElementById('treeNo').value
             });
             
             document.getElementById('logNo').value = parseInt(document.getElementById('logNo').value) + 1;
             updateSL();
             renderPages();
-            checkLimit(); // ৪৩০ CFT চেক
             
+            // ৪৩০ সিএফটি চেক
+            let currentTotal = items.reduce((s, i) => s + i.cft, 0);
+            if(currentTotal >= 430) {
+                document.getElementById('alert-msg').style.display = 'block';
+                alert("সাবধান: ৪৩০ সিএফটি পূর্ণ হয়ে গেছে!");
+            }
+
             document.getElementById('val1').value = "";
             document.getElementById('val2').value = "";
             document.getElementById('valExtra').value = "";
             document.getElementById('val1').focus();
-        }
-    }
-
-    function checkLimit() {
-        let total = items.reduce((sum, itm) => sum + itm.cft, 0);
-        if (total >= 430) {
-            document.getElementById('alert-box').style.display = "block";
-            alert("⚠️ সতর্কতা: আপনার সর্বমোট ঘনফুট ৪৩০ অতিক্রম করেছে!");
-        } else {
-            document.getElementById('alert-box').style.display = "none";
         }
     }
 
@@ -139,13 +134,13 @@
         
         let totalCFT = 0;
         let totalLogs = 0;
-        let uniqueGases = new Set();
+        let uniqueTrees = new Set();
         let pageCount = Math.max(1, Math.ceil(items.length / rowsPerPage));
 
         for (let p = 0; p < pageCount; p++) {
             let pageDiv = document.createElement('div');
             pageDiv.className = 'page';
-            let html = `<div class="header-text"><strong>বিএফআইডিসি, .....................................................</strong><br>কাঠের সাইজ লিস্ট</div><div class="table-container">`;
+            let header = `<div class="header-text"><strong>বিএফআইডিসি, .....................................................</strong><br>রাবার বাগান হতে বিএফআইডিসি, এলপিসি, কাপ্তাই প্রেরণের জন্য কাঠের সাইজ লিস্ট।</div><div class="table-container">`;
             let tables = ['<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>', '<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>'];
             
             for (let r = 0; r < rowsPerCol; r++) {
@@ -157,21 +152,21 @@
                         tables[colIdx] += `<tr><td>${itm.sl}</td><td>${m}</td><td>${itm.cft}</td></tr>`;
                         totalCFT += itm.cft;
                         if(itm.type === 'log') totalLogs++;
-                        uniqueGases.add(itm.gNo);
+                        uniqueTrees.add(itm.tNo);
                     } else {
                         tables[colIdx] += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
                     }
                 });
             }
-            pageDiv.innerHTML = html + tables[0] + "</tbody></table>" + tables[1] + "</tbody></table></div>";
+            pageDiv.innerHTML = header + tables[0] + "</tbody></table>" + tables[1] + "</tbody></table></div>";
             
             if (p === pageCount - 1) {
                 pageDiv.innerHTML += `
                 <div class="summary-box">
-                    হিসাব বিবরণী:<br>
-                    ---------------------------<br>
-                    ১. মোট গ্যাসের সংখ্যা: ${uniqueGases.size} টি (${Array.from(uniqueGases).join(', ')}) <br>
-                    ২. মোট লগের সংখ্যা: ${totalLogs} টি <br>
+                    হিসাব সারসংক্ষেপ:<br>
+                    ---------------------------------------<br>
+                    ১. মোট গাছ (Tree) সংখ্যা: ${uniqueTrees.size} টি (${Array.from(uniqueTrees).join(', ')}) <br>
+                    ২. মোট লগ (Log) সংখ্যা: ${totalLogs} টি <br>
                     ৩. সর্বমোট ঘনফুট (CFT): <span class="${totalCFT >= 430 ? 'warning-text' : ''}">${totalCFT.toFixed(2)}</span>
                 </div>`;
             }
