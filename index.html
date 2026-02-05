@@ -5,44 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>কাঠের সাইজ লিস্ট - BFIDC</title>
     <style>
-        /* পাসওয়ার্ড স্ক্রিন স্টাইল */
+        /* পাসওয়ার্ড স্ক্রিন */
         #login-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #2e7d32; display: flex; justify-content: center; align-items: center; z-index: 9999; 
+            background: #2e7d32; display: flex; justify-content: center; align-items: center; z-index: 10000; 
         }
         .login-box { background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 300px; }
-        .login-box h2 { margin: 0 0 20px; color: #333; font-size: 24px; }
         .login-box input { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #ddd; border-radius: 6px; font-size: 18px; text-align: center; box-sizing: border-box; }
-        .login-box button { background: #1976d2; color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; }
+        .login-box button { background: #1976d2; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+
+        /* মেইন কন্টেন্ট */
+        #main-wrapper { display: none; }
         
-        /* মেইন কন্টেন্ট স্টাইল */
-        #main-content { display: none; padding: 10px; } /* লগইন না হওয়া পর্যন্ত লুকানো থাকবে */
-        
-        body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; margin: 0; }
+        body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; margin: 0; padding: 10px; }
         .no-print { background: white; padding: 20px; max-width: 950px; margin: 0 auto 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; }
         input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
         .btn-row { display: flex; gap: 10px; }
         .add-btn { background: #2e7d32; color: white; border: none; padding: 12px; flex: 2; cursor: pointer; border-radius: 4px; font-weight: bold; }
         .print-btn { background: #1976d2; color: white; border: none; padding: 12px; flex: 1; border-radius: 4px; cursor: pointer; }
         
+        /* প্রিন্ট লেআউট */
         .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm; margin: 20px auto; box-sizing: border-box; border: 1px solid #ddd; page-break-after: always; }
-        .header-text { text-align: center; margin-bottom: 15px; font-size: 14px; line-height: 1.5; }
+        .header-text { text-align: center; margin-bottom: 15px; font-size: 15px; line-height: 1.6; font-weight: bold; min-height: 40px; }
         .table-container { display: flex; border: 1px solid black; min-height: 800px; }
         .sub-table { width: 50%; border-collapse: collapse; align-self: flex-start; }
         .sub-table:first-child { border-right: 2px solid black; }
-        .sub-table th, .sub-table td { border: 1px solid black; padding: 3px; text-align: center; font-size: 11px; height: 22px; }
+        .sub-table th, .sub-table td { border: 1px solid black; padding: 3px; text-align: center; font-size: 12px; height: 24px; }
         
         .summary-box { margin-top: 20px; padding: 15px; border: 2px solid #000; background: #fff; text-align: left; font-size: 15px; font-weight: bold; line-height: 2; }
-        .warning-text { color: red; font-weight: bold; }
         #alert-msg { display:none; background: #ffcccc; color: #cc0000; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 10px; font-weight: bold; }
 
-        @media print { 
-            .no-print, #login-screen { display: none !important; } 
-            #main-content { display: block !important; padding: 0; }
-            body { background: white; } 
-            .page { margin: 0; border: none; width: 100%; box-shadow: none; } 
+        @media print {
+            #login-screen, .no-print { display: none !important; }
+            #main-wrapper { display: block !important; }
+            body { background: white; padding: 0; }
+            .page { margin: 0; border: none; width: 100%; box-shadow: none; }
         }
     </style>
 </head>
@@ -52,11 +51,11 @@
     <div class="login-box">
         <h2>BFIDC কাপ্তাই</h2>
         <input type="password" id="passInput" placeholder="পাসওয়ার্ড দিন">
-        <button onclick="checkPass()">LOGIN</button>
+        <button onclick="checkPass()">Login</button>
     </div>
 </div>
 
-<div id="main-content">
+<div id="main-wrapper">
     <div class="no-print">
         <h3 style="text-align:center; margin-top:0;">বিএফআইডিসি কাঠের হিসাব এন্ট্রি</h3>
         <div id="alert-msg">⚠️ সাবধান: মোট ঘনফুট ৪৩০ অতিক্রম করেছে!</div>
@@ -85,22 +84,16 @@
 </div>
 
 <script>
-    // এখানে আপনার পাসওয়ার্ড সেট করুন
     const MY_PASSWORD = "1234"; 
 
     function checkPass() {
-        let input = document.getElementById('passInput').value;
-        if (input === MY_PASSWORD) {
+        if (document.getElementById('passInput').value === MY_PASSWORD) {
             document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-        } else {
-            alert("ভুল পাসওয়ার্ড!");
-        }
+            document.getElementById('main-wrapper').style.display = 'block';
+        } else { alert("ভুল পাসওয়ার্ড!"); }
     }
 
-    document.getElementById("passInput").addEventListener("keyup", function(e) {
-        if (e.key === "Enter") checkPass();
-    });
+    document.getElementById("passInput").addEventListener("keyup", (e) => { if (e.key === "Enter") checkPass(); });
 
     let items = [];
     const rowsPerPage = 80;
@@ -133,10 +126,8 @@
         if (cft > 0) {
             items.push({ sl, type, v1, v2, vextra, cft: parseFloat(cft.toFixed(2)), tNo: (type === 'log') ? document.getElementById('treeNo').value : null });
             document.getElementById('logNo').value = parseInt(document.getElementById('logNo').value) + 1;
-            updateSL();
-            renderPages();
-            let currentTotal = items.reduce((s, i) => s + i.cft, 0);
-            if(currentTotal >= 430) document.getElementById('alert-msg').style.display = 'block';
+            updateSL(); renderPages();
+            if(items.reduce((s, i) => s + i.cft, 0) >= 430) document.getElementById('alert-msg').style.display = 'block';
             document.getElementById('val1').value = ""; document.getElementById('val2').value = ""; document.getElementById('valExtra').value = ""; document.getElementById('val1').focus();
         }
     }
@@ -150,8 +141,18 @@
         for (let p = 0; p < pageCount; p++) {
             let pageDiv = document.createElement('div');
             pageDiv.className = 'page';
-            let header = `<div class="header-text"><strong>বিএফআইডিসি, কাপ্তাই</strong><br>রাবার বাগান হতে বিএফআইডিসি, এলপিসি, কাপ্তাই প্রেরণের জন্য কাঠের সাইজ লিস্ট।</div><div class="table-container">`;
+            
+            // লজিক: যদি গোল কাঠ হয় তবে হেডার থাকবে, সাইজ কাঠ হলে হেডার খালি থাকবে
+            let headerContent = "";
+            let firstItemType = items[0] ? items[0].type : 'log';
+            
+            if (firstItemType === 'log') {
+                headerContent = `বিএফআইডিসি, ..................................................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি, কাপ্তাই প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট। `;
+            }
+
+            let header = `<div class="header-text">${headerContent}</div><div class="table-container">`;
             let tables = ['<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>', '<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>'];
+            
             for (let r = 0; r < rowsPerCol; r++) {
                 [0, rowsPerCol].forEach((offset, colIdx) => {
                     let idx = (p * rowsPerPage) + offset + r;
@@ -165,8 +166,9 @@
                 });
             }
             pageDiv.innerHTML = header + tables[0] + "</tbody></table>" + tables[1] + "</tbody></table></div>";
+            
             if (p === pageCount - 1) {
-                pageDiv.innerHTML += `<div class="summary-box">হিসাব সারসংক্ষেপ:<br>---------------------------------------<br>১. মোট গাছ (Tree) সংখ্যা: ${uniqueTrees.size} টি <br>২. মোট লগ (Log) সংখ্যা: ${totalLogs} টি <br>৩. সর্বমোট ঘনফুট (CFT): <span class="${totalCFT >= 430 ? 'warning-text' : ''}">${totalCFT.toFixed(2)}</span></div>`;
+                pageDiv.innerHTML += `<div class="summary-box">হিসাব সারসংক্ষেপ:<br>---------------------------------------<br>১. মোট গাছ (Tree) সংখ্যা: ${uniqueTrees.size} টি <br>২. মোট পিস সংখ্যা: ${items.length} টি <br>৩. সর্বমোট ঘনফুট (CFT): <span class="${totalCFT >= 430 ? 'warning-text' : ''}">${totalCFT.toFixed(2)}</span></div>`;
             }
             container.appendChild(pageDiv);
         }
