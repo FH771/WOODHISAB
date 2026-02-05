@@ -3,32 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC Wood System - Keyboard Navigation Final</title>
+    <title>BFIDC Wood System - Auto Logout Pro</title>
     <style>
         @page { size: A4; margin: 10mm; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1b5e20; margin: 0; padding: 0; }
+        
+        /* Login UI */
         #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; padding: 15px; }
         .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 100%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        .login-box button { background: #2e7d32; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .login-box h2 { color: #2e7d32; margin-bottom: 20px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; outline: none; }
+        .login-box button { background: #2e7d32; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+
         #main-wrapper { display: none; background: #f0f2f5; min-height: 100vh; padding-top: 10px; }
         .no-print { background: white; padding: 20px; max-width: 980px; margin: 0 auto 10px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 95%; box-sizing: border-box; }
+        
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; flex-wrap: wrap; gap: 10px; }
+        
+        /* Input Grid */
         .input-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 15px; }
         .input-grid label { font-size: 12px; font-weight: bold; display: block; margin-bottom: 4px; }
         .input-grid input, .input-grid select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-        .input-grid input:focus, .input-grid select:focus { border-color: #2e7d32; outline: none; background: #e8f5e9; box-shadow: 0 0 5px rgba(46, 125, 50, 0.5); }
+        .input-grid input:focus, .input-grid select:focus { border-color: #2e7d32; outline: none; background: #e8f5e9; }
+
+        /* Buttons Grid */
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-group button { flex: 1; min-width: 100px; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; font-size: 14px; }
+        
+        /* Page Design */
         .page { background: white; width: 210mm; min-height: 297mm; padding: 12mm; margin: 10px auto; box-sizing: border-box; display: flex; flex-direction: column; box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative; }
         .header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid black; padding-bottom: 10px; }
+        
         .table-container { display: flex; border: 1.5px solid black; flex-grow: 1; }
         .sub-table { width: 50%; border-collapse: collapse; }
         .sub-table:first-child { border-right: 1.5px solid black; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 4px; text-align: center; font-size: 11px; height: 24px; }
+        
         .summary-box { margin-top: 10px; border: 2px solid black; padding: 10px; font-weight: bold; display: flex; justify-content: space-between; font-size: 13px; background: #fff; }
-        @media screen and (max-width: 768px) { .input-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media print { .no-print, #history-panel { display: none !important; } .page { margin: 0; box-shadow: none; border: none; } }
+
+        @media screen and (max-width: 768px) {
+            .input-grid { grid-template-columns: repeat(2, 1fr); }
+            .btn-group button { flex: 1 1 45%; }
+            .page { width: 98%; padding: 5mm; height: auto; min-height: auto; }
+        }
+
+        @media print { 
+            .no-print, #history-panel { display: none !important; }
+            .page { margin: 0; box-shadow: none; border: none; width: 210mm; } 
+        }
     </style>
 </head>
 <body>
@@ -45,11 +67,11 @@
 <div id="main-wrapper">
     <div class="no-print">
         <div class="top-bar">
-            <span>ব্যবহারকারী: <strong id="active-user"></strong></span>
-            <div><button onclick="logout()" style="background:#333; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">Logout</button></div>
+            <span>ইউজার: <strong id="active-user"></strong></span>
+            <button onclick="logout()" style="background:#333; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">Logout</button>
         </div>
 
-        <div class="input-grid" id="mainInputGrid">
+        <div class="input-grid">
             <div><label>গাছ নং</label><input type="number" id="tNo" value="1" oninput="resetPieceNo()" class="nav-item"></div>
             <div><label>পিস নং</label><input type="number" id="pNo" value="1" class="nav-item"></div>
             <div><label>ধরণ</label>
@@ -74,10 +96,42 @@
 </div>
 
 <script>
-    let itemsLog = [], itemsGas = [], history = JSON.parse(localStorage.getItem('woodHistory')) || [];
-    let currentUser = localStorage.getItem('activeUser') || "", savedPass = localStorage.getItem('appPassword') || "1234";
+    let itemsLog = [], itemsGas = [];
+    // গুরুত্বপূর্ণ: sessionStorage ব্যবহার করা হয়েছে যাতে ট্যাব বন্ধ করলে লগআউট হয়
+    let currentUser = sessionStorage.getItem('activeUser') || "";
+    let savedPass = localStorage.getItem('appPassword') || "1234";
 
-    // কিবোর্ড নেভিগেশন লজিক
+    window.onload = function() {
+        if(currentUser) {
+            showMain();
+        }
+    }
+
+    function login() {
+        const id = document.getElementById('userId').value.trim();
+        const pass = document.getElementById('passInput').value;
+        if (pass === savedPass && id !== "") {
+            sessionStorage.setItem('activeUser', id);
+            currentUser = id;
+            showMain();
+        } else {
+            alert("ভুল আইডি বা পাসওয়ার্ড!");
+        }
+    }
+
+    function logout() {
+        sessionStorage.removeItem('activeUser');
+        location.reload();
+    }
+
+    function showMain() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-wrapper').style.display = 'block';
+        document.getElementById('active-user').innerText = currentUser;
+        renderPages();
+    }
+
+    // Keyboard Navigation
     document.addEventListener('keydown', function(e) {
         const active = document.activeElement;
         const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
@@ -87,39 +141,17 @@
             if (e.key === "ArrowRight") {
                 e.preventDefault();
                 if (index < inputs.length - 1) inputs[index + 1].focus();
-            } 
-            else if (e.key === "ArrowLeft") {
+            } else if (e.key === "ArrowLeft") {
                 e.preventDefault();
                 if (index > 0) inputs[index - 1].focus();
-            } 
-            else if (e.key === "Enter") {
+            } else if (e.key === "Enter") {
                 e.preventDefault();
                 addItem();
             }
-            // ধরণ বক্সে থাকাকালীন Up/Down অ্যারো দিয়ে অপশন পরিবর্তন হবে
-            // কিন্তু Left/Right দিয়ে শুধু বক্স পরিবর্তন হবে।
         }
     });
 
-    window.onload = function() {
-        if(currentUser) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-wrapper').style.display = 'block';
-            document.getElementById('active-user').innerText = currentUser;
-            renderPages();
-        }
-    }
-
     function resetPieceNo() { document.getElementById('pNo').value = 1; }
-
-    function login() {
-        const id = document.getElementById('userId').value.trim();
-        const pass = document.getElementById('passInput').value;
-        if (pass === savedPass) { currentUser = id; localStorage.setItem('activeUser', id); location.reload(); }
-        else { alert("ভুল পাসওয়ার্ড!"); }
-    }
-
-    function logout() { localStorage.removeItem('activeUser'); location.reload(); }
 
     function toggleInputs() {
         let isGas = document.getElementById('type').value === 'gas';
@@ -135,21 +167,30 @@
         let type = document.getElementById('type').value;
         let tNo = document.getElementById('tNo').value;
         let pNo = document.getElementById('pNo').value;
+        
         if(!v1 || !v2) return;
+
         let cft = (type === 'log') ? (Math.pow((v1/4), 2)*v2)/144 : (v1*ve*v2)/144;
         let list = (type === 'log') ? itemsLog : itemsGas;
         list.push({ tNo, pNo, type, v1, v2, ve, cft: parseFloat(cft.toFixed(2)) });
+        
         document.getElementById('pNo').value++;
         renderPages();
-        document.getElementById('v1').value = ""; document.getElementById('v2').value = ""; document.getElementById('ve').value = "";
-        document.getElementById('v1').focus(); // পিস যোগ করে আবার বেড়/চওড়া বক্সে চলে যাবে
+        
+        document.getElementById('v1').value = "";
+        document.getElementById('v2').value = "";
+        document.getElementById('ve').value = "";
+        document.getElementById('v1').focus();
     }
 
     function renderPages() {
-        const area = document.getElementById('pages-area'); area.innerHTML = "";
+        const area = document.getElementById('pages-area');
+        area.innerHTML = "";
         let listType = document.getElementById('type').value;
         let currentItems = (listType === 'log') ? itemsLog : itemsGas;
-        let totalCFT = 0, trees = new Set(), pageCount = Math.ceil(currentItems.length / 60) || 1;
+        let totalCFT = 0, trees = new Set();
+        let pageCount = Math.ceil(currentItems.length / 60) || 1;
+
         for (let p = 0; p < pageCount; p++) {
             let pageDiv = document.createElement('div');
             pageDiv.className = 'page';
@@ -167,13 +208,13 @@
                 }
                 table += `</table>`;
             }
-            pageDiv.innerHTML = `<div class="header"><h2>BFIDC KAPTAI - ${listType.toUpperCase()} LIST</h2></div>` + table + `</div><div class="summary-box"><span>গাছ: ${trees.size}</span><span>পিস: ${currentItems.length}</span><span>মোট CFT: ${totalCFT.toFixed(2)}</span></div>`;
+            pageDiv.innerHTML = `<div class="header"><h3>BFIDC KAPTAI - ${listType.toUpperCase()} LIST</h3></div>` + table + `</div><div class="summary-box"><span>গাছ: ${trees.size}</span><span>পিস: ${currentItems.length}</span><span>মোট CFT: ${totalCFT.toFixed(2)}</span></div>`;
             area.appendChild(pageDiv);
         }
     }
     
     function finishWork() { if(confirm("সব ডাটা ক্লিয়ার করবেন?")) { itemsLog=[]; itemsGas=[]; renderPages(); } }
-    function toggleHistory() { alert("History module active in storage."); }
+    function toggleHistory() { alert("History module is stored in local database."); }
 </script>
 </body>
 </html>
