@@ -15,15 +15,18 @@
         #main-wrapper { display: none; background: #f0f2f5; min-height: 100vh; padding-top: 20px; }
         .no-print { background: white; padding: 25px; max-width: 980px; margin: 0 auto; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        .page { background: white; width: 210mm; height: 297mm; padding: 12mm; margin: 20px auto; box-sizing: border-box; display: flex; flex-direction: column; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .page { background: white; width: 210mm; height: 297mm; padding: 12mm; margin: 20px auto; box-sizing: border-box; display: flex; flex-direction: column; box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative; }
         .header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid black; padding-bottom: 10px; }
-        .page.size-wood-mode .header { display: none; } /* সাইজ কাঠ হলে হেডার হাইড */
+        .page.size-wood-mode .header { display: none; }
         
         .table-container { display: flex; border: 1.5px solid black; flex-grow: 1; }
         .sub-table { width: 50%; border-collapse: collapse; }
         .sub-table:first-child { border-right: 1.5px solid black; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 4px; text-align: center; font-size: 11px; height: 24px; }
         
+        /* নিচের হিসাব বক্স */
+        .summary-box { margin-top: 10px; border: 2px solid black; padding: 10px; font-weight: bold; display: flex; justify-content: space-between; font-size: 13px; background: #fff; }
+
         .btn-edit { background: #0288d1; color: white; border: none; padding: 2px 5px; border-radius: 3px; cursor: pointer; font-size: 10px; margin-right: 2px; }
         .btn-del { background: #d32f2f; color: white; border: none; padding: 2px 5px; border-radius: 3px; cursor: pointer; font-size: 10px; }
         
@@ -61,16 +64,17 @@
             <div><label>লম্বা (ফুট)</label><input type="number" id="v2"></div>
         </div>
         
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button onclick="addItem()" id="addBtn" style="background:#2e7d32; color:white; border:none; padding:12px; border-radius:8px; flex:2; font-weight:bold; cursor:pointer;">তালিকায় যোগ করুন (+)</button>
             <button onclick="manualSave()" style="background:#ff9800; color:white; border:none; padding:12px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">Save</button>
             <button onclick="window.print()" style="background:#1565c0; color:white; border:none; padding:12px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">Print</button>
+            <button onclick="finishWork()" style="background:#d32f2f; color:white; border:none; padding:12px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">Finish</button>
             <button onclick="toggleHistory()" style="background:#607d8b; color:white; border:none; padding:12px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">History</button>
         </div>
     </div>
 
     <div id="history-panel" class="no-print" style="max-width:980px; margin:20px auto; background:white; padding:20px; border-radius:15px; display:none;">
-        <h3>History (এখানে Open ও Delete করা যাবে)</h3>
+        <h3>History (Open & Delete)</h3>
         <table style="width:100%; border-collapse:collapse; text-align:center;">
             <thead><tr style="background:#f4f4f4;"><th>তারিখ</th><th>পিস</th><th>CFT</th><th>অ্যাকশন</th></tr></thead>
             <tbody id="hist-list"></tbody>
@@ -112,7 +116,7 @@
         let cft = (type === 'log') ? (Math.pow((v1/4), 2)*v2)/144 : (v1*ve*v2)/144;
 
         if(cft > 0) {
-            let obj = { tNo, pNo, type, v1, v2, ve, cft: cft.toFixed(2) };
+            let obj = { tNo, pNo, type, v1, v2, ve, cft: parseFloat(cft.toFixed(2)) };
             if(editIdx === -1) {
                 items.push(obj);
                 document.getElementById('pNo').value++;
@@ -123,30 +127,40 @@
                 document.getElementById('addBtn').style.background = "#2e7d32";
             }
             renderPages();
-            document.getElementById('v1').value = ""; 
-            document.getElementById('v2').value = "";
-            document.getElementById('ve').value = "";
+            document.getElementById('v1').value = ""; document.getElementById('v2').value = ""; document.getElementById('ve').value = "";
         }
     }
 
     function manualSave() {
-        if(items.length === 0) return alert("সেভ করার মতো কোনো ডাটা নেই!");
-        let total = items.reduce((a, b) => a + parseFloat(b.cft), 0).toFixed(2);
+        if(items.length === 0) return alert("কোনো ডাটা নেই!");
+        let total = items.reduce((a, b) => a + b.cft, 0).toFixed(2);
         history.unshift({ user: currentUser, date: new Date().toLocaleString(), data: [...items], total, type: document.getElementById('type').value });
         localStorage.setItem('woodHistory', JSON.stringify(history));
-        alert("সফলভাবে সেভ হয়েছে!");
+        alert("সেভ হয়েছে!");
+    }
+
+    function finishWork() {
+        if(items.length === 0) return alert("ট্যাবলে কোনো ডাটা নেই!");
+        if(confirm("কাজ শেষ? এটি সেভ হয়ে টেবিল খালি হয়ে যাবে।")) {
+            manualSave();
+            items = [];
+            document.getElementById('pNo').value = 1;
+            renderPages();
+        }
     }
 
     function renderPages() {
         const area = document.getElementById('pages-area');
         area.innerHTML = "";
         let listType = document.getElementById('type').value;
+        let totalCFT = 0;
+        let trees = new Set();
         let pageCount = Math.ceil(items.length / 60) || 1;
 
         for (let p = 0; p < pageCount; p++) {
             let pageDiv = document.createElement('div');
             pageDiv.className = 'page' + (listType === 'gas' ? ' size-wood-mode' : '');
-            let header = `<div class="header"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই প্রেরণের জন্য</h2><h3>কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3></div>`;
+            let header = `<div class="header"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই প্রেরণের জন্য</h2><h3>জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3></div>`;
             let table = `<div class="table-container">`;
             for (let col = 0; col < 2; col++) {
                 table += `<table class="sub-table"><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>CFT</th></tr>`;
@@ -156,12 +170,23 @@
                         let itm = items[idx];
                         let m = itm.type === 'log' ? `${itm.v1}"x${itm.v2}'` : `${itm.v1}"x${itm.ve}"x${itm.v2}'`;
                         table += `<tr><td>${itm.tNo}/${itm.pNo} <button class="btn-edit" onclick="startEdit(${idx})">E</button><button class="btn-del" onclick="delItem(${idx})">D</button></td><td>${m}</td><td>${itm.cft}</td></tr>`;
+                        totalCFT += itm.cft; trees.add(itm.tNo);
                     } else { table += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`; }
                 }
                 table += `</table>`;
             }
             table += `</div>`;
+            
             pageDiv.innerHTML = header + table;
+            
+            // প্রতিটি পৃষ্ঠার শেষে সামারি বক্স (শুধুমাত্র শেষ পৃষ্ঠায় ডাটা থাকবে)
+            if (p === pageCount - 1) {
+                pageDiv.innerHTML += `<div class="summary-box">
+                    <span>গাছ: ${listType==='log'?trees.size:'0'}</span>
+                    <span>পিস: ${items.length}</span>
+                    <span>মোট CFT: ${totalCFT.toFixed(2)}</span>
+                </div>`;
+            }
             area.appendChild(pageDiv);
         }
     }
@@ -174,7 +199,7 @@
         document.getElementById('ve').value = itm.ve;
         document.getElementById('tNo').value = itm.tNo;
         document.getElementById('pNo').value = itm.pNo;
-        document.getElementById('addBtn').innerText = "Update Now";
+        document.getElementById('addBtn').innerText = "Update";
         document.getElementById('addBtn').style.background = "#0288d1";
     }
 
