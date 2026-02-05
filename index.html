@@ -3,103 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>কাঠের হিসাব ক্যালকুলেটর</title>
+    <title>কাঠের সাইজ লিস্ট - BFIDC</title>
     <style>
-        :root { --primary: #795548; --secondary: #5d4037; --bg: #fdf5e6; }
-        body { font-family: 'Arial', sans-serif; background-color: var(--bg); padding: 20px; color: #333; direction: ltr; }
-        .container { max-width: 450px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e0d5c1; }
-        h2 { text-align: center; color: var(--secondary); margin-bottom: 20px; }
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; background: #eee; padding: 5px; border-radius: 8px; }
-        .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; border-radius: 6px; font-weight: bold; transition: 0.3s; }
-        .tab.active { background: var(--primary); color: white; }
-        .input-group { margin-bottom: 12px; }
-        label { display: block; margin-bottom: 5px; font-size: 14px; color: #666; font-weight: bold; }
-        input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; outline: none; font-size: 16px; }
-        button { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: bold; margin-top: 10px; }
-        .result-box { margin-top: 20px; padding: 15px; background: #f1f8e9; border-left: 5px solid #689f38; border-radius: 4px; display: none; }
-        .res-row { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; font-size: 18px; }
+        body { font-family: 'Arial', sans-serif; background-color: #f0f0f0; margin: 0; padding: 20px; }
+        .no-print { background: white; padding: 20px; max-width: 800px; margin: 0 auto 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .add-btn { background: #2e7d32; color: white; border: none; padding: 12px; width: 100%; font-size: 16px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .print-btn { background: #1976d2; color: white; border: none; padding: 12px; width: 100%; margin-top: 10px; border-radius: 4px; cursor: pointer; }
+
+        /* প্রিন্ট ফরম্যাট */
+        .print-area { background: white; width: 210mm; min-height: 297mm; padding: 20mm; margin: auto; box-sizing: border-box; }
+        .header-text { text-align: center; margin-bottom: 20px; line-height: 1.6; }
+        .header-text h3 { margin: 0; text-decoration: underline; }
+        
+        .main-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .main-table th, .main-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 13px; overflow: hidden; }
+        .main-table th { background: #f2f2f2; }
+
+        .summary { margin-top: 20px; font-weight: bold; text-align: right; font-size: 16px; border-top: 2px solid black; padding-top: 10px; }
+
+        @media print {
+            .no-print { display: none; }
+            body { background: white; padding: 0; }
+            .print-area { margin: 0; border: none; width: 100%; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>কাঠের হিসাব (Log & Gas)</h2>
-    
-    <div class="tabs">
-        <div id="t1" class="tab active" onclick="switchTab('log')">গোল কাঠ (Log)</div>
-        <div id="t2" class="tab" onclick="switchTab('gas')">সাইজ কাঠ (Gas)</div>
-    </div>
-
-    <div id="inputs">
-        <div class="input-group">
-            <label id="label1">বেড় / গোল (ইঞ্চি)</label>
-            <input type="number" id="val1" placeholder="ইঞ্চি লিখুন">
+<div class="no-print">
+    <h2 style="text-align:center; color:#333;">সাইজ এন্ট্রি করুন</h2>
+    <div class="input-grid">
+        <div>
+            <label>ধরণ</label>
+            <select id="type" onchange="toggleInputs()">
+                <option value="log">গোল কাঠ</option>
+                <option value="gas">সাইজ কাঠ</option>
+            </select>
         </div>
-        <div class="input-group" id="extraInput" style="display:none;">
-            <label>পুরুত্ব / মোটু (ইঞ্চি)</label>
-            <input type="number" id="valExtra" placeholder="ইঞ্চি লিখুন">
+        <div id="box1">
+            <label id="label1">বেড় (ইঞ্চি)</label>
+            <input type="number" id="val1" placeholder="ইঞ্চি">
         </div>
-        <div class="input-group">
-            <label id="label2">লম্বা / দৈর্ঘ্য (ফুট)</label>
-            <input type="number" id="val2" placeholder="ফুট লিখুন">
+        <div id="boxExtra" style="display:none;">
+            <label>পুরুত্ব (ইঞ্চি)</label>
+            <input type="number" id="valExtra" placeholder="ইঞ্চি">
         </div>
-        <div class="input-group">
-            <label>প্রতি CFT দাম (টাকা)</label>
-            <input type="number" id="price" placeholder="যেমন: ১২০০">
+        <div>
+            <label>লম্বা (ফুট)</label>
+            <input type="number" id="val2" placeholder="ফুট">
         </div>
     </div>
+    <button class="add-btn" onclick="addItem()">তালিকায় যোগ করুন (+)</button>
+    <button class="print-btn" onclick="window.print()">লিস্ট প্রিন্ট করুন</button>
+</div>
 
-    <button onclick="calculate()">হিসাব করুন</button>
+<div class="print-area" id="printContent">
+    <div class="header-text">
+        <strong>বিএফআইডিসি, .....................................................................</strong><br>
+        রাবার বাগান হতে বিএফআইডিসি, এলপিসি, কাপ্তাই প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।
+    </div>
 
-    <div id="resultBox" class="result-box">
-        <div class="res-row"><span>মোট কাঠ:</span> <span id="resCFT">0.00</span></div>
-        <div class="res-row"><span>মোট দাম:</span> <span id="resPrice">0.00</span></div>
+    <table class="main-table">
+        <thead>
+            <tr>
+                <th>ক্র.নং</th>
+                <th>পরিমাপ</th>
+                <th>ঘনফুট</th>
+                <th>ক্র.নং</th>
+                <th>পরিমাপ</th>
+                <th>ঘনফুট</th>
+                <th>ক্র.নং</th>
+                <th>পরিমাপ</th>
+                <th>ঘনফুট</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+
+    <div class="summary">
+        মোট পিস: <span id="totalPcs">0</span> | মোট ঘনফুট (CFT): <span id="totalCFT">0.00</span>
     </div>
 </div>
 
 <script>
-    let currentMode = 'log';
+    let items = [];
+    let totalCFT = 0;
 
-    function switchTab(mode) {
-        currentMode = mode;
-        document.getElementById('t1').classList.toggle('active', mode === 'log');
-        document.getElementById('t2').classList.toggle('active', mode === 'gas');
-        
-        const label1 = document.getElementById('label1');
-        const extraInput = document.getElementById('extraInput');
-        
-        if(mode === 'log') {
-            label1.innerText = "বেড় / গোল (ইঞ্চি)";
-            extraInput.style.display = "none";
-        } else {
-            label1.innerText = "চওড়া (ইঞ্চি)";
-            extraInput.style.display = "block";
-        }
-        document.getElementById('resultBox').style.display = 'none';
+    function toggleInputs() {
+        let type = document.getElementById('type').value;
+        document.getElementById('boxExtra').style.display = (type === 'gas') ? 'block' : 'none';
+        document.getElementById('label1').innerText = (type === 'gas') ? 'চওড়া (ইঞ্চি)' : 'বেড় (ইঞ্চি)';
     }
 
-    function calculate() {
+    function addItem() {
+        let type = document.getElementById('type').value;
         let v1 = parseFloat(document.getElementById('val1').value) || 0;
         let v2 = parseFloat(document.getElementById('val2').value) || 0;
-        let p = parseFloat(document.getElementById('price').value) || 0;
         let cft = 0;
+        let measure = "";
 
-        if (currentMode === 'log') {
-            // Formula: (Girth/4)^2 * Length / 144
+        if (type === 'log') {
             cft = Math.pow((v1 / 4), 2) * v2 / 144;
+            measure = v1 + '"×' + v2 + "'";
         } else {
-            // Formula: (W * T * L) / 144
             let vextra = parseFloat(document.getElementById('valExtra').value) || 0;
             cft = (v1 * vextra * v2) / 144;
+            measure = v1 + '"×' + vextra + '"×' + v2 + "'";
         }
 
         if (cft > 0) {
-            document.getElementById('resCFT').innerText = cft.toFixed(2) + " CFT";
-            document.getElementById('resPrice').innerText = (cft * p).toFixed(2) + " টাকা";
-            document.getElementById('resultBox').style.display = 'block';
-        }
-    }
-</script>
-
-</body>
-</html>
+            items.push({ measure: measure, cft: cft.toFixed(2) });
+            totalCFT += parseFloat(cft);
+            renderTable
