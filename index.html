@@ -50,8 +50,8 @@
     <div id="alert-msg">⚠️ সাবধান: মোট ঘনফুট ৪৩০ অতিক্রম করেছে!</div>
     
     <div class="input-grid">
-        <div><label>গাছ নং</label><input type="number" id="treeNo" value="1" onchange="updateSL()"></div>
-        <div><label>লগ নং</label><input type="number" id="logNo" value="1" onchange="updateSL()"></div>
+        <div id="treeBox"><label>গাছ নং</label><input type="number" id="treeNo" value="1" onchange="updateSL()"></div>
+        <div><label id="logLabel">লগ নং</label><input type="number" id="logNo" value="1" onchange="updateSL()"></div>
         <div><label>ক্র.নং (SL)</label><input type="text" id="slNo" value="1/1" readonly style="background:#eee;"></div>
         <div>
             <label>ধরণ</label>
@@ -78,15 +78,34 @@
     const rowsPerCol = 40;
 
     function updateSL() {
+        let type = document.getElementById('type').value;
         let t = document.getElementById('treeNo').value;
         let l = document.getElementById('logNo').value;
-        document.getElementById('slNo').value = t + "/" + l;
+        
+        if (type === 'log') {
+            document.getElementById('slNo').value = t + "/" + l;
+        } else {
+            document.getElementById('slNo').value = l;
+        }
     }
 
     function toggleInputs() {
         let type = document.getElementById('type').value;
-        document.getElementById('boxExtra').style.display = (type === 'gas') ? 'block' : 'none';
-        document.getElementById('label1').innerText = (type === 'gas') ? 'চওড়া (ইঞ্চি)' : 'বেড় (ইঞ্চি)';
+        let treeBox = document.getElementById('treeBox');
+        let logLabel = document.getElementById('logLabel');
+        
+        if (type === 'gas') {
+            treeBox.style.visibility = 'hidden'; // সাইজ কাঠে গাছ নং ইনপুট লুকানো
+            logLabel.innerText = 'ক্রমিক নং';
+            document.getElementById('boxExtra').style.display = 'block';
+            document.getElementById('label1').innerText = 'চওড়া (ইঞ্চি)';
+        } else {
+            treeBox.style.visibility = 'visible';
+            logLabel.innerText = 'লগ নং';
+            document.getElementById('boxExtra').style.display = 'none';
+            document.getElementById('label1').innerText = 'বেড় (ইঞ্চি)';
+        }
+        updateSL();
     }
 
     function addItem() {
@@ -107,10 +126,12 @@
             items.push({ 
                 sl, type, v1, v2, vextra, 
                 cft: parseFloat(cft.toFixed(2)),
-                tNo: document.getElementById('treeNo').value
+                tNo: (type === 'log') ? document.getElementById('treeNo').value : 'Sawn'
             });
             
+            // অটো ইনক্রিমেন্ট
             document.getElementById('logNo').value = parseInt(document.getElementById('logNo').value) + 1;
+            
             updateSL();
             renderPages();
             
@@ -118,7 +139,6 @@
             let currentTotal = items.reduce((s, i) => s + i.cft, 0);
             if(currentTotal >= 430) {
                 document.getElementById('alert-msg').style.display = 'block';
-                alert("সাবধান: ৪৩০ সিএফটি পূর্ণ হয়ে গেছে!");
             }
 
             document.getElementById('val1').value = "";
@@ -140,7 +160,7 @@
         for (let p = 0; p < pageCount; p++) {
             let pageDiv = document.createElement('div');
             pageDiv.className = 'page';
-            let header = `<div class="header-text"><strong>বিএফআইডিসি, .....................................................</strong><br>রাবার বাগান হতে বিএফআইডিসি, এলপিসি, কাপ্তাই প্রেরণের জন্য কাঠের সাইজ লিস্ট।</div><div class="table-container">`;
+            let header = `<div class="header-text"><strong>বিএফআইডিসি, কাপ্তাই</strong><br>রাবার বাগান হতে বিএফআইডিসি, এলপিসি, কাপ্তাই প্রেরণের জন্য কাঠের সাইজ লিস্ট।</div><div class="table-container">`;
             let tables = ['<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>', '<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>'];
             
             for (let r = 0; r < rowsPerCol; r++) {
@@ -151,8 +171,10 @@
                         let m = itm.type === 'log' ? `${itm.v1}"×${itm.v2}'` : `${itm.v1}"×${itm.vextra}"×${itm.v2}'`;
                         tables[colIdx] += `<tr><td>${itm.sl}</td><td>${m}</td><td>${itm.cft}</td></tr>`;
                         totalCFT += itm.cft;
-                        if(itm.type === 'log') totalLogs++;
-                        uniqueTrees.add(itm.tNo);
+                        if(itm.type === 'log') {
+                            totalLogs++;
+                            uniqueTrees.add(itm.tNo);
+                        }
                     } else {
                         tables[colIdx] += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
                     }
@@ -166,7 +188,7 @@
                     হিসাব সারসংক্ষেপ:<br>
                     ---------------------------------------<br>
                     ১. মোট গাছ (Tree) সংখ্যা: ${uniqueTrees.size} টি <br>
-                    ২. মোট লগ (Log) সংখ্যা: ${totalLogs} টি <br>
+                    ২. মোট পিস সংখ্যা: ${items.length} টি <br>
                     ৩. সর্বমোট ঘনফুট (CFT): <span class="${totalCFT >= 430 ? 'warning-text' : ''}">${totalCFT.toFixed(2)}</span>
                 </div>`;
             }
