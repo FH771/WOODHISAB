@@ -12,9 +12,9 @@
         input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         .btn-row { display: flex; gap: 10px; }
         .add-btn { background: #2e7d32; color: white; border: none; padding: 12px; flex: 2; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .cancel-btn { background: #757575; color: white; border: none; padding: 12px; flex: 1; cursor: pointer; border-radius: 4px; font-weight: bold; display: none; }
         .print-btn { background: #1976d2; color: white; border: none; padding: 12px; flex: 1; border-radius: 4px; cursor: pointer; }
         
-        /* প্রিন্ট এবং পেজ ফরম্যাট */
         .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm; margin: 20px auto; box-sizing: border-box; border: 1px solid #ddd; page-break-after: always; }
         .header-text { text-align: center; margin-bottom: 15px; font-size: 14px; line-height: 1.5; }
         .table-container { display: flex; border: 1px solid black; min-height: 800px; }
@@ -22,10 +22,9 @@
         .sub-table:first-child { border-right: 2px solid black; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 3px; text-align: center; font-size: 11px; height: 22px; }
         
-        /* UI Buttons */
-        .action-btns { font-size: 9px; display: flex; gap: 2px; justify-content: center; margin-top: 2px; }
-        .edit-btn-ui { color: blue; cursor: pointer; border: 1px solid blue; padding: 0 2px; border-radius: 2px; }
-        .del-btn-ui { color: red; cursor: pointer; border: 1px solid red; padding: 0 2px; border-radius: 2px; }
+        .action-btns { font-size: 9px; display: flex; gap: 4px; justify-content: center; margin-top: 2px; }
+        .edit-btn-ui { color: blue; cursor: pointer; border: 1px solid blue; padding: 0 3px; border-radius: 2px; background: #e3f2fd; }
+        .del-btn-ui { color: red; cursor: pointer; border: 1px solid red; padding: 0 3px; border-radius: 2px; background: #ffebee; }
 
         .summary { margin-top: 10px; font-weight: bold; text-align: right; font-size: 14px; border-top: 2px solid black; padding-top: 5px; }
 
@@ -39,7 +38,7 @@
 <body>
 
 <div class="no-print">
-    <h3 style="text-align:center; margin-top:0;">কাঠের সাইজ লিস্ট (Edit Option সহ)</h3>
+    <h3 style="text-align:center; margin-top:0;">কাঠের সাইজ লিস্ট এন্ট্রি</h3>
     <div class="input-grid">
         <div>
             <label>ক্র.নং (SL)</label>
@@ -67,6 +66,7 @@
     </div>
     <div class="btn-row">
         <button id="submit-btn" class="add-btn" onclick="addItem()">তালিকায় যোগ করুন (+)</button>
+        <button id="cancel-btn" class="cancel-btn" onclick="resetForm()">বাতিল করুন</button>
         <button class="print-btn" onclick="window.print()">লিস্ট প্রিন্ট করুন</button>
     </div>
 </div>
@@ -103,17 +103,25 @@
             let itemData = { sl, type, v1, v2, vextra, cft: cft.toFixed(2) };
             
             if (editIndex === -1) {
+                // নতুন এন্ট্রি হলে নিচে যোগ হবে
                 items.push(itemData);
             } else {
+                // এডিট মুড থাকলে ওই পজিশনে আপডেট হবে
                 items[editIndex] = itemData;
-                editIndex = -1;
-                document.getElementById('submit-btn').innerText = "তালিকায় যোগ করুন (+)";
-                document.getElementById('submit-btn').style.background = "#2e7d32";
+                resetForm();
             }
             
             renderPages();
             clearInputs();
         }
+    }
+
+    function resetForm() {
+        editIndex = -1;
+        document.getElementById('submit-btn').innerText = "তালিকায় যোগ করুন (+)";
+        document.getElementById('submit-btn').style.background = "#2e7d32";
+        document.getElementById('cancel-btn').style.display = "none";
+        clearInputs();
     }
 
     function clearInputs() {
@@ -134,8 +142,9 @@
         
         toggleInputs();
         editIndex = index;
-        document.getElementById('submit-btn').innerText = "আপডেট করুন (Update)";
+        document.getElementById('submit-btn').innerText = "সংশোধন সম্পন্ন করুন";
         document.getElementById('submit-btn').style.background = "#f57c00";
+        document.getElementById('cancel-btn').style.display = "block";
         window.scrollTo(0,0);
     }
 
@@ -155,14 +164,10 @@
         for (let p = 0; p < pageCount; p++) {
             let pageDiv = document.createElement('div');
             pageDiv.className = 'page';
-            
             let html = `<div class="header-text"><strong>বিএফআইডিসি, .....................................................</strong><br>কাঠের সাইজ লিস্ট</div><div class="table-container">`;
-            
-            // Tables Logic
             let tables = ['<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>', '<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>'];
             
             for (let r = 0; r < rowsPerCol; r++) {
-                // Col 1 & 2
                 [0, rowsPerCol].forEach((offset, colIdx) => {
                     let idx = (p * rowsPerPage) + offset + r;
                     if (idx < items.length) {
