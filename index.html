@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC Wood System - Clean UI</title>
+    <title>BFIDC Wood System - Fahad Login</title>
     <style>
         @page { size: A4; margin: 10mm; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1b5e20; margin: 0; padding: 0; }
@@ -14,7 +14,6 @@
         .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         .login-box button { background: #2e7d32; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
         .admin-link { color: #2e7d32; font-size: 13px; cursor: pointer; display: block; margin-top: 15px; text-decoration: none; opacity: 0.7; }
-        .admin-link:hover { opacity: 1; text-decoration: underline; }
 
         #main-wrapper { display: none; background: #f0f2f5; min-height: 100vh; padding: 10px; }
         .no-print { background: white; padding: 20px; max-width: 980px; margin: 0 auto 10px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -45,17 +44,7 @@
         <input type="text" id="loginId" placeholder="User ID">
         <input type="password" id="loginPass" placeholder="Password">
         <button onclick="attemptLogin()">Login</button>
-        <span class="admin-link" onclick="openAdmin()">Settings</span>
-    </div>
-</div>
-
-<div id="admin-panel" style="display:none;">
-    <div class="login-box">
-        <h3>Change Access</h3>
-        <input type="text" id="newUserId" placeholder="New ID">
-        <input type="text" id="newUserPass" placeholder="New Password">
-        <button onclick="saveAdminSettings()">Save Changes</button>
-        <button onclick="closeAdmin()" style="background:#ccc; color:#000; margin-top:5px;">Back</button>
+        <span class="admin-link">পাসওয়ার্ড: 5470</span>
     </div>
 </div>
 
@@ -92,20 +81,20 @@
 <script>
     let itemsLog = [], itemsWood = [];
 
-    // মাস্টার ফাংশন যা আইডি পাসওয়ার্ড চেক করে
-    const getStoredId = () => localStorage.getItem('masterUser') || "admin";
-    const getStoredPass = () => localStorage.getItem('masterPass') || "1234";
+    // আপনার দেওয়া ফিক্সড ইউজার এবং পাসওয়ার্ড
+    const fixedUser = "fahad";
+    const fixedPass = "5470";
 
     function attemptLogin() {
-        const id = document.getElementById('loginId').value.trim();
+        const id = document.getElementById('loginId').value.trim().toLowerCase();
         const pass = document.getElementById('loginPass').value.trim();
         
-        if (id === getStoredId() && pass === getStoredPass()) {
+        if (id === fixedUser && pass === fixedPass) {
             sessionStorage.setItem('sessionActive', 'true');
             sessionStorage.setItem('sessionUser', id);
             showMain(id);
         } else { 
-            alert("ভুল আইডি বা পাসওয়ার্ড!"); 
+            alert("ভুল আইডি বা পাসওয়ার্ড! \nID: fahad \nPass: 5470"); 
         }
     }
 
@@ -122,27 +111,7 @@
 
     function logout() { sessionStorage.clear(); location.reload(); }
 
-    function openAdmin() {
-        let p = prompt("অ্যাডমিন পাসওয়ার্ড দিন:");
-        if(p === getStoredPass()) {
-            document.getElementById('admin-panel').style.display = 'flex';
-        } else { alert("ভুল পাসওয়ার্ড!"); }
-    }
-
-    function saveAdminSettings() {
-        let nUser = document.getElementById('newUserId').value.trim();
-        let nPass = document.getElementById('newUserPass').value.trim();
-        if(nUser && nPass) {
-            localStorage.setItem('masterUser', nUser);
-            localStorage.setItem('masterPass', nPass);
-            alert("আপডেট হয়েছে! নতুন করে লগইন করুন।");
-            logout();
-        }
-    }
-
-    function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
-
-    // কিবোর্ড নেভিগেশন (এন্টার দিলে গাছ নং এ যাবে)
+    // কিবোর্ড এন্টার ফোকাস কন্ট্রোল
     document.addEventListener('keydown', (e) => {
         const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
         const idx = inputs.indexOf(document.activeElement);
@@ -151,8 +120,11 @@
             if(e.key === "ArrowLeft") { e.preventDefault(); inputs[idx-1]?.focus(); }
             if(e.key === "Enter") {
                 e.preventDefault();
-                if (document.activeElement.id === "v2") { addItem(); } 
-                else { inputs[idx+1]?.focus(); }
+                if (document.activeElement.id === "v2") { 
+                    addItem(); 
+                } else { 
+                    inputs[idx+1]?.focus(); 
+                }
             }
         }
     });
@@ -179,10 +151,13 @@
         
         document.getElementById('pNo').value++;
         renderPages();
-        document.getElementById('v1').value = ""; document.getElementById('v2').value = ""; 
+        
+        // ইনপুট ক্লিয়ার
+        document.getElementById('v1').value = ""; 
+        document.getElementById('v2').value = ""; 
         if(document.getElementById('ve')) document.getElementById('ve').value = "";
         
-        // এন্ট্রি হওয়ার পর গাছ নং (tNo) তে কার্সার যাবে
+        // এন্টার দেওয়ার পর গাছ নং এ ফোকাস যাবে
         document.getElementById('tNo').focus(); 
     }
 
