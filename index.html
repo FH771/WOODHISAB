@@ -36,8 +36,10 @@
 
         /* A4 Page */
         .page { background: white; width: 210mm; height: 297mm; padding: 12mm; margin: 15px auto; box-sizing: border-box; border: 1px solid #ddd; page-break-after: always; display: flex; flex-direction: column; }
-        .header { text-align: center; border-bottom: 2px solid black; padding-bottom: 8px; margin-bottom: 15px; }
+        .header { text-align: center; padding-bottom: 8px; margin-bottom: 15px; min-height: 50px; }
         .header h1 { font-size: 15px; margin: 2px; }
+        .has-border { border-bottom: 2px solid black; }
+        
         .table-container { display: flex; border: 1.5px solid black; flex-grow: 1; align-items: flex-start; }
         .sub-table { width: 50%; border-collapse: collapse; }
         .sub-table:first-child { border-right: 1.5px solid black; }
@@ -70,8 +72,8 @@
         </div>
         <div class="input-grid">
             <div id="treeBox"><label>গাছ নং</label><input type="number" id="treeNo" value="1" oninput="updateSL()"></div>
-            <div><label>লগ নং</label><input type="number" id="logNo" value="1" oninput="updateSL()"></div>
-            <div><label>ফুল আইডি</label><input type="text" id="slNo" value="1/1" readonly style="background:#f9f9f9;"></div>
+            <div><label>লগ/পিস নং</label><input type="number" id="logNo" value="1" oninput="updateSL()"></div>
+            <div><label>পূর্নাঙ্গ আইডি</label><input type="text" id="slNo" value="1/1" readonly style="background:#f9f9f9;"></div>
             <div><label>ধরণ</label>
                 <select id="type" onchange="toggleInputs()">
                     <option value="log">গোল কাঠ (Log)</option>
@@ -100,7 +102,7 @@
 
 <script>
     let items = JSON.parse(localStorage.getItem('woodData')) || [];
-    let history = JSON.parse(localStorage.getItem('woodHistory')) || [];
+    let historyData = JSON.parse(localStorage.getItem('woodHistory')) || [];
     let currentUser = "";
     let isAdmin = false;
     let editIdx = -1;
@@ -109,10 +111,8 @@
         const id = document.getElementById('userId').value.trim();
         const pass = document.getElementById('passInput').value;
         if (!id) return alert("User ID দিন");
-        
         currentUser = id;
         isAdmin = (pass === "1234");
-        
         document.getElementById('display-user').innerText = id;
         document.getElementById('display-role').innerText = isAdmin ? "[ADMIN]" : "[USER]";
         document.getElementById('login-screen').style.display = 'none';
@@ -131,8 +131,9 @@
         let isGas = document.getElementById('type').value === 'gas';
         document.getElementById('treeBox').style.display = isGas ? 'none' : 'block';
         document.getElementById('boxExtra').style.display = isGas ? 'block' : 'none';
-        document.getElementById('label1').innerText = isGas ? 'চওড়া' : 'বেড়';
+        document.getElementById('label1').innerText = isGas ? 'চওড়া (ইঞ্চি)' : 'বেড় (ইঞ্চি)';
         updateSL();
+        renderPages(); // হেডার আপডেট করার জন্য
     }
 
     function addItem() {
@@ -163,7 +164,16 @@
 
         for (let p = 0; p < pageCount; p++) {
             let pageDiv = document.createElement('div'); pageDiv.className = 'page';
-            let header = `<div class="header"><h1>বিএফআইডিসি, .................................... রাবার বাগান হতে কাপ্তাই প্রেরণের জন্য</h1><h1>জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h1></div>`;
+            
+            // সাইজ কাঠের জন্য হেডার খালি রাখার লজিক
+            let headerContent = "";
+            let headerClass = "header";
+            if (listType === 'log') {
+                headerContent = `<h1>বিএফআইডিসি, .................................... রাবার বাগান হতে কাপ্তাই প্রেরণের জন্য</h1><h1>জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h1>`;
+                headerClass += " has-border";
+            }
+            
+            let headerDiv = `<div class="${headerClass}">${headerContent}</div>`;
             let tableCont = document.createElement('div'); tableCont.className = 'table-container';
 
             for (let col = 0; col < 2; col++) {
@@ -179,7 +189,7 @@
                 }
                 tableCont.innerHTML += table + `</tbody></table>`;
             }
-            pageDiv.innerHTML = header; pageDiv.appendChild(tableCont);
+            pageDiv.innerHTML = headerDiv; pageDiv.appendChild(tableCont);
             if (p === pageCount - 1) {
                 pageDiv.innerHTML += `<div class="summary-box"><span>মোট গাছ: ${listType==='log'?trees.size:'0'} টি</span><span>মোট পিস: ${items.length} টি</span><span>মোট CFT: ${totalCFT.toFixed(2)}</span></div>`;
             }
@@ -192,23 +202,18 @@
         panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         let list = document.getElementById('hist-list');
         list.innerHTML = "";
-        
-        let filtered = isAdmin ? history : history.filter(h => h.user === currentUser);
+        let filtered = isAdmin ? historyData : historyData.filter(h => h.user === currentUser);
         filtered.forEach(h => {
-            list.innerHTML += `<div class="hist-item">
-                <span>📅 ${h.date} ${isAdmin ? `<span class="user-tag">ID: ${h.user}</span>` : ''}</span>
-                <span><b>${h.total} CFT</b> (${h.count} পিস)</span>
-            </div>`;
+            list.innerHTML += `<div class="hist-item"><span>📅 ${h.date} ${isAdmin ? `<span class="user-tag">ID: ${h.user}</span>` : ''}</span><span><b>${h.total} CFT</b> (${h.count} পিস)</span></div>`;
         });
-        if(filtered.length === 0) list.innerHTML = "কোন রেকর্ড পাওয়া যায়নি।";
+        if(filtered.length === 0) list.innerHTML = "রেকর্ড নেই।";
     }
 
     function saveAndPrint() {
         if (items.length === 0) return;
         let total = items.reduce((sum, itm) => sum + itm.cft, 0).toFixed(2);
-        let record = { user: currentUser, date: new Date().toLocaleString('bn-BD'), total: total, count: items.length };
-        history.unshift(record);
-        localStorage.setItem('woodHistory', JSON.stringify(history));
+        historyData.unshift({ user: currentUser, date: new Date().toLocaleString('bn-BD'), total: total, count: items.length });
+        localStorage.setItem('woodHistory', JSON.stringify(historyData));
         window.print();
     }
 
