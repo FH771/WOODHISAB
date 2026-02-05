@@ -5,62 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>কাঠের সাইজ লিস্ট - BFIDC</title>
     <style>
-        body { font-family: 'Arial', sans-serif; background-color: #f0f0f0; margin: 0; padding: 20px; }
-        .no-print { background: white; padding: 20px; max-width: 800px; margin: 0 auto 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .add-btn { background: #2e7d32; color: white; border: none; padding: 12px; width: 100%; font-size: 16px; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        .print-btn { background: #1976d2; color: white; border: none; padding: 12px; width: 100%; margin-top: 10px; border-radius: 4px; cursor: pointer; }
-
-        /* প্রিন্ট ফরম্যাট */
-        .print-area { background: white; width: 210mm; min-height: 297mm; padding: 20mm; margin: auto; box-sizing: border-box; }
-        .header-text { text-align: center; margin-bottom: 20px; line-height: 1.6; }
-        .header-text h3 { margin: 0; text-decoration: underline; }
+        body { font-family: 'Arial', sans-serif; background-color: #f0f0f0; margin: 0; padding: 10px; }
+        .no-print { background: white; padding: 20px; max-width: 900px; margin: 0 auto 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn-row { display: flex; gap: 10px; }
+        .add-btn { background: #2e7d32; color: white; border: none; padding: 12px; flex: 2; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .print-btn { background: #1976d2; color: white; border: none; padding: 12px; flex: 1; border-radius: 4px; cursor: pointer; }
         
+        /* প্রিন্ট ফরম্যাট */
+        .print-area { background: white; width: 210mm; min-height: 297mm; padding: 15mm; margin: auto; box-sizing: border-box; border: 1px solid #ddd; }
+        .header-text { text-align: center; margin-bottom: 15px; font-size: 14px; line-height: 1.5; }
         .main-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .main-table th, .main-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 13px; overflow: hidden; }
+        .main-table th, .main-table td { border: 1px solid black; padding: 4px; text-align: center; font-size: 12px; height: 25px; }
         .main-table th { background: #f2f2f2; }
-
-        .summary { margin-top: 20px; font-weight: bold; text-align: right; font-size: 16px; border-top: 2px solid black; padding-top: 10px; }
+        .summary { margin-top: 15px; font-weight: bold; text-align: right; font-size: 15px; border-top: 2px solid black; padding-top: 5px; }
 
         @media print {
             .no-print { display: none; }
             body { background: white; padding: 0; }
-            .print-area { margin: 0; border: none; width: 100%; }
+            .print-area { margin: 0; border: none; width: 100%; padding: 10mm; }
         }
     </style>
 </head>
 <body>
 
 <div class="no-print">
-    <h2 style="text-align:center; color:#333;">সাইজ এন্ট্রি করুন</h2>
+    <h3 style="text-align:center; margin-top:0;">কাঠের মাপ এন্ট্রি ফরম</h3>
     <div class="input-grid">
         <div>
-            <label>ধরণ</label>
+            <label>ক্রমিক নং (SL)</label>
+            <input type="text" id="slNo" placeholder="উদা: ১/১">
+        </div>
+        <div>
+            <label>কাঠের ধরণ</label>
             <select id="type" onchange="toggleInputs()">
-                <option value="log">গোল কাঠ</option>
-                <option value="gas">সাইজ কাঠ</option>
+                <option value="log">গোল (Log)</option>
+                <option value="gas">সাইজ (Gas)</option>
             </select>
         </div>
         <div id="box1">
             <label id="label1">বেড় (ইঞ্চি)</label>
-            <input type="number" id="val1" placeholder="ইঞ্চি">
+            <input type="number" id="val1" step="any">
         </div>
         <div id="boxExtra" style="display:none;">
             <label>পুরুত্ব (ইঞ্চি)</label>
-            <input type="number" id="valExtra" placeholder="ইঞ্চি">
+            <input type="number" id="valExtra" step="any">
         </div>
         <div>
             <label>লম্বা (ফুট)</label>
-            <input type="number" id="val2" placeholder="ফুট">
+            <input type="number" id="val2" step="any">
         </div>
     </div>
-    <button class="add-btn" onclick="addItem()">তালিকায় যোগ করুন (+)</button>
-    <button class="print-btn" onclick="window.print()">লিস্ট প্রিন্ট করুন</button>
+    <div class="btn-row">
+        <button class="add-btn" onclick="addItem()">তালিকায় যোগ করুন (+)</button>
+        <button class="print-btn" onclick="window.print()">প্রিন্ট মেমো</button>
+    </div>
 </div>
 
-<div class="print-area" id="printContent">
+<div class="print-area">
     <div class="header-text">
         <strong>বিএফআইডিসি, .....................................................................</strong><br>
         রাবার বাগান হতে বিএফআইডিসি, এলপিসি, কাপ্তাই প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।
@@ -69,15 +73,9 @@
     <table class="main-table">
         <thead>
             <tr>
-                <th>ক্র.নং</th>
-                <th>পরিমাপ</th>
-                <th>ঘনফুট</th>
-                <th>ক্র.নং</th>
-                <th>পরিমাপ</th>
-                <th>ঘনফুট</th>
-                <th>ক্র.নং</th>
-                <th>পরিমাপ</th>
-                <th>ঘনফুট</th>
+                <th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th>
+                <th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th>
+                <th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th>
             </tr>
         </thead>
         <tbody id="tableBody">
@@ -100,6 +98,7 @@
     }
 
     function addItem() {
+        let sl = document.getElementById('slNo').value;
         let type = document.getElementById('type').value;
         let v1 = parseFloat(document.getElementById('val1').value) || 0;
         let v2 = parseFloat(document.getElementById('val2').value) || 0;
@@ -107,7 +106,7 @@
         let measure = "";
 
         if (type === 'log') {
-            cft = Math.pow((v1 / 4), 2) * v2 / 144;
+            cft = (Math.pow((v1 / 4), 2) * v2) / 144;
             measure = v1 + '"×' + v2 + "'";
         } else {
             let vextra = parseFloat(document.getElementById('valExtra').value) || 0;
@@ -116,6 +115,42 @@
         }
 
         if (cft > 0) {
-            items.push({ measure: measure, cft: cft.toFixed(2) });
+            items.push({ sl: sl || (items.length + 1), measure: measure, cft: cft.toFixed(2) });
             totalCFT += parseFloat(cft);
-            renderTable
+            renderTable();
+            
+            // ইনপুট ক্লিয়ার করা
+            document.getElementById('val1').value = "";
+            document.getElementById('val2').value = "";
+            document.getElementById('valExtra').value = "";
+            document.getElementById('slNo').value = ""; // সিরিয়াল মুছে নতুন সিরিয়ালের জন্য রেডি
+        } else {
+            alert("সঠিক মাপ লিখুন!");
+        }
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+        
+        // ৩টি কলামে সাজানো
+        for (let i = 0; i < items.length; i += 3) {
+            let row = document.createElement('tr');
+            for (let j = 0; j < 3; j++) {
+                let index = i + j;
+                if (index < items.length) {
+                    row.innerHTML += `<td>${items[index].sl}</td><td>${items[index].measure}</td><td>${items[index].cft}</td>`;
+                } else {
+                    row.innerHTML += `<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>`;
+                }
+            }
+            tbody.appendChild(row);
+        }
+        
+        document.getElementById('totalPcs').innerText = items.length;
+        document.getElementById('totalCFT').innerText = totalCFT.toFixed(2);
+    }
+</script>
+
+</body>
+</html>
