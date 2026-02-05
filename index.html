@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>কাঠের সাইজ লিস্ট - BFIDC</title>
     <style>
-        body { font-family: 'Arial', sans-serif; background-color: #f0f0f0; margin: 0; padding: 10px; }
-        .no-print { background: white; padding: 20px; max-width: 900px; margin: 0 auto 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; margin: 0; padding: 10px; }
+        .no-print { background: white; padding: 20px; max-width: 950px; margin: 0 auto 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; }
-        input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
         .btn-row { display: flex; gap: 10px; }
         .add-btn { background: #2e7d32; color: white; border: none; padding: 12px; flex: 2; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        .cancel-btn { background: #757575; color: white; border: none; padding: 12px; flex: 1; cursor: pointer; border-radius: 4px; font-weight: bold; display: none; }
         .print-btn { background: #1976d2; color: white; border: none; padding: 12px; flex: 1; border-radius: 4px; cursor: pointer; }
         
+        /* প্রিন্ট এবং পেজ ফরম্যাট */
         .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm; margin: 20px auto; box-sizing: border-box; border: 1px solid #ddd; page-break-after: always; }
         .header-text { text-align: center; margin-bottom: 15px; font-size: 14px; line-height: 1.5; }
         .table-container { display: flex; border: 1px solid black; min-height: 800px; }
@@ -22,14 +22,22 @@
         .sub-table:first-child { border-right: 2px solid black; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 3px; text-align: center; font-size: 11px; height: 22px; }
         
-        .action-btns { font-size: 9px; display: flex; gap: 4px; justify-content: center; margin-top: 2px; }
-        .edit-btn-ui { color: blue; cursor: pointer; border: 1px solid blue; padding: 0 3px; border-radius: 2px; background: #e3f2fd; }
-        .del-btn-ui { color: red; cursor: pointer; border: 1px solid red; padding: 0 3px; border-radius: 2px; background: #ffebee; }
-
-        .summary { margin-top: 10px; font-weight: bold; text-align: right; font-size: 14px; border-top: 2px solid black; padding-top: 5px; }
+        /* বিশেষ সামারি বক্স */
+        .summary-box { 
+            margin-top: 20px; 
+            padding: 15px; 
+            border: 2px solid #000; 
+            background: #f9f9f9;
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1.8;
+        }
+        .warning-text { color: red; font-weight: bold; animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
 
         @media print {
-            .no-print, .action-btns { display: none !important; }
+            .no-print { display: none !important; }
             body { background: white; padding: 0; }
             .page { margin: 0; border: none; width: 100%; box-shadow: none; }
         }
@@ -38,12 +46,14 @@
 <body>
 
 <div class="no-print">
-    <h3 style="text-align:center; margin-top:0;">কাঠের সাইজ লিস্ট এন্ট্রি</h3>
+    <h3 style="text-align:center; margin-top:0;">বিএফআইডিসি কাঠের হিসাব এন্ট্রি</h3>
+    <div id="alert-box" style="display:none; background: #ffebee; border: 1px solid red; color: red; padding: 10px; margin-bottom: 15px; border-radius: 4px; text-align: center; font-weight: bold;">
+        ⚠️ সাবধান: সর্বমোট ঘনফুট ৪৩০ অতিক্রম করেছে!
+    </div>
     <div class="input-grid">
-        <div>
-            <label>ক্র.নং (SL)</label>
-            <input type="text" id="slNo">
-        </div>
+        <div><label>গ্যাস নং</label><input type="number" id="gasNo" value="154" onchange="updateSL()"></div>
+        <div><label>লগ নং</label><input type="number" id="logNo" value="1" onchange="updateSL()"></div>
+        <div><label>ক্র.নং (SL)</label><input type="text" id="slNo" value="154/1" readonly style="background:#eee;"></div>
         <div>
             <label>ধরণ</label>
             <select id="type" onchange="toggleInputs()">
@@ -51,22 +61,12 @@
                 <option value="gas">সাইজ (Gas)</option>
             </select>
         </div>
-        <div>
-            <label id="label1">বেড় (ইঞ্চি)</label>
-            <input type="number" id="val1" step="any">
-        </div>
-        <div id="boxExtra" style="display:none;">
-            <label>পুরুত্ব (ইঞ্চি)</label>
-            <input type="number" id="valExtra" step="any">
-        </div>
-        <div>
-            <label>লম্বা (ফুট)</label>
-            <input type="number" id="val2" step="any">
-        </div>
+        <div><label id="label1">বেড় (ইঞ্চি)</label><input type="number" id="val1" step="any"></div>
+        <div id="boxExtra" style="display:none;"><label>পুরুত্ব (ইঞ্চি)</label><input type="number" id="valExtra" step="any"></div>
+        <div><label>লম্বা (ফুট)</label><input type="number" id="val2" step="any"></div>
     </div>
     <div class="btn-row">
         <button id="submit-btn" class="add-btn" onclick="addItem()">তালিকায় যোগ করুন (+)</button>
-        <button id="cancel-btn" class="cancel-btn" onclick="resetForm()">বাতিল করুন</button>
         <button class="print-btn" onclick="window.print()">লিস্ট প্রিন্ট করুন</button>
     </div>
 </div>
@@ -75,9 +75,14 @@
 
 <script>
     let items = [];
-    let editIndex = -1;
     const rowsPerPage = 80;
     const rowsPerCol = 40;
+
+    function updateSL() {
+        let g = document.getElementById('gasNo').value;
+        let l = document.getElementById('logNo').value;
+        document.getElementById('slNo').value = g + "/" + l;
+    }
 
     function toggleInputs() {
         let type = document.getElementById('type').value;
@@ -100,65 +105,41 @@
         }
 
         if (cft > 0) {
-            let itemData = { sl, type, v1, v2, vextra, cft: cft.toFixed(2) };
+            items.push({ 
+                sl, type, v1, v2, vextra, 
+                cft: parseFloat(cft.toFixed(2)),
+                gNo: document.getElementById('gasNo').value
+            });
             
-            if (editIndex === -1) {
-                // নতুন এন্ট্রি হলে নিচে যোগ হবে
-                items.push(itemData);
-            } else {
-                // এডিট মুড থাকলে ওই পজিশনে আপডেট হবে
-                items[editIndex] = itemData;
-                resetForm();
-            }
-            
+            document.getElementById('logNo').value = parseInt(document.getElementById('logNo').value) + 1;
+            updateSL();
             renderPages();
-            clearInputs();
+            checkLimit(); // ৪৩০ CFT চেক
+            
+            document.getElementById('val1').value = "";
+            document.getElementById('val2').value = "";
+            document.getElementById('valExtra').value = "";
+            document.getElementById('val1').focus();
         }
     }
 
-    function resetForm() {
-        editIndex = -1;
-        document.getElementById('submit-btn').innerText = "তালিকায় যোগ করুন (+)";
-        document.getElementById('submit-btn').style.background = "#2e7d32";
-        document.getElementById('cancel-btn').style.display = "none";
-        clearInputs();
-    }
-
-    function clearInputs() {
-        document.getElementById('val1').value = "";
-        document.getElementById('val2').value = "";
-        document.getElementById('valExtra').value = "";
-        document.getElementById('slNo').value = "";
-        document.getElementById('slNo').focus();
-    }
-
-    function editItem(index) {
-        let item = items[index];
-        document.getElementById('slNo').value = item.sl;
-        document.getElementById('type').value = item.type;
-        document.getElementById('val1').value = item.v1;
-        document.getElementById('val2').value = item.v2;
-        document.getElementById('valExtra').value = item.vextra;
-        
-        toggleInputs();
-        editIndex = index;
-        document.getElementById('submit-btn').innerText = "সংশোধন সম্পন্ন করুন";
-        document.getElementById('submit-btn').style.background = "#f57c00";
-        document.getElementById('cancel-btn').style.display = "block";
-        window.scrollTo(0,0);
-    }
-
-    function deleteItem(index) {
-        if(confirm("আপনি কি এটি ডিলিট করতে চান?")) {
-            items.splice(index, 1);
-            renderPages();
+    function checkLimit() {
+        let total = items.reduce((sum, itm) => sum + itm.cft, 0);
+        if (total >= 430) {
+            document.getElementById('alert-box').style.display = "block";
+            alert("⚠️ সতর্কতা: আপনার সর্বমোট ঘনফুট ৪৩০ অতিক্রম করেছে!");
+        } else {
+            document.getElementById('alert-box').style.display = "none";
         }
     }
 
     function renderPages() {
         const container = document.getElementById('pages-container');
         container.innerHTML = "";
+        
         let totalCFT = 0;
+        let totalLogs = 0;
+        let uniqueGases = new Set();
         let pageCount = Math.max(1, Math.ceil(items.length / rowsPerPage));
 
         for (let p = 0; p < pageCount; p++) {
@@ -171,16 +152,29 @@
                 [0, rowsPerCol].forEach((offset, colIdx) => {
                     let idx = (p * rowsPerPage) + offset + r;
                     if (idx < items.length) {
-                        let m = items[idx].type === 'log' ? `${items[idx].v1}"×${items[idx].v2}'` : `${items[idx].v1}"×${items[idx].vextra}"×${items[idx].v2}'`;
-                        tables[colIdx] += `<tr><td>${items[idx].sl}<div class="action-btns"><span class="edit-btn-ui" onclick="editItem(${idx})">Edit</span><span class="del-btn-ui" onclick="deleteItem(${idx})">X</span></div></td><td>${m}</td><td>${items[idx].cft}</td></tr>`;
-                        totalCFT += parseFloat(items[idx].cft);
+                        let itm = items[idx];
+                        let m = itm.type === 'log' ? `${itm.v1}"×${itm.v2}'` : `${itm.v1}"×${itm.vextra}"×${itm.v2}'`;
+                        tables[colIdx] += `<tr><td>${itm.sl}</td><td>${m}</td><td>${itm.cft}</td></tr>`;
+                        totalCFT += itm.cft;
+                        if(itm.type === 'log') totalLogs++;
+                        uniqueGases.add(itm.gNo);
                     } else {
                         tables[colIdx] += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
                     }
                 });
             }
             pageDiv.innerHTML = html + tables[0] + "</tbody></table>" + tables[1] + "</tbody></table></div>";
-            if (p === pageCount - 1) pageDiv.innerHTML += `<div class="summary">মোট পিস: ${items.length} | মোট ঘনফুট: ${totalCFT.toFixed(2)}</div>`;
+            
+            if (p === pageCount - 1) {
+                pageDiv.innerHTML += `
+                <div class="summary-box">
+                    হিসাব বিবরণী:<br>
+                    ---------------------------<br>
+                    ১. মোট গ্যাসের সংখ্যা: ${uniqueGases.size} টি (${Array.from(uniqueGases).join(', ')}) <br>
+                    ২. মোট লগের সংখ্যা: ${totalLogs} টি <br>
+                    ৩. সর্বমোট ঘনফুট (CFT): <span class="${totalCFT >= 430 ? 'warning-text' : ''}">${totalCFT.toFixed(2)}</span>
+                </div>`;
+            }
             container.appendChild(pageDiv);
         }
     }
