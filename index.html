@@ -1,61 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Wood Calculator</title>
+    <title>কাঠের হিসাব ক্যালকুলেটর</title>
     <style>
         :root { --primary: #795548; --secondary: #5d4037; --bg: #fdf5e6; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); padding: 20px; color: #333; }
+        body { font-family: 'Arial', sans-serif; background-color: var(--bg); padding: 20px; color: #333; direction: ltr; }
         .container { max-width: 450px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e0d5c1; }
-        h2 { text-align: center; color: var(--secondary); margin-bottom: 20px; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+        h2 { text-align: center; color: var(--secondary); margin-bottom: 20px; }
         .tabs { display: flex; gap: 5px; margin-bottom: 20px; background: #eee; padding: 5px; border-radius: 8px; }
         .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; border-radius: 6px; font-weight: bold; transition: 0.3s; }
         .tab.active { background: var(--primary); color: white; }
         .input-group { margin-bottom: 12px; }
-        label { display: block; margin-bottom: 5px; font-size: 14px; color: #666; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; color: #666; font-weight: bold; }
         input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; outline: none; font-size: 16px; }
-        input:focus { border-color: var(--primary); }
-        button { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
-        button:hover { background-color: var(--secondary); }
+        button { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: bold; margin-top: 10px; }
         .result-box { margin-top: 20px; padding: 15px; background: #f1f8e9; border-left: 5px solid #689f38; border-radius: 4px; display: none; }
-        .res-row { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; }
+        .res-row { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; font-size: 18px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Wood Calculator</h2>
+    <h2>কাঠের হিসাব (Log & Gas)</h2>
     
     <div class="tabs">
-        <div id="t1" class="tab active" onclick="switchTab('log')">Gol Kath</div>
-        <div id="t2" class="tab" onclick="switchTab('gas')">Sawn/Gas</div>
+        <div id="t1" class="tab active" onclick="switchTab('log')">গোল কাঠ (Log)</div>
+        <div id="t2" class="tab" onclick="switchTab('gas')">সাইজ কাঠ (Gas)</div>
     </div>
 
     <div id="inputs">
         <div class="input-group">
-            <label id="label1">Ber / Girth (Inch)</label>
-            <input type="number" id="val1" placeholder="Enter Inch">
+            <label id="label1">বেড় / গোল (ইঞ্চি)</label>
+            <input type="number" id="val1" placeholder="ইঞ্চি লিখুন">
         </div>
         <div class="input-group" id="extraInput" style="display:none;">
-            <label>Thickness / Motu (Inch)</label>
-            <input type="number" id="valExtra" placeholder="Enter Inch">
+            <label>পুরুত্ব / মোটু (ইঞ্চি)</label>
+            <input type="number" id="valExtra" placeholder="ইঞ্চি লিখুন">
         </div>
         <div class="input-group">
-            <label id="label2">Lomba / Length (Foot)</label>
-            <input type="number" id="val2" placeholder="Enter Foot">
+            <label id="label2">লম্বা / দৈর্ঘ্য (ফুট)</label>
+            <input type="number" id="val2" placeholder="ফুট লিখুন">
         </div>
         <div class="input-group">
-            <label>Price per CFT (Taka)</label>
-            <input type="number" id="price" placeholder="Example: 1200">
+            <label>প্রতি CFT দাম (টাকা)</label>
+            <input type="number" id="price" placeholder="যেমন: ১২০০">
         </div>
     </div>
 
-    <button onclick="calculate()">Calculate Now</button>
+    <button onclick="calculate()">হিসাব করুন</button>
 
     <div id="resultBox" class="result-box">
-        <div class="res-row"><span>Total Volume:</span> <span id="resCFT">0.00</span></div>
-        <div class="res-row"><span>Total Price:</span> <span id="resPrice">0.00</span></div>
+        <div class="res-row"><span>মোট কাঠ:</span> <span id="resCFT">0.00</span></div>
+        <div class="res-row"><span>মোট দাম:</span> <span id="resPrice">0.00</span></div>
     </div>
 </div>
 
@@ -71,10 +69,10 @@
         const extraInput = document.getElementById('extraInput');
         
         if(mode === 'log') {
-            label1.innerText = "Ber / Girth (Inch)";
+            label1.innerText = "বেড় / গোল (ইঞ্চি)";
             extraInput.style.display = "none";
         } else {
-            label1.innerText = "Chora / Width (Inch)";
+            label1.innerText = "চওড়া (ইঞ্চি)";
             extraInput.style.display = "block";
         }
         document.getElementById('resultBox').style.display = 'none';
@@ -87,17 +85,17 @@
         let cft = 0;
 
         if (currentMode === 'log') {
-            // Log Formula: (Girth/4)^2 * Length / 144
+            // Formula: (Girth/4)^2 * Length / 144
             cft = Math.pow((v1 / 4), 2) * v2 / 144;
         } else {
-            // Gas/Sawn Formula: (W * T * L) / 144
+            // Formula: (W * T * L) / 144
             let vextra = parseFloat(document.getElementById('valExtra').value) || 0;
             cft = (v1 * vextra * v2) / 144;
         }
 
         if (cft > 0) {
             document.getElementById('resCFT').innerText = cft.toFixed(2) + " CFT";
-            document.getElementById('resPrice').innerText = (cft * p).toFixed(2) + " TK";
+            document.getElementById('resPrice').innerText = (cft * p).toFixed(2) + " টাকা";
             document.getElementById('resultBox').style.display = 'block';
         }
     }
