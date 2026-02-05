@@ -5,18 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>কাঠের সাইজ লিস্ট - BFIDC</title>
     <style>
-        /* পাসওয়ার্ড ও মেইন লেআউট স্টাইল */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2e7d32; display: flex; justify-content: center; align-items: center; z-index: 10000; }
-        .login-box { background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 300px; }
+        /* পাসওয়ার্ড স্ক্রিন ডিজাইন */
+        #login-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #2e7d32; display: flex; justify-content: center; align-items: center; z-index: 10000; 
+        }
+        .login-box { background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 320px; }
+        .login-box h2 { color: #2e7d32; margin-bottom: 20px; font-size: 24px; }
         .login-box input { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #ddd; border-radius: 6px; font-size: 18px; text-align: center; box-sizing: border-box; }
-        .login-box button { background: #1976d2; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+        .login-box button { background: #1976d2; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .login-box button:hover { background: #1565c0; }
+
+        /* মেইন কন্টেন্ট - শুরুতে হাইড থাকবে */
         #main-wrapper { display: none; }
-        body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; margin: 0; padding: 10px; }
         
+        /* সাধারণ স্টাইল */
+        body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; margin: 0; padding: 10px; }
         .no-print { background: white; padding: 20px; max-width: 950px; margin: 0 auto 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
         .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; }
         input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        
         .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
         .add-btn { background: #2e7d32; color: white; border: none; padding: 12px; flex: 2; cursor: pointer; border-radius: 4px; font-weight: bold; }
         .print-btn { background: #1976d2; color: white; border: none; padding: 12px; flex: 1; border-radius: 4px; cursor: pointer; }
@@ -24,20 +33,26 @@
         .clear-btn { background: #d32f2f; color: white; border: none; padding: 12px; flex: 0.5; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .del-btn { background: #ff5252; color: white; border: none; padding: 2px 5px; cursor: pointer; border-radius: 3px; font-size: 10px; margin-left: 5px; }
 
-        /* হিস্ট্রি প্যানেল স্টাইল */
-        #history-panel { display: none; background: white; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-top: 10px; max-width: 950px; margin: 10px auto; }
+        /* হিস্ট্রি প্যানেল */
+        #history-panel { display: none; background: white; padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 950px; margin: 10px auto; }
         .history-item { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
 
         /* প্রিন্ট লেআউট */
         .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm; margin: 20px auto; box-sizing: border-box; border: 1px solid #ddd; page-break-after: always; }
-        .header-text { text-align: center; margin-bottom: 15px; font-size: 15px; font-weight: bold; min-height: 50px; }
+        .header-text { text-align: center; margin-bottom: 15px; font-size: 15px; font-weight: bold; line-height: 1.6; min-height: 50px; }
         .table-container { display: flex; border: 1px solid black; min-height: 800px; }
-        .sub-table { width: 50%; border-collapse: collapse; }
+        .sub-table { width: 50%; border-collapse: collapse; align-self: flex-start; }
         .sub-table:first-child { border-right: 2px solid black; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 3px; text-align: center; font-size: 12px; height: 24px; }
-        .summary-box { margin-top: 20px; padding: 15px; border: 2px solid #000; font-size: 15px; font-weight: bold; line-height: 2; }
+        
+        .summary-box { margin-top: 20px; padding: 15px; border: 2px solid #000; background: #fff; text-align: left; font-size: 15px; font-weight: bold; line-height: 2; }
 
-        @media print { #login-screen, .no-print, .del-btn, #history-panel { display: none !important; } #main-wrapper { display: block !important; } body { padding: 0; } .page { margin: 0; border: none; box-shadow: none; } }
+        @media print {
+            #login-screen, .no-print, .del-btn, #history-panel { display: none !important; }
+            #main-wrapper { display: block !important; }
+            body { background: white; padding: 0; }
+            .page { margin: 0; border: none; width: 100%; box-shadow: none; }
+        }
     </style>
 </head>
 <body>
@@ -45,123 +60,20 @@
 <div id="login-screen">
     <div class="login-box">
         <h2>BFIDC কাপ্তাই</h2>
-        <input type="password" id="passInput" placeholder="Password দিন">
-        <button onclick="checkPass()">Login</button>
+        <input type="password" id="passInput" placeholder="Password দিন" autofocus>
+        <button id="loginBtn">Login</button>
     </div>
 </div>
 
 <div id="main-wrapper">
     <div class="no-print">
-        <h3 style="text-align:center; margin-top:0;">বিএফআইডিসি কাঠের হিসাব এন্ট্রি</h3>
+        <h3 style="text-align:center; margin-top:0;">কাঠের হিসাব এন্ট্রি (BFIDC)</h3>
+        
         <div class="input-grid">
             <div id="treeBox"><label>গাছ নং</label><input type="number" id="treeNo" value="1" oninput="updateSL()"></div>
             <div><label id="logLabel">লগ নং</label><input type="number" id="logNo" value="1" oninput="updateSL()"></div>
             <div><label>ক্র.নং</label><input type="text" id="slNo" value="1/1" readonly style="background:#eee;"></div>
-            <div><label>ধরণ</label><select id="type" onchange="toggleInputs()"><option value="log">গোল (Log)</option><option value="gas">সাইজ (Gas)</option></select></div>
-            <div><label id="label1">বেড় (ইঞ্চি)</label><input type="number" id="val1" step="any"></div>
-            <div id="boxExtra" style="display:none;"><label>পুরুত্ব (ইঞ্চি)</label><input type="number" id="valExtra" step="any"></div>
-            <div><label>লম্বা (ফুট)</label><input type="number" id="val2" step="any"></div>
-        </div>
-        <div class="btn-row">
-            <button class="add-btn" onclick="addItem()">যোগ করুন (+)</button>
-            <button class="print-btn" onclick="printWithHistory()">প্রিন্ট ও সেভ</button>
-            <button class="history-btn" onclick="toggleHistory()">History</button>
-            <button class="clear-btn" onclick="clearAllData()">রিসেট</button>
-        </div>
-    </div>
-
-    <div id="history-panel">
-        <h3>পুরানো হিসাবের ইতিহাস (History)</h3>
-        <div id="history-list">হিস্ট্রি খালি।</div>
-    </div>
-    
-    <div id="pages-container"></div>
-</div>
-
-<script>
-    const MY_PASSWORD = "1234"; 
-    let items = JSON.parse(localStorage.getItem('woodData')) || [];
-    let history = JSON.parse(localStorage.getItem('woodHistory')) || [];
-
-    function checkPass() {
-        if (document.getElementById('passInput').value === MY_PASSWORD) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-wrapper').style.display = 'block';
-            renderPages();
-        } else { alert("ভুল পাসওয়ার্ড!"); }
-    }
-
-    function updateSL() {
-        let type = document.getElementById('type').value;
-        let t = document.getElementById('treeNo').value;
-        let l = document.getElementById('logNo').value;
-        document.getElementById('slNo').value = (type === 'log') ? t + "/" + l : l;
-    }
-
-    function toggleInputs() {
-        let type = document.getElementById('type').value;
-        document.getElementById('treeBox').style.display = (type === 'gas') ? 'none' : 'block';
-        document.getElementById('logLabel').innerText = (type === 'gas') ? 'ক্রমিক নং' : 'লগ নং';
-        document.getElementById('boxExtra').style.display = (type === 'gas') ? 'block' : 'none';
-        document.getElementById('label1').innerText = (type === 'gas') ? 'চওড়া (ইঞ্চি)' : 'বেড় (ইঞ্চি)';
-        updateSL();
-    }
-
-    function addItem() {
-        let sl = document.getElementById('slNo').value;
-        let type = document.getElementById('type').value;
-        let v1 = parseFloat(document.getElementById('val1').value) || 0;
-        let v2 = parseFloat(document.getElementById('val2').value) || 0;
-        let vextra = parseFloat(document.getElementById('valExtra').value) || 0;
-        let cft = (type === 'log') ? (Math.pow((v1 / 4), 2) * v2) / 144 : (v1 * vextra * v2) / 144;
-
-        if (cft > 0) {
-            items.push({ sl, type, v1, v2, vextra, cft: parseFloat(cft.toFixed(2)), tNo: (type === 'log') ? document.getElementById('treeNo').value : null });
-            localStorage.setItem('woodData', JSON.stringify(items));
-            document.getElementById('logNo').value = parseInt(document.getElementById('logNo').value) + 1;
-            updateSL(); renderPages();
-            document.getElementById('val1').value = ""; document.getElementById('val2').value = ""; document.getElementById('valExtra').value = ""; document.getElementById('val1').focus();
-        }
-    }
-
-    function printWithHistory() {
-        if (items.length === 0) { alert("কোন তথ্য নেই!"); return; }
-        
-        let totalCFT = items.reduce((s, i) => s + i.cft, 0).toFixed(2);
-        let timestamp = new Date().toLocaleString('bn-BD');
-        
-        // হিস্ট্রিতে সেভ করা
-        history.unshift({ date: timestamp, total: totalCFT, count: items.length });
-        localStorage.setItem('woodHistory', JSON.stringify(history.slice(0, 10))); // শেষ ১০টি রাখা হবে
-        
-        window.print();
-    }
-
-    function toggleHistory() {
-        let panel = document.getElementById('history-panel');
-        panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
-        
-        let list = document.getElementById('history-list');
-        list.innerHTML = history.length ? "" : "হিস্ট্রি খালি।";
-        history.forEach(h => {
-            list.innerHTML += `<div class="history-item"><span>📅 ${h.date}</span> <span>মোট পিস: ${h.count} | মোট CFT: ${h.total}</span></div>`;
-        });
-    }
-
-    function deleteItem(index) {
-        items.splice(index, 1);
-        localStorage.setItem('woodData', JSON.stringify(items));
-        renderPages();
-    }
-
-    function clearAllData() {
-        if(confirm("সব মুছতে চান?")) { items = []; localStorage.removeItem('woodData'); renderPages(); }
-    }
-
-    function renderPages() {
-        const container = document.getElementById('pages-container');
-        container.innerHTML = "";
-        let totalCFT = 0, totalLogs = 0, uniqueTrees = new Set();
-        let pageCount = Math.max(1, Math.ceil(items.length / 80));
-
-        for (let p = 0; p < page
+            <div>
+                <label>ধরণ</label>
+                <select id="type" onchange="toggleInputs()">
+                    <option value="log">গোল (Log)</option>
