@@ -61,8 +61,7 @@
             <div><label>ক্র.নং</label><input type="text" id="slNo" value="1/1" readonly style="background:#eee;"></div>
             <div><label>ধরণ</label><select id="type" onchange="toggleInputs()">
                 <option value="log">গোল (Log)</option>
-                <option value="gas">সাইজ (Gas)</option>
-            </select></div>
+                <option value="gas">Size Wood</option> </select></div>
             <div><label id="label1">বেড় (ইঞ্চি)</label><input type="number" id="val1" step="any"></div>
             <div id="boxExtra" style="display:none;"><label>পুরুত্ব (ইঞ্চি)</label><input type="number" id="valExtra" step="any"></div>
             <div><label>লম্বা (ফুট)</label><input type="number" id="val2" step="any"></div>
@@ -88,7 +87,7 @@
     let items = JSON.parse(localStorage.getItem('woodData')) || [];
     let history = JSON.parse(localStorage.getItem('woodHistory')) || [];
 
-    // পেজ লোড হওয়ার সময় চেক করবে ইউজার আগে থেকে লগইন আছে কি না
+    // রিফ্রেশ করলে লগআউট হওয়া রোধ করতে
     window.onload = function() {
         if(currentUser) { launch(); }
     };
@@ -134,7 +133,7 @@
         document.getElementById('boxExtra').style.display = isGas ? 'block' : 'none';
         document.getElementById('label1').innerText = isGas ? 'চওড়া (ইঞ্চি)' : 'বেড় (ইঞ্চি)';
         updateSL();
-        renderPages(); // ধরণ পরিবর্তনের সাথে সাথে হেডার আপডেট হবে
+        renderPages(); 
     }
 
     function addItem() {
@@ -175,10 +174,10 @@
             let pageDiv = document.createElement('div');
             pageDiv.className = 'page';
             
-            // সাইজ কাঠের জন্য নীল মার্ক করা লেখাটি মুছে ফেলে নতুন টেক্সট বসানো
+            // সাইজ কাঠের জন্য নীল মার্ক করা লেখাটি মুছে ফেলে শুধু "Size Wood" রাখা হয়েছে
             let headerText = (listType === 'log') ? 
                 `বিএফআইডিসি, ..................................................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি, কাপ্তাই প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।` : 
-                `Size Wood`; // আপনার চাহিদা অনুযায়ী blue mark করা জায়গায় শুধু এটি থাকবে
+                `Size Wood`; 
 
             let tables = ['<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>', '<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>'];
             
