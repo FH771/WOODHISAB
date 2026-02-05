@@ -5,24 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>কাঠের সাইজ লিস্ট - BFIDC</title>
     <style>
-        /* ডিজাইন আগের মতোই রাখা হয়েছে */
+        /* লগইন ডিজাইন */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2e7d32; display: flex; justify-content: center; align-items: center; z-index: 10000; }
         .login-box { background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 320px; }
         .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 6px; font-size: 16px; text-align: center; box-sizing: border-box; }
         .login-box button { background: #1976d2; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+
         #main-wrapper { display: none; }
         body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; margin: 0; padding: 10px; }
         .no-print { background: white; padding: 20px; max-width: 950px; margin: 0 auto 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
         .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 15px; }
         label { display: block; font-weight: bold; font-size: 13px; }
         input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        
         .btn-row { display: flex; gap: 5px; flex-wrap: wrap; }
         .add-btn { background: #2e7d32; color: white; border: none; padding: 12px; flex: 2; cursor: pointer; font-weight: bold; border-radius: 4px; }
-        .print-btn { background: #1976d2; color: white; border: none; padding: 12px; flex: 1; cursor: pointer; border-radius: 4px; }
-        
-        /* Edit ও Delete বাটন স্টাইল */
-        .del-btn { background: #ff5252; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 10px; border-radius: 3px; margin-left: 2px; }
         .edit-btn { background: #0288d1; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 10px; border-radius: 3px; }
+        .del-btn { background: #ff5252; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 10px; border-radius: 3px; }
 
         .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm; margin: 20px auto; box-sizing: border-box; border: 1px solid #ddd; page-break-after: always; position: relative; }
         .header-text { text-align: center; margin-bottom: 15px; font-size: 15px; font-weight: bold; line-height: 1.6; min-height: 50px; }
@@ -30,6 +29,7 @@
         .sub-table { width: 50%; border-collapse: collapse; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 3px; text-align: center; font-size: 12px; height: 24px; }
         .summary-box { margin-top: 20px; padding: 15px; border: 2px solid #000; font-size: 15px; font-weight: bold; line-height: 1.8; }
+
         @media print { #login-screen, .no-print, .edit-btn, .del-btn { display: none !important; } #main-wrapper { display: block !important; } .page { margin: 0; border: none; } }
     </style>
 </head>
@@ -37,8 +37,8 @@
 
 <div id="login-screen">
     <div class="login-box">
-        <h2>BFIDC কাপ্তাই</h2>
-        <input type="text" id="userName" placeholder="ইউজার আইডি">
+        <h2 style="color:#2e7d32">BFIDC কাপ্তাই</h2>
+        <input type="text" id="userName" placeholder="আপনার নাম/ইউজার আইডি">
         <input type="password" id="passInput" placeholder="পাসওয়ার্ড">
         <button onclick="checkPass()">Login</button>
     </div>
@@ -46,8 +46,7 @@
 
 <div id="main-wrapper">
     <div class="no-print">
-        <h3 id="role-display" style="text-align:center; margin:0; color:#2e7d32;"></h3>
-        <p id="user-display" style="text-align:center; font-size:12px; margin-bottom:15px;"></p>
+        <p id="user-display" style="text-align:center; font-weight:bold; color:#2e7d32; margin-bottom:15px;"></p>
         
         <div class="input-grid">
             <div id="treeBox"><label>ক্রমিক নং</label><input type="number" id="treeNo" value="1" oninput="updateSL()"></div>
@@ -66,82 +65,100 @@
         
         <div class="btn-row">
             <button class="add-btn" id="addBtn" onclick="addItem()">তালিকায় যোগ করুন (+)</button>
-            <button class="print-btn" onclick="window.print()">লিস্ট প্রিন্ট ও সেভ</button>
+            <button style="background:#1976d2; color:white; border:none; padding:12px; flex:1; border-radius:4px; cursor:pointer;" onclick="window.print()">লিস্ট প্রিন্ট</button>
             <button style="background:#777; color:white; border:none; padding:10px; border-radius:4px; cursor:pointer;" onclick="logout()">Log Out</button>
         </div>
     </div>
-
     <div id="pages-container"></div>
 </div>
 
 <script>
+    // ফিক্সড পাসওয়ার্ড
     const ADMIN_PASS = "1234", USER_PASS = "0000"; 
+    
+    // ডাটা লোড করা
     let currentUser = localStorage.getItem('woodUser') || "";
     let items = JSON.parse(localStorage.getItem('woodData')) || [];
-    let editIndex = -1; // এডিট করার জন্য ইনডেক্স ট্র্যাক করা
+    let editIndex = -1;
 
-    window.onload = function() { if(currentUser) launch(); };
+    // পেজ লোড হলে চেক করা ইউজার আগে থেকে লগইন আছে কিনা
+    window.onload = function() {
+        if (currentUser) {
+            launch();
+        }
+    };
 
     function checkPass() {
         const name = document.getElementById('userName').value.trim();
         const pass = document.getElementById('passInput').value;
+
+        if (!name) {
+            alert("অনুগ্রহ করে আপনার নাম দিন");
+            return;
+        }
+
         if (pass === ADMIN_PASS || pass === USER_PASS) {
             currentUser = name;
-            localStorage.setItem('woodUser', currentUser);
+            localStorage.setItem('woodUser', currentUser); // সেশন সেভ করা
             launch();
-        } else { alert("ভুল পাসওয়ার্ড!"); }
+        } else {
+            alert("ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন।");
+        }
     }
-
-    function logout() { localStorage.clear(); location.reload(); }
 
     function launch() {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('main-wrapper').style.display = 'block';
-        document.getElementById('user-display').innerText = "ইউজার: " + currentUser;
+        document.getElementById('user-display').innerText = "স্বাগতম, " + currentUser;
         renderPages();
+        updateSL();
     }
+
+    function logout() {
+        localStorage.removeItem('woodUser');
+        location.reload();
+    }
+
+    // --- কাজের লজিক ---
 
     function toggleInputs() {
         let isGas = document.getElementById('type').value === 'gas';
         document.getElementById('treeBox').style.display = isGas ? 'none' : 'block';
         document.getElementById('boxExtra').style.display = isGas ? 'block' : 'none';
         document.getElementById('label1').innerText = isGas ? 'চওড়া (ইঞ্চি)' : 'বেড় (ইঞ্চি)';
-        updateSL(); renderPages(); 
+        updateSL(); 
+        renderPages(); 
     }
 
     function updateSL() {
         let type = document.getElementById('type').value;
-        document.getElementById('slNo').value = (type === 'log') ? 
-            document.getElementById('treeNo').value + "/" + document.getElementById('logNo').value : 
-            document.getElementById('logNo').value;
+        if(type === 'log') {
+            document.getElementById('slNo').value = document.getElementById('treeNo').value + "/" + document.getElementById('logNo').value;
+        } else {
+            document.getElementById('slNo').value = document.getElementById('logNo').value;
+        }
     }
 
-    // আইটেম যোগ বা আপডেট করার ফাংশন
     function addItem() {
         let type = document.getElementById('type').value;
         let v1 = parseFloat(document.getElementById('val1').value) || 0;
         let v2 = parseFloat(document.getElementById('val2').value) || 0;
         let ve = parseFloat(document.getElementById('valExtra').value) || 0;
         let cft = (type === 'log') ? (Math.pow((v1/4), 2)*v2)/144 : (v1*ve*v2)/144;
-        
-        if(cft > 0) {
-            let newItem = { 
-                sl: document.getElementById('slNo').value, 
-                type, v1, v2, ve, 
-                cft: parseFloat(cft.toFixed(2)), 
-                tNo: document.getElementById('treeNo').value 
-            };
 
+        if(cft > 0) {
+            let itemData = { sl: document.getElementById('slNo').value, type, v1, v2, ve, cft: parseFloat(cft.toFixed(2)), tNo: document.getElementById('treeNo').value };
+            
             if(editIndex === -1) {
-                items.push(newItem); // নতুন এন্ট্রি
+                items.push(itemData);
                 document.getElementById('logNo').value++;
             } else {
-                items[editIndex] = newItem; // পুরাতন এন্ট্রি আপডেট
+                items[editIndex] = itemData;
                 editIndex = -1;
                 document.getElementById('addBtn').innerText = "তালিকায় যোগ করুন (+)";
                 document.getElementById('addBtn').style.background = "#2e7d32";
             }
-
+            
             localStorage.setItem('woodData', JSON.stringify(items));
             updateSL(); renderPages();
             document.getElementById('val1').value = ""; document.getElementById('val2').value = ""; document.getElementById('valExtra').value = "";
@@ -149,19 +166,15 @@
         }
     }
 
-    // এডিট মোড চালু করার ফাংশন
     function editItem(index) {
         let itm = items[index];
         editIndex = index;
-        
         document.getElementById('type').value = itm.type;
         toggleInputs();
-        
         document.getElementById('slNo').value = itm.sl;
         document.getElementById('val1').value = itm.v1;
         document.getElementById('val2').value = itm.v2;
         if(itm.type === 'gas') document.getElementById('valExtra').value = itm.ve;
-        
         document.getElementById('addBtn').innerText = "আপডেট করুন (Update)";
         document.getElementById('addBtn').style.background = "#0288d1";
         window.scrollTo(0, 0);
@@ -175,10 +188,28 @@
         for (let p = 0; p < pageCount; p++) {
             let pageDiv = document.createElement('div');
             pageDiv.className = 'page';
-            let headerText = (listType === 'log') ? `বিএফআইডিসি রাবার বাগান হতে কাপ্তাই প্রেরণের সাইজ লিস্ট।` : `Size Wood`; 
+            let headerText = (listType === 'log') ? `বিএফআইডিসি রাবার বাগান হতে কাপ্তাই প্রেরণের সাইজ লিস্ট।` : `Size Wood`;
             
             let tables = ['<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>', '<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>'];
             
             for (let r = 0; r < 40; r++) {
                 [0, 40].forEach((offset, col) => {
-                    let idx = (p * 80) +
+                    let idx = (p * 80) + offset + r;
+                    if (idx < items.length) {
+                        let itm = items[idx];
+                        let m = itm.type === 'log' ? `${itm.v1}"×${itm.v2}'` : `${itm.v1}"×${itm.ve}"×${itm.v2}'`;
+                        tables[col] += `<tr><td>${itm.sl} <button class="edit-btn" onclick="editItem(${idx})">E</button><button class="del-btn" onclick="items.splice(${idx},1);localStorage.setItem('woodData', JSON.stringify(items));renderPages();">X</button></td><td>${m}</td><td>${itm.cft}</td></tr>`;
+                        totalCFT += itm.cft; if(itm.type === 'log') trees.add(itm.tNo);
+                    } else { tables[col] += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`; }
+                });
+            }
+            pageDiv.innerHTML = `<div class="header-text">${headerText}</div><div class="table-container">${tables[0]}</tbody></table>${tables[1]}</tbody></table></div>`;
+            if (p === pageCount - 1) {
+                pageDiv.innerHTML += `<div class="summary-box">মোট পিস: ${items.length}, মোট CFT: ${totalCFT.toFixed(2)}, মোট গাছ: ${listType === 'log' ? trees.size : '০'}</div>`;
+            }
+            container.appendChild(pageDiv);
+        }
+    }
+</script>
+</body>
+</html>
