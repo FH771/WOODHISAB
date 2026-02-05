@@ -3,36 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC Wood System - Clean Header</title>
+    <title>BFIDC Wood System - Final Pro</title>
     <style>
         @page { size: A4; margin: 10mm; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1b5e20; margin: 0; padding: 0; }
         
-        #login-screen, #admin-panel, #history-modal { display: flex; justify-content: center; align-items: center; height: 100vh; position: fixed; width: 100%; top: 0; left: 0; z-index: 1000; background: rgba(27, 94, 32, 0.95); }
-        .box { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        .box button { background: #2e7d32; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 5px; }
+        #login-screen, #history-modal { display: flex; justify-content: center; align-items: center; height: 100vh; position: fixed; width: 100%; top: 0; left: 0; z-index: 1000; background: rgba(27, 94, 32, 0.95); padding: 15px; box-sizing: border-box; }
+        .box { background: white; padding: 25px; border-radius: 15px; text-align: center; width: 100%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .box input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .box button { background: #2e7d32; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 8px; font-size: 16px; }
 
         #main-wrapper { display: none; background: #f0f2f5; min-height: 100vh; padding: 10px; }
-        .no-print { background: white; padding: 20px; max-width: 980px; margin: 0 auto 10px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .no-print { background: white; padding: 15px; max-width: 980px; margin: 0 auto 10px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         
         .input-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 15px; }
+        @media (max-width: 768px) { .input-grid { grid-template-columns: repeat(2, 1fr); } }
+
         .input-grid label { font-size: 11px; font-weight: bold; display: block; margin-bottom: 4px; }
-        .input-grid input, .input-grid select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        .input-grid input, .input-grid select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
 
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        .btn-group button { flex: 1; min-width: 90px; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; font-size: 13px; }
+        .btn-group button { flex: 1; min-width: 80px; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; font-size: 13px; }
         
-        #history-content { max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 15px; font-size: 13px; }
-        .history-item { border-bottom: 1px solid #eee; padding: 8px 0; display: flex; justify-content: space-between; }
-
-        .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm 12mm; margin: 10px auto; display: flex; flex-direction: column; box-shadow: 0 0 10px rgba(0,0,0,0.1); border: 1px solid #ddd; }
+        .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm 12mm; margin: 10px auto; display: flex; flex-direction: column; box-shadow: 0 0 10px rgba(0,0,0,0.1); border: 1px solid #ddd; overflow: hidden; }
         .table-container { display: flex; border: 1.5px solid black; flex-grow: 1; }
         .sub-table { width: 50%; border-collapse: collapse; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 4px; text-align: center; font-size: 11px; height: 24px; }
         .summary-box { margin-top: 10px; border: 2.5px solid black; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; font-size: 15px; }
 
-        @media print { .no-print, #admin-panel, #login-screen, #history-modal { display: none !important; } .page { margin: 0; border: none; width: 210mm; } }
+        @media print { 
+            .no-print, #login-screen, #history-modal { display: none !important; } 
+            .page { margin: 0; border: none; width: 210mm; display: flex !important; } 
+            .table-container { flex-direction: row !important; }
+            .sub-table { width: 50% !important; }
+        }
     </style>
 </head>
 <body>
@@ -43,16 +47,15 @@
         <input type="text" id="loginId" placeholder="User ID">
         <input type="password" id="loginPass" placeholder="Password">
         <button onclick="attemptLogin()">Login</button>
-        <span onclick="openAdmin()" style="cursor:pointer; font-size:12px; text-decoration:underline;">Admin Settings</span>
+        <span onclick="openAdmin()" style="cursor:pointer; font-size:12px; text-decoration:underline; color: #666;">Admin Settings</span>
     </div>
 </div>
 
 <div id="history-modal" style="display:none;">
-    <div class="box" style="width: 450px;">
-        <h3>সেভ করা কাজের ইতিহাস</h3>
-        <div id="history-content"></div>
+    <div class="box">
+        <h3>কাজের ইতিহাস</h3>
+        <div id="history-content" style="max-height:250px; overflow-y:auto; text-align:left; margin-bottom:15px;"></div>
         <button onclick="closeHistory()" style="background:#666;">বন্ধ করুন</button>
-        <button onclick="clearHistory()" style="background:#d32f2f;">হিস্ট্রি মুছে ফেলুন</button>
     </div>
 </div>
 
@@ -60,7 +63,7 @@
     <div class="no-print">
         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
             <span>ইউজার: <strong id="active-user"></strong></span>
-            <button onclick="logout()" style="padding:5px 10px; cursor:pointer;">Logout</button>
+            <button onclick="logout()">Logout</button>
         </div>
 
         <div class="input-grid">
@@ -68,8 +71,8 @@
             <div><label>পিস নং</label><input type="number" id="pNo" value="1" class="nav-item"></div>
             <div><label>ধরণ</label>
                 <select id="type" onchange="toggleInputs()" class="nav-item">
-                    <option value="log">গোল কাঠ (Log)</option>
-                    <option value="wood">সাইজ কাঠ (Wood)</option>
+                    <option value="log">গোল (Log)</option>
+                    <option value="wood">সাইজ (Wood)</option>
                 </select>
             </div>
             <div><label id="l1">বেড় (ইঞ্চি)</label><input type="number" id="v1" class="nav-item"></div>
@@ -79,10 +82,10 @@
         
         <div class="btn-group">
             <button onclick="addItem()" id="addBtn" style="background:#2e7d32; flex: 1.5;">যোগ করুন (+)</button>
-            <button onclick="saveToHistory()" style="background:#ff9800;">Save Data</button>
+            <button onclick="saveToHistory()" style="background:#ff9800;">Save</button>
             <button onclick="showHistory()" style="background:#607d8b;">History</button>
             <button onclick="window.print()" style="background:#1565c0;">Print</button>
-            <button onclick="finishWork()" style="background:#d32f2f;">Clear All</button>
+            <button onclick="finishWork()" style="background:#d32f2f;">Clear</button>
         </div>
     </div>
     <div id="pages-area"></div>
@@ -96,7 +99,7 @@
     function attemptLogin() {
         const id = document.getElementById('loginId').value.trim();
         const pass = document.getElementById('loginPass').value.trim();
-        if (id === masterUser && pass === masterPass) {
+        if (id.toLowerCase() === masterUser && pass === masterPass) {
             sessionStorage.setItem('sessionActive', 'true');
             sessionStorage.setItem('sessionUser', id);
             showMain(id);
@@ -117,12 +120,11 @@
     function openAdmin() {
         let p = prompt("অ্যাডমিন পাসওয়ার্ড দিন:");
         if(p === masterPass) {
-            let nUser = prompt("নতুন ইউজার আইডি:", masterUser);
+            let nUser = prompt("নতুন আইডি:", masterUser);
             let nPass = prompt("নতুন পাসওয়ার্ড:", masterPass);
             if(nUser && nPass) {
                 localStorage.setItem('masterUser', nUser);
                 localStorage.setItem('masterPass', nPass);
-                alert("Updated! Please login again.");
                 logout();
             }
         }
@@ -155,11 +157,7 @@
         if(!v1 || !v2) return;
 
         let cft = (type === 'log') ? (Math.pow((v1/4), 2)*v2)/144 : (v1*ve*v2)/144;
-        items.push({ 
-            tNo: document.getElementById('tNo').value, 
-            pNo: document.getElementById('pNo').value, 
-            type, v1, v2, ve, cft: parseFloat(cft.toFixed(2)) 
-        });
+        items.push({ tNo: document.getElementById('tNo').value, pNo: document.getElementById('pNo').value, type, v1, v2, ve, cft: parseFloat(cft.toFixed(2)) });
         
         document.getElementById('pNo').value++;
         renderPages();
@@ -190,55 +188,47 @@
                 } table += `</table>`;
             }
 
-            // হেডার কন্ডিশন: Log হলে বড় হেডার, Wood হলে ক্লিন হেডার
-            let headerText = (type === 'log') 
-                ? `<div style="text-align:center"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই প্রেরণের জন্য</h2><h3>জীবনচক্র হারানো রাবার কাঠের গোল লিস্ট।</h3></div>`
-                : `<div style="text-align:center"><h2>বিএফআইডিসি কাপ্তাই</h2><h3>সাইজ কাঠের লিস্ট</h3></div>`;
+            // হেডার শর্ত: Wood হলে খালি থাকবে, Log হলে BFIDC লেখা আসবে
+            let headerHTML = (type === 'log') 
+                ? `<div style="text-align:center"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের লিস্ট</h3></div>`
+                : `<div style="height: 40px;"></div>`; // সাইজ কাঠের জন্য শুধু একটু গ্যাপ
 
-            pageDiv.innerHTML = headerText + table + `</div>`;
-            
+            pageDiv.innerHTML = headerHTML + table + `</div>`;
             if (p === pageCount - 1) {
-                pageDiv.innerHTML += `<div class="summary-box"><span>গাছ: ${trees.size} টি</span><span>পিস: ${items.length} টি</span><span>মোট: ${total.toFixed(2)} CFT</span></div>`;
+                pageDiv.innerHTML += `<div class="summary-box"><span>গাছ: ${trees.size}</span><span>পিস: ${items.length}</span><span>মোট: ${total.toFixed(2)} CFT</span></div>`;
             }
             area.appendChild(pageDiv);
         }
     }
 
     function saveToHistory() {
-        if(items.length === 0) return alert("কোন ডাটা নেই!");
+        if(items.length === 0) return;
         let history = JSON.parse(localStorage.getItem('woodHistory') || "[]");
-        let date = new Date().toLocaleString('bn-BD');
-        history.push({ date: date, type: document.getElementById('type').value, data: [...items] });
+        history.push({ date: new Date().toLocaleString('bn-BD'), type: document.getElementById('type').value, data: [...items] });
         localStorage.setItem('woodHistory', JSON.stringify(history));
-        alert("ডাটা ইতিহাসে সেভ করা হয়েছে!");
+        alert("Saved!");
     }
 
     function showHistory() {
         let history = JSON.parse(localStorage.getItem('woodHistory') || "[]");
         let content = document.getElementById('history-content');
-        content.innerHTML = history.length ? "" : "কোন হিস্ট্রি নেই।";
-        history.forEach((h, index) => {
-            content.innerHTML += `
-                <div class="history-item">
-                    <span>${h.date} (${h.type === 'log' ? 'গোল' : 'সাইজ'})</span>
-                    <button onclick="loadHistory(${index})" style="width:60px; padding:3px; background:#1565c0; color:white; border-radius:4px;">Load</button>
-                </div>`;
-        });
+        content.innerHTML = history.reverse().map((h, i) => `
+            <div style="border-bottom:1px solid #eee; padding:10px; display:flex; justify-content:space-between;">
+                <span>${h.date} (${h.type})</span>
+                <button onclick="loadHistory(${history.length-1-i})" style="padding:3px 10px; background:#1565c0; color:white; border:none; border-radius:4px;">Load</button>
+            </div>`).join('');
         document.getElementById('history-modal').style.display = 'flex';
     }
 
-    function loadHistory(index) {
+    function loadHistory(idx) {
         let history = JSON.parse(localStorage.getItem('woodHistory'));
-        items = history[index].data;
-        document.getElementById('type').value = history[index].type;
-        toggleInputs();
-        renderPages();
-        closeHistory();
+        items = history[idx].data;
+        document.getElementById('type').value = history[idx].type;
+        toggleInputs(); renderPages(); closeHistory();
     }
 
     function closeHistory() { document.getElementById('history-modal').style.display = 'none'; }
-    function clearHistory() { if(confirm("সব হিস্ট্রি মুছে যাবে!")) { localStorage.removeItem('woodHistory'); showHistory(); } }
-    function finishWork() { if(confirm("বর্তমান পেজের ডাটা মুছে ফেলবেন?")) { items=[]; renderPages(); } }
+    function finishWork() { if(confirm("Clear current data?")) { items=[]; renderPages(); } }
 </script>
 </body>
 </html>
