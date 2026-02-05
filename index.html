@@ -24,7 +24,6 @@
         .print-btn { background: #1976d2; color: white; border: none; padding: 12px; flex: 1; cursor: pointer; border-radius: 4px; }
         .del-btn { background: #ff5252; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 10px; margin-left: 5px; border-radius: 3px; }
 
-        /* প্রিন্ট লেআউট */
         .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm; margin: 20px auto; box-sizing: border-box; border: 1px solid #ddd; page-break-after: always; position: relative; }
         .header-text { text-align: center; margin-bottom: 15px; font-size: 15px; font-weight: bold; line-height: 1.6; min-height: 50px; }
         
@@ -34,7 +33,7 @@
         .sub-table th, .sub-table td { border: 1px solid black; padding: 3px; text-align: center; font-size: 12px; height: 24px; }
         .summary-box { margin-top: 20px; padding: 15px; border: 2px solid #000; font-size: 15px; font-weight: bold; line-height: 1.8; }
 
-        @media print { #login-screen, .no-print, .del-btn, #history-panel { display: none !important; } #main-wrapper { display: block !important; } .page { margin: 0; border: none; box-shadow: none; } }
+        @media print { #login-screen, .no-print, .del-btn { display: none !important; } #main-wrapper { display: block !important; } .page { margin: 0; border: none; box-shadow: none; } }
     </style>
 </head>
 <body>
@@ -69,7 +68,7 @@
         
         <div class="btn-row">
             <button class="add-btn" onclick="addItem()">তালিকায় যোগ করুন (+)</button>
-            <button class="print-btn" onclick="printWithHistory()">লিস্ট প্রিন্ট ও সেভ</button>
+            <button class="print-btn" onclick="window.print()">লিস্ট প্রিন্ট ও সেভ</button>
             <button id="admin-reset" style="background:#d32f2f; color:white; border:none; padding:10px; border-radius:4px; cursor:pointer; display:none;" onclick="clearData()">রিসেট</button>
             <button style="background:#777; color:white; border:none; padding:10px; border-radius:4px; cursor:pointer;" onclick="logout()">Log Out</button>
         </div>
@@ -79,12 +78,12 @@
 </div>
 
 <script>
-    const ADMIN_PASS = "1234", USER_PASS = "0000"; // এখানে আপনার পাসওয়ার্ড অপশন
+    // পাসওয়ার্ড লজিক
+    const ADMIN_PASS = "1234", USER_PASS = "0000"; 
     let currentUser = localStorage.getItem('woodUser') || "";
     let isAdmin = localStorage.getItem('woodAdmin') === 'true';
     let items = JSON.parse(localStorage.getItem('woodData')) || [];
 
-    // রিফ্রেশ করলে লগইন চেক করবে
     window.onload = function() {
         if(currentUser) { launch(); }
     };
@@ -144,8 +143,6 @@
             document.getElementById('val1').value = ""; document.getElementById('val2').value = ""; document.getElementById('val1').focus();
         }
     }
-
-    function printWithHistory() { if(items.length) window.print(); }
 
     function clearData() { if(confirm("সব মুছবেন?")) { items=[]; localStorage.removeItem('woodData'); renderPages(); } }
 
