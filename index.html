@@ -14,38 +14,44 @@
         .add-btn { background: #2e7d32; color: white; border: none; padding: 12px; flex: 2; cursor: pointer; border-radius: 4px; font-weight: bold; }
         .print-btn { background: #1976d2; color: white; border: none; padding: 12px; flex: 1; border-radius: 4px; cursor: pointer; }
         
-        /* প্রিন্ট ফরম্যাট */
-        .print-area { background: white; width: 210mm; min-height: 297mm; padding: 15mm; margin: auto; box-sizing: border-box; border: 1px solid #ddd; }
+        /* প্রিন্ট এবং পেজ ফরম্যাট */
+        .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm; margin: 20px auto; box-sizing: border-box; border: 1px solid #ddd; position: relative; page-break-after: always; }
         .header-text { text-align: center; margin-bottom: 15px; font-size: 14px; line-height: 1.5; }
-        .main-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .main-table th, .main-table td { border: 1px solid black; padding: 4px; text-align: center; font-size: 12px; height: 25px; }
-        .main-table th { background: #f2f2f2; }
-        .summary { margin-top: 15px; font-weight: bold; text-align: right; font-size: 15px; border-top: 2px solid black; padding-top: 5px; }
+        
+        .table-container { display: flex; border: 1px solid black; min-height: 800px; }
+        .sub-table { width: 50%; border-collapse: collapse; align-self: flex-start; }
+        .sub-table:first-child { border-right: 2px solid black; }
+        .sub-table th, .sub-table td { border: 1px solid black; padding: 3px; text-align: center; font-size: 11px; height: 20px; position: relative; }
+        .sub-table th { background: #f2f2f2; }
+        
+        .del-btn-ui { color: red; cursor: pointer; font-weight: bold; margin-left: 5px; font-size: 10px; border: 1px solid red; padding: 0 2px; border-radius: 2px; }
+
+        .summary { margin-top: 10px; font-weight: bold; text-align: right; font-size: 14px; border-top: 2px solid black; padding-top: 5px; }
 
         @media print {
-            .no-print { display: none; }
+            .no-print, .del-btn-ui { display: none !important; }
             body { background: white; padding: 0; }
-            .print-area { margin: 0; border: none; width: 100%; padding: 10mm; }
+            .page { margin: 0; border: none; width: 100%; box-shadow: none; }
         }
     </style>
 </head>
 <body>
 
 <div class="no-print">
-    <h3 style="text-align:center; margin-top:0;">কাঠের মাপ এন্ট্রি ফরম</h3>
+    <h3 style="text-align:center; margin-top:0;">কাঠের সাইজ লিস্ট এন্ট্রি (BFIDC)</h3>
     <div class="input-grid">
         <div>
-            <label>ক্রমিক নং (SL)</label>
+            <label>ক্র.নং (SL)</label>
             <input type="text" id="slNo" placeholder="উদা: ১/১">
         </div>
         <div>
-            <label>কাঠের ধরণ</label>
+            <label>ধরণ</label>
             <select id="type" onchange="toggleInputs()">
                 <option value="log">গোল (Log)</option>
                 <option value="gas">সাইজ (Gas)</option>
             </select>
         </div>
-        <div id="box1">
+        <div>
             <label id="label1">বেড় (ইঞ্চি)</label>
             <input type="number" id="val1" step="any">
         </div>
@@ -60,36 +66,17 @@
     </div>
     <div class="btn-row">
         <button class="add-btn" onclick="addItem()">তালিকায় যোগ করুন (+)</button>
-        <button class="print-btn" onclick="window.print()">প্রিন্ট মেমো</button>
+        <button class="print-btn" onclick="window.print()">লিস্ট প্রিন্ট করুন</button>
     </div>
 </div>
 
-<div class="print-area">
-    <div class="header-text">
-        <strong>বিএফআইডিসি, .....................................................................</strong><br>
-        রাবার বাগান হতে বিএফআইডিসি, এলপিসি, কাপ্তাই প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।
+<div id="pages-container">
     </div>
-
-    <table class="main-table">
-        <thead>
-            <tr>
-                <th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th>
-                <th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th>
-                <th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            </tbody>
-    </table>
-
-    <div class="summary">
-        মোট পিস: <span id="totalPcs">0</span> | মোট ঘনফুট (CFT): <span id="totalCFT">0.00</span>
-    </div>
-</div>
 
 <script>
     let items = [];
-    let totalCFT = 0;
+    const rowsPerPage = 80; // প্রতি পেজে ৮০টি
+    const rowsPerCol = 40;  // প্রতি কলামে ৪০টি
 
     function toggleInputs() {
         let type = document.getElementById('type').value;
@@ -116,40 +103,85 @@
 
         if (cft > 0) {
             items.push({ sl: sl || (items.length + 1), measure: measure, cft: cft.toFixed(2) });
-            totalCFT += parseFloat(cft);
-            renderTable();
+            renderPages();
             
-            // ইনপুট ক্লিয়ার করা
             document.getElementById('val1').value = "";
             document.getElementById('val2').value = "";
             document.getElementById('valExtra').value = "";
-            document.getElementById('slNo').value = ""; // সিরিয়াল মুছে নতুন সিরিয়ালের জন্য রেডি
-        } else {
-            alert("সঠিক মাপ লিখুন!");
+            document.getElementById('slNo').value = "";
+            document.getElementById('slNo').focus();
         }
     }
 
-    function renderTable() {
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = "";
+    function deleteItem(index) {
+        items.splice(index, 1);
+        renderPages();
+    }
+
+    function renderPages() {
+        const container = document.getElementById('pages-container');
+        container.innerHTML = "";
         
-        // ৩টি কলামে সাজানো
-        for (let i = 0; i < items.length; i += 3) {
-            let row = document.createElement('tr');
-            for (let j = 0; j < 3; j++) {
-                let index = i + j;
-                if (index < items.length) {
-                    row.innerHTML += `<td>${items[index].sl}</td><td>${items[index].measure}</td><td>${items[index].cft}</td>`;
+        let totalCFT = 0;
+        let pageCount = Math.max(1, Math.ceil(items.length / rowsPerPage));
+
+        for (let p = 0; p < pageCount; p++) {
+            let pageDiv = document.createElement('div');
+            pageDiv.className = 'page';
+            
+            let header = `<div class="header-text">
+                <strong>বিএফআইডিসি, .....................................................................</strong><br>
+                রাবার বাগান হতে বিএফআইডিসি, এলপিসি, কাপ্তাই প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।
+            </div>`;
+            
+            let tableStart = `<div class="table-container">
+                <table class="sub-table">
+                    <thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead>
+                    <tbody>`;
+            
+            let tableMid = `</tbody></table><table class="sub-table">
+                    <thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead>
+                    <tbody>`;
+            
+            let tableEnd = `</tbody></table></div>`;
+            
+            let tbody1 = "";
+            let tbody2 = "";
+
+            for (let r = 0; r < rowsPerCol; r++) {
+                // Column 1
+                let idx1 = (p * rowsPerPage) + r;
+                if (idx1 < items.length) {
+                    tbody1 += `<tr><td>${items[idx1].sl}<span class="del-btn-ui" onclick="deleteItem(${idx1})">x</span></td><td>${items[idx1].measure}</td><td>${items[idx1].cft}</td></tr>`;
+                    totalCFT += parseFloat(items[idx1].cft);
                 } else {
-                    row.innerHTML += `<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>`;
+                    tbody1 += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
+                }
+
+                // Column 2
+                let idx2 = (p * rowsPerPage) + rowsPerCol + r;
+                if (idx2 < items.length) {
+                    tbody2 += `<tr><td>${items[idx2].sl}<span class="del-btn-ui" onclick="deleteItem(${idx2})">x</span></td><td>${items[idx2].measure}</td><td>${items[idx2].cft}</td></tr>`;
+                    totalCFT += parseFloat(items[idx2].cft);
+                } else {
+                    tbody2 += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
                 }
             }
-            tbody.appendChild(row);
+
+            pageDiv.innerHTML = header + tableStart + tbody1 + tableMid + tbody2 + tableEnd;
+            
+            // শেষ পেজে সামারি দেখানো
+            if (p === pageCount - 1) {
+                pageDiv.innerHTML += `<div class="summary">
+                    মোট পিস: ${items.length} | মোট ঘনফুট (CFT): ${totalCFT.toFixed(2)}
+                </div>`;
+            }
+            
+            container.appendChild(pageDiv);
         }
-        
-        document.getElementById('totalPcs').innerText = items.length;
-        document.getElementById('totalCFT').innerText = totalCFT.toFixed(2);
     }
+
+    renderPages(); // Initial empty page
 </script>
 
 </body>
