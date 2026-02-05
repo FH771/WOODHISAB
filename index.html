@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC Wood System - Updated Pro</title>
+    <title>BFIDC Wood System - Pro Update</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @page { size: A4; margin: 10mm; }
@@ -47,8 +47,8 @@
 <div id="login-screen">
     <div class="box">
         <h2 style="color:#2e7d32">BFIDC কাপ্তাই</h2>
-        <input type="text" id="loginId" placeholder="User ID">
-        <input type="password" id="loginPass" placeholder="Password">
+        <input type="text" id="loginId" placeholder="User ID (admin)">
+        <input type="password" id="loginPass" placeholder="Password (1234)">
         <button onclick="attemptLogin()">Login</button>
     </div>
 </div>
@@ -95,8 +95,9 @@
 
 <script>
     let items = [];
-    let masterUser = localStorage.getItem('masterUser') || "fahad";
-    let masterPass = localStorage.getItem('masterPass') || "5470";
+    // ডিফল্ট লগইন আইডি admin এবং পাসওয়ার্ড 1234 সেট করা হয়েছে
+    let masterUser = localStorage.getItem('masterUser') || "admin";
+    let masterPass = localStorage.getItem('masterPass') || "1234";
 
     function attemptLogin() {
         const id = document.getElementById('loginId').value.trim();
@@ -105,7 +106,7 @@
             sessionStorage.setItem('sessionActive', 'true');
             sessionStorage.setItem('sessionUser', id);
             showMain(id);
-        } else { alert("ভুল আইডি বা পাসওয়ার্ড!"); }
+        } else { alert("ভুল আইডি বা পাসওয়ার্ড! ডিফল্ট: admin / 1234"); }
     }
 
     function showMain(user) {
@@ -119,7 +120,7 @@
 
     function logout() { sessionStorage.clear(); location.reload(); }
 
-    // Navigation
+    // Navigation (Arrow Keys & Enter)
     document.addEventListener('keydown', (e) => {
         const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
         const idx = inputs.indexOf(document.activeElement);
@@ -139,7 +140,7 @@
         let isWood = (type === 'wood');
         document.getElementById('ve-box').style.display = isWood ? 'block' : 'none';
         document.getElementById('l1').innerText = isWood ? 'চওড়া (ইঞ্চি)' : 'বেড় (ইঞ্চি)';
-        renderPages(); // ধরণ বদলালে হেডার আপডেট হবে
+        renderPages(); // ধরণ বদলালে হেডার টেক্সট আপডেট হবে
     }
 
     function resetPieceNo() { document.getElementById('pNo').value = 1; }
@@ -151,6 +152,7 @@
         let type = document.getElementById('type').value;
         if(!v1 || !v2) return;
 
+        // গোল কাঠের সূত্র: (বেড়/৪)^২ * লম্বা / ১৪৪ | সাইজ কাঠের সূত্র: চওড়া * পুরুত্ব * লম্বা / ১৪৪
         let cft = (type === 'log') ? (Math.pow((v1/4), 2)*v2)/144 : (v1*ve*v2)/144;
         items.push({ tNo: document.getElementById('tNo').value, pNo: document.getElementById('pNo').value, type, v1, v2, ve, cft: parseFloat(cft.toFixed(2)) });
         
@@ -195,10 +197,12 @@
                 } table += `</table>`;
             }
 
-            // হেডার কন্ডিশন: ধরণ অনুযায়ী লেখা বদলাবে
-            let headerHTML = (currentType === 'log') 
-                ? `<div style="text-align:center"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>`
-                : `<div style="text-align:center"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>সাইজ কাঠের মেজারমেন্ট স্লিপ</h3></div>`; 
+            // হেডার টেক্সট কন্ডিশন
+            let titleText = (currentType === 'log') ? "গোল কাঠের মেজারমেন্ট স্লিপ" : "সাইজ কাঠের মেজারমেন্ট স্লিপ";
+            let headerHTML = `<div style="text-align:center">
+                                <h2>বিএফআইডিসি, কাপ্তাই</h2>
+                                <h3>${titleText}</h3>
+                             </div>`;
 
             pageDiv.innerHTML = headerHTML + table + `</div>`;
             if (p === pageCount - 1) {
@@ -218,7 +222,7 @@
             data: [...items] 
         });
         localStorage.setItem('woodHistory', JSON.stringify(history));
-        alert("Save Done!");
+        alert("হিস্ট্রিতে সেভ হয়েছে!");
     }
 
     function showHistory() {
@@ -228,7 +232,7 @@
         else {
             content.innerHTML = history.reverse().map((h, i) => `
                 <div style="border-bottom:1px solid #eee; padding:10px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><div style="font-size:11px;">${h.date} (${h.type})</div></div>
+                    <div><div style="font-size:11px; font-weight:bold;">${h.date}</div><div style="font-size:10px;">Type: ${h.type} | Items: ${h.data.length}</div></div>
                     <div>
                         <button onclick="loadHistory(${history.length-1-i})" style="padding:4px 8px; background:#2e7d32; color:white; border:none; border-radius:4px; font-size:10px;">Load</button>
                         <button onclick="delHistory(${history.length-1-i})" style="padding:4px 8px; background:red; color:white; border:none; border-radius:4px; font-size:10px; margin-left:4px;">Del</button>
@@ -240,13 +244,16 @@
 
     function loadHistory(idx) {
         let history = JSON.parse(localStorage.getItem('woodHistory'));
-        items = [...history[idx].data];
-        document.getElementById('type').value = history[idx].type;
-        toggleInputs(); renderPages(); closeHistory();
+        let selected = history[idx];
+        items = [...selected.data];
+        document.getElementById('type').value = selected.type;
+        toggleInputs(); 
+        renderPages(); 
+        closeHistory();
     }
 
     function delHistory(idx) {
-        if(confirm("হিস্ট্রি মুছে ফেলবেন?")) {
+        if(confirm("হিস্ট্রি ডিলিট করবেন?")) {
             let history = JSON.parse(localStorage.getItem('woodHistory'));
             history.splice(idx, 1);
             localStorage.setItem('woodHistory', JSON.stringify(history));
@@ -255,7 +262,7 @@
     }
 
     function closeHistory() { document.getElementById('history-modal').style.display = 'none'; }
-    function finishWork() { if(confirm("সব ডাটা ক্লিয়ার করবেন?")) { items=[]; renderPages(); } }
+    function finishWork() { if(confirm("সব ডাটা মুছে ফেলবেন? (মুছার আগে সেভ করে নিন)")) { items=[]; renderPages(); } }
 </script>
 </body>
 </html>
