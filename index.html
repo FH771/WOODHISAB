@@ -7,34 +7,30 @@
         @page { size: A4; margin: 10mm; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1b5e20; margin: 0; }
         
-        /* Login UI from your Screenshot */
         #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; }
         .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .login-box h2 { margin-bottom: 20px; font-weight: bold; }
         .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
         .login-box button { background: #2e7d32; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
         #main-wrapper { display: none; background: #f0f2f5; min-height: 100vh; padding-top: 20px; }
         .no-print { background: white; padding: 25px; max-width: 980px; margin: 0 auto; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        /* Table Layout for Print */
         .page { background: white; width: 210mm; height: 297mm; padding: 12mm; margin: 20px auto; box-sizing: border-box; display: flex; flex-direction: column; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid black; padding-bottom: 10px; }
-        .page.size-wood-mode .header { display: none; } /* সাইজ কাঠ হলে হেডার উধাও */
+        .page.size-wood-mode .header { display: none; } /* সাইজ কাঠ হলে হেডার হাইড */
         
         .table-container { display: flex; border: 1.5px solid black; flex-grow: 1; }
         .sub-table { width: 50%; border-collapse: collapse; }
         .sub-table:first-child { border-right: 1.5px solid black; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 4px; text-align: center; font-size: 11px; height: 24px; }
         
-        /* History & Action Buttons */
-        .btn-del-hist { background: #d32f2f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .auto-save-tag { color: #2e7d32; font-size: 12px; font-weight: bold; margin-bottom: 5px; display: block; }
+        .btn-edit { background: #0288d1; color: white; border: none; padding: 2px 5px; border-radius: 3px; cursor: pointer; font-size: 10px; margin-right: 2px; }
+        .btn-del { background: #d32f2f; color: white; border: none; padding: 2px 5px; border-radius: 3px; cursor: pointer; font-size: 10px; }
         
         @media print { 
             body { background: white; }
-            .no-print, #history-panel, .edit-btn, .del-btn { display: none !important; }
-            .page { margin: 0; box-shadow: none; border: none; }
+            .no-print, #history-panel, .btn-edit, .btn-del { display: none !important; }
+            .page { margin: 0; box-shadow: none; border: none; } 
         }
     </style>
 </head>
@@ -51,10 +47,9 @@
 
 <div id="main-wrapper">
     <div class="no-print">
-        <span class="auto-save-tag">● Auto Saving Enabled</span>
         <div class="input-grid" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 15px;">
-            <div><label>ক্রমিক নং</label><input type="number" id="treeNo" value="1" oninput="updateSL()"></div>
-            <div><label>ক্র.নং</label><input type="number" id="logNo" value="1" oninput="updateSL()"></div>
+            <div><label>গাছ নং</label><input type="number" id="tNo" value="1"></div>
+            <div><label>পিস নং</label><input type="number" id="pNo" value="1"></div>
             <div><label>ধরণ</label>
                 <select id="type" onchange="toggleInputs()">
                     <option value="log">গোল কাঠ (Log)</option>
@@ -62,20 +57,21 @@
                 </select>
             </div>
             <div><label id="l1">বেড় (ইঞ্চি)</label><input type="number" id="v1"></div>
-            <div id="p-box" style="display:none;"><label>পুরুত্ব (ইঞ্চি)</label><input type="number" id="ve"></div>
+            <div id="ve-box" style="display:none;"><label>পুরুত্ব (ইঞ্চি)</label><input type="number" id="ve"></div>
             <div><label>লম্বা (ফুট)</label><input type="number" id="v2"></div>
         </div>
         
-        <div style="display: flex; gap: 10px;">
-            <button onclick="addItem()" style="background:#2e7d32; color:white; border:none; padding:12px; border-radius:8px; flex:2; font-weight:bold; cursor:pointer;">তালিকায় যোগ করুন (+)</button>
-            <button onclick="window.print()" style="background:#1565c0; color:white; border:none; padding:12px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">প্রিন্ট ও সেভ</button>
-            <button onclick="toggleHistory()" style="background:#ff9800; color:white; border:none; padding:12px; border-radius:8px; flex:0.5; font-weight:bold; cursor:pointer;">History</button>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="addItem()" id="addBtn" style="background:#2e7d32; color:white; border:none; padding:12px; border-radius:8px; flex:2; font-weight:bold; cursor:pointer;">তালিকায় যোগ করুন (+)</button>
+            <button onclick="manualSave()" style="background:#ff9800; color:white; border:none; padding:12px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">Save</button>
+            <button onclick="window.print()" style="background:#1565c0; color:white; border:none; padding:12px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">Print</button>
+            <button onclick="toggleHistory()" style="background:#607d8b; color:white; border:none; padding:12px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">History</button>
         </div>
     </div>
 
     <div id="history-panel" class="no-print" style="max-width:980px; margin:20px auto; background:white; padding:20px; border-radius:15px; display:none;">
-        <h3>আপনার হিস্ট্রি (এখানে ডিলিট করতে পারবেন)</h3>
-        <table style="width:100%; border-collapse:collapse;">
+        <h3>History (এখানে Open ও Delete করা যাবে)</h3>
+        <table style="width:100%; border-collapse:collapse; text-align:center;">
             <thead><tr style="background:#f4f4f4;"><th>তারিখ</th><th>পিস</th><th>CFT</th><th>অ্যাকশন</th></tr></thead>
             <tbody id="hist-list"></tbody>
         </table>
@@ -88,10 +84,11 @@
     let items = [];
     let history = JSON.parse(localStorage.getItem('woodHistory')) || [];
     let currentUser = "";
+    let editIdx = -1;
 
     function login() {
         const id = document.getElementById('userId').value.trim();
-        if (!id) { alert("User ID দিন"); return; } // আপনার সেই অ্যালার্ট
+        if (!id) { alert("User ID দিন"); return; }
         currentUser = id;
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('main-wrapper').style.display = 'block';
@@ -100,7 +97,7 @@
 
     function toggleInputs() {
         let isGas = document.getElementById('type').value === 'gas';
-        document.getElementById('p-box').style.display = isGas ? 'block' : 'none';
+        document.getElementById('ve-box').style.display = isGas ? 'block' : 'none';
         document.getElementById('l1').innerText = isGas ? 'চওড়া (ইঞ্চি)' : 'বেড় (ইঞ্চি)';
         renderPages();
     }
@@ -110,20 +107,34 @@
         let v2 = parseFloat(document.getElementById('v2').value) || 0;
         let ve = parseFloat(document.getElementById('ve').value) || 0;
         let type = document.getElementById('type').value;
+        let tNo = document.getElementById('tNo').value;
+        let pNo = document.getElementById('pNo').value;
         let cft = (type === 'log') ? (Math.pow((v1/4), 2)*v2)/144 : (v1*ve*v2)/144;
 
         if(cft > 0) {
-            items.push({ sl: items.length+1, type, v1, v2, ve, cft: cft.toFixed(2) });
-            autoSave();
+            let obj = { tNo, pNo, type, v1, v2, ve, cft: cft.toFixed(2) };
+            if(editIdx === -1) {
+                items.push(obj);
+                document.getElementById('pNo').value++;
+            } else {
+                items[editIdx] = obj;
+                editIdx = -1;
+                document.getElementById('addBtn').innerText = "তালিকায় যোগ করুন (+)";
+                document.getElementById('addBtn').style.background = "#2e7d32";
+            }
             renderPages();
-            document.getElementById('v1').value = ""; document.getElementById('v2').value = ""; 
+            document.getElementById('v1').value = ""; 
+            document.getElementById('v2').value = "";
+            document.getElementById('ve').value = "";
         }
     }
 
-    function autoSave() {
-        let record = { user: currentUser, date: new Date().toLocaleString(), data: [...items], total: items.reduce((a, b) => a + parseFloat(b.cft), 0).toFixed(2) };
-        history.unshift(record);
-        localStorage.setItem('woodHistory', JSON.stringify(history.slice(0, 20))); // ২০টা পর্যন্ত সেভ থাকবে
+    function manualSave() {
+        if(items.length === 0) return alert("সেভ করার মতো কোনো ডাটা নেই!");
+        let total = items.reduce((a, b) => a + parseFloat(b.cft), 0).toFixed(2);
+        history.unshift({ user: currentUser, date: new Date().toLocaleString(), data: [...items], total, type: document.getElementById('type').value });
+        localStorage.setItem('woodHistory', JSON.stringify(history));
+        alert("সফলভাবে সেভ হয়েছে!");
     }
 
     function renderPages() {
@@ -135,12 +146,7 @@
         for (let p = 0; p < pageCount; p++) {
             let pageDiv = document.createElement('div');
             pageDiv.className = 'page' + (listType === 'gas' ? ' size-wood-mode' : '');
-            
-            let header = `<div class="header">
-                <h2>বিএফআইডিসি, .................................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি, কাপ্তাই</h2>
-                <h3>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3>
-            </div>`;
-
+            let header = `<div class="header"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই প্রেরণের জন্য</h2><h3>কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3></div>`;
             let table = `<div class="table-container">`;
             for (let col = 0; col < 2; col++) {
                 table += `<table class="sub-table"><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>CFT</th></tr>`;
@@ -148,7 +154,8 @@
                     let idx = (p*60) + (col*30) + r;
                     if(idx < items.length) {
                         let itm = items[idx];
-                        table += `<tr><td>${idx+1}</td><td>${itm.v1}x${itm.v2}</td><td>${itm.cft}</td></tr>`;
+                        let m = itm.type === 'log' ? `${itm.v1}"x${itm.v2}'` : `${itm.v1}"x${itm.ve}"x${itm.v2}'`;
+                        table += `<tr><td>${itm.tNo}/${itm.pNo} <button class="btn-edit" onclick="startEdit(${idx})">E</button><button class="btn-del" onclick="delItem(${idx})">D</button></td><td>${m}</td><td>${itm.cft}</td></tr>`;
                     } else { table += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`; }
                 }
                 table += `</table>`;
@@ -159,27 +166,43 @@
         }
     }
 
+    function startEdit(idx) {
+        editIdx = idx;
+        let itm = items[idx];
+        document.getElementById('v1').value = itm.v1;
+        document.getElementById('v2').value = itm.v2;
+        document.getElementById('ve').value = itm.ve;
+        document.getElementById('tNo').value = itm.tNo;
+        document.getElementById('pNo').value = itm.pNo;
+        document.getElementById('addBtn').innerText = "Update Now";
+        document.getElementById('addBtn').style.background = "#0288d1";
+    }
+
+    function delItem(idx) {
+        if(confirm("মুছে ফেলবেন?")) { items.splice(idx, 1); renderPages(); }
+    }
+
     function toggleHistory() {
         const panel = document.getElementById('history-panel');
         panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
         let list = document.getElementById('hist-list');
         list.innerHTML = "";
         history.filter(h => h.user === currentUser).forEach((h, i) => {
-            list.innerHTML += `<tr style="border-bottom:1px solid #eee;">
-                <td style="padding:10px;">${h.date}</td>
-                <td>${h.data.length}</td>
-                <td>${h.total}</td>
-                <td><button class="btn-del-hist" onclick="delHist(${i})">Delete</button></td>
-            </tr>`;
+            list.innerHTML += `<tr><td>${h.date}</td><td>${h.data.length}</td><td>${h.total}</td>
+                <td><button onclick="openHist(${i})" style="background:#4caf50; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer;">Open</button>
+                <button onclick="delHist(${i})" style="background:red; color:white; border:none; padding:4px; border-radius:3px; cursor:pointer; margin-left:5px;">Delete</button></td></tr>`;
         });
     }
 
+    function openHist(i) {
+        items = [...history[i].data];
+        document.getElementById('type').value = history[i].type;
+        toggleInputs();
+        document.getElementById('history-panel').style.display = 'none';
+    }
+
     function delHist(i) {
-        if(confirm("এই হিস্ট্রি কি ডিলিট করবেন?")) {
-            history.splice(i, 1);
-            localStorage.setItem('woodHistory', JSON.stringify(history));
-            toggleHistory();
-        }
+        if(confirm("হিস্ট্রি ডিলিট করবেন?")) { history.splice(i, 1); localStorage.setItem('woodHistory', JSON.stringify(history)); toggleHistory(); }
     }
 </script>
 </body>
