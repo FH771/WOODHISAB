@@ -3,52 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC কাঠের প্রফেশনাল লিস্ট</title>
+    <title>BFIDC Professional Wood List</title>
     <style>
         @page { size: A4; margin: 10mm; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
 
-        /* লগইন ডিজাইন */
+        /* Login Screen */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1b5e20; display: flex; justify-content: center; align-items: center; z-index: 10000; }
-        .login-box { background: white; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 350px; }
-        .login-box h2 { margin-bottom: 25px; color: #1b5e20; }
-        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; box-sizing: border-box; }
-        .login-box button { background: #2e7d32; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; }
+        .login-box { background: white; padding: 35px; border-radius: 15px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 320px; }
+        .login-box h2 { color: #1b5e20; margin-bottom: 20px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; box-sizing: border-box; outline: none; }
+        .login-box button { background: #2e7d32; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
 
         #main-wrapper { display: none; }
-        .no-print { background: white; padding: 25px; max-width: 950px; margin: 20px auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 10px; z-index: 100; border-top: 5px solid #2e7d32; }
+        .no-print { background: white; padding: 20px; max-width: 950px; margin: 15px auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 10px; z-index: 100; border-top: 5px solid #2e7d32; }
         
-        /* ইনপুট গ্রিড */
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 20px; }
-        label { display: block; font-weight: bold; font-size: 13px; color: #333; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        .user-info { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 14px; color: #1b5e20; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        label { display: block; font-weight: bold; font-size: 12px; margin-bottom: 4px; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         
-        .btn-row { display: flex; gap: 10px; }
-        .add-btn { background: #2e7d32; color: white; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; border-radius: 6px; flex: 2; }
-        .print-btn { background: #1565c0; color: white; border: none; padding: 12px; cursor: pointer; border-radius: 6px; flex: 1; font-weight: bold; }
-        .edit-btn { background: #0288d1; color: white; border: none; padding: 2px 6px; cursor: pointer; font-size: 10px; border-radius: 3px; }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .add-btn { background: #2e7d32; color: white; border: none; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 6px; flex: 2; }
+        .print-btn { background: #1565c0; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 6px; flex: 1; }
+        .hist-btn { background: #ff9800; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 6px; flex: 1; }
+        .edit-btn { background: #0288d1; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 9px; border-radius: 3px; }
 
-        /* A4 পেজ ডিজাইন */
-        .page { 
-            background: white; width: 210mm; height: 297mm; padding: 15mm; 
-            margin: 20px auto; box-sizing: border-box; box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            page-break-after: always; display: flex; flex-direction: column; position: relative;
-        }
-        .header-section { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
-        .header-section h1 { font-size: 16px; margin: 0; line-height: 1.6; }
-        
+        /* History Panel */
+        #history-panel { display: none; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; max-width: 950px; margin: 10px auto; }
+        .hist-item { border-bottom: 1px solid #eee; padding: 8px; display: flex; justify-content: space-between; font-size: 13px; }
+        .user-tag { background: #e8f5e9; color: #2e7d32; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+
+        /* A4 Page */
+        .page { background: white; width: 210mm; height: 297mm; padding: 12mm; margin: 15px auto; box-sizing: border-box; border: 1px solid #ddd; page-break-after: always; display: flex; flex-direction: column; }
+        .header { text-align: center; border-bottom: 2px solid black; padding-bottom: 8px; margin-bottom: 15px; }
+        .header h1 { font-size: 15px; margin: 2px; }
         .table-container { display: flex; border: 1.5px solid black; flex-grow: 1; align-items: flex-start; }
         .sub-table { width: 50%; border-collapse: collapse; }
         .sub-table:first-child { border-right: 1.5px solid black; }
-        .sub-table th { background: #f2f2f2; border: 1px solid black; padding: 5px; font-size: 12px; }
-        .sub-table td { border: 1px solid black; padding: 4px; text-align: center; font-size: 12px; height: 24px; }
-        
-        .footer-summary { margin-top: 15px; border: 2px solid #000; padding: 15px; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; background: #fafafa; }
+        .sub-table th, .sub-table td { border: 1px solid black; padding: 3px; text-align: center; font-size: 11px; height: 23px; }
+        .summary-box { margin-top: 10px; border: 2px solid black; padding: 10px; font-weight: bold; display: flex; justify-content: space-between; font-size: 13px; }
 
         @media print { 
             body { background: none; }
-            #login-screen, .no-print, .edit-btn { display: none !important; } 
-            .page { margin: 0; box-shadow: none; border: none; } 
+            #login-screen, .no-print, #history-panel, .edit-btn { display: none !important; } 
+            .page { margin: 0; border: none; } 
         }
     </style>
 </head>
@@ -57,18 +56,22 @@
 <div id="login-screen">
     <div class="login-box">
         <h2>BFIDC কাপ্তাই</h2>
-        <input type="text" id="userName" placeholder="আপনার নাম">
-        <input type="password" id="passInput" placeholder="পাসওয়ার্ড (1234 / 0000)">
-        <button onclick="checkLogin()">প্রবেশ করুন</button>
+        <input type="text" id="userId" placeholder="User ID">
+        <input type="password" id="passInput" placeholder="Password">
+        <button onclick="login()">Login</button>
     </div>
 </div>
 
 <div id="main-wrapper">
     <div class="no-print">
+        <div class="user-info">
+            <span>ব্যবহারকারী: <span id="display-user"></span></span>
+            <span id="display-role"></span>
+        </div>
         <div class="input-grid">
             <div id="treeBox"><label>গাছ নং</label><input type="number" id="treeNo" value="1" oninput="updateSL()"></div>
             <div><label>লগ নং</label><input type="number" id="logNo" value="1" oninput="updateSL()"></div>
-            <div><label>ফুল আইডি</label><input type="text" id="slNo" value="1/1" readonly style="background:#eee;"></div>
+            <div><label>ফুল আইডি</label><input type="text" id="slNo" value="1/1" readonly style="background:#f9f9f9;"></div>
             <div><label>ধরণ</label>
                 <select id="type" onchange="toggleInputs()">
                     <option value="log">গোল কাঠ (Log)</option>
@@ -79,12 +82,17 @@
             <div id="boxExtra" style="display:none;"><label>পুরুত্ব (ইঞ্চি)</label><input type="number" id="valExtra" step="any"></div>
             <div><label>লম্বা (ফুট)</label><input type="number" id="val2" step="any"></div>
         </div>
-        
         <div class="btn-row">
             <button class="add-btn" id="addBtn" onclick="addItem()">তালিকায় যোগ করুন (+)</button>
             <button class="print-btn" onclick="saveAndPrint()">প্রিন্ট ও সেভ</button>
-            <button style="background:#666; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer;" onclick="location.reload()">Log Out</button>
+            <button class="hist-btn" onclick="toggleHistory()">History</button>
+            <button style="background:#555; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer;" onclick="location.reload()">Logout</button>
         </div>
+    </div>
+
+    <div id="history-panel">
+        <h3 id="hist-title">কাজের হিস্ট্রি</h3>
+        <div id="hist-list"></div>
     </div>
 
     <div id="pages-area"></div>
@@ -92,16 +100,24 @@
 
 <script>
     let items = JSON.parse(localStorage.getItem('woodData')) || [];
+    let history = JSON.parse(localStorage.getItem('woodHistory')) || [];
+    let currentUser = "";
+    let isAdmin = false;
     let editIdx = -1;
 
-    function checkLogin() {
+    function login() {
+        const id = document.getElementById('userId').value.trim();
         const pass = document.getElementById('passInput').value;
-        const name = document.getElementById('userName').value;
-        if(name && (pass === "1234" || pass === "0000")) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-wrapper').style.display = 'block';
-            renderPages();
-        } else { alert("সঠিক নাম ও পাসওয়ার্ড দিন!"); }
+        if (!id) return alert("User ID দিন");
+        
+        currentUser = id;
+        isAdmin = (pass === "1234");
+        
+        document.getElementById('display-user').innerText = id;
+        document.getElementById('display-role').innerText = isAdmin ? "[ADMIN]" : "[USER]";
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-wrapper').style.display = 'block';
+        renderPages();
     }
 
     function updateSL() {
@@ -115,7 +131,7 @@
         let isGas = document.getElementById('type').value === 'gas';
         document.getElementById('treeBox').style.display = isGas ? 'none' : 'block';
         document.getElementById('boxExtra').style.display = isGas ? 'block' : 'none';
-        document.getElementById('label1').innerText = isGas ? 'চওড়া (ইঞ্চি)' : 'বেড় (ইঞ্চি)';
+        document.getElementById('label1').innerText = isGas ? 'চওড়া' : 'বেড়';
         updateSL();
     }
 
@@ -124,20 +140,13 @@
         let v2 = parseFloat(document.getElementById('val2').value) || 0;
         let ve = parseFloat(document.getElementById('valExtra').value) || 0;
         let type = document.getElementById('type').value;
-        
         let cft = (type === 'log') ? (Math.pow((v1/4), 2)*v2)/144 : (v1*ve*v2)/144;
 
         if(cft > 0) {
-            let obj = { sl: document.getElementById('slNo').value, type, v1, v2, ve, cft: parseFloat(cft.toFixed(2)), tNo: document.getElementById('treeNo').value };
-            if(editIdx === -1) { 
-                items.push(obj); 
-                document.getElementById('logNo').value++;
-            } else { 
-                items[editIdx] = obj; 
-                editIdx = -1; 
-                document.getElementById('addBtn').innerText = "তালিকায় যোগ করুন (+)";
-                document.getElementById('addBtn').style.background = "#2e7d32";
-            }
+            let obj = { user: currentUser, sl: document.getElementById('slNo').value, type, v1, v2, ve, cft: parseFloat(cft.toFixed(2)), tNo: document.getElementById('treeNo').value };
+            if(editIdx === -1) { items.push(obj); document.getElementById('logNo').value++; }
+            else { items[editIdx] = obj; editIdx = -1; document.getElementById('addBtn').innerText = "তালিকায় যোগ করুন (+)"; }
+            
             localStorage.setItem('woodData', JSON.stringify(items));
             renderPages(); updateSL();
             document.getElementById('val1').value = ""; document.getElementById('val2').value = ""; document.getElementById('valExtra').value = "";
@@ -150,24 +159,13 @@
         area.innerHTML = "";
         let totalCFT = 0, trees = new Set();
         let listType = document.getElementById('type').value;
-        
-        // প্রতি পেজে ৬০টি ডাটা (৩০+৩০)
         let pageCount = Math.ceil(items.length / 60) || 1;
 
         for (let p = 0; p < pageCount; p++) {
-            let pageDiv = document.createElement('div');
-            pageDiv.className = 'page';
-            
-            let headerHtml = `
-                <div class="header-section">
-                    <h1>বিএফআইডিসি, ..................................................... রাবার বাগান হতে কাপ্তাই প্রেরণের জন্য</h1>
-                    <h1>জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h1>
-                </div>`;
-            
-            let tableContainer = document.createElement('div');
-            tableContainer.className = 'table-container';
+            let pageDiv = document.createElement('div'); pageDiv.className = 'page';
+            let header = `<div class="header"><h1>বিএফআইডিসি, .................................... রাবার বাগান হতে কাপ্তাই প্রেরণের জন্য</h1><h1>জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h1></div>`;
+            let tableCont = document.createElement('div'); tableCont.className = 'table-container';
 
-            // দুই কলামের টেবিল
             for (let col = 0; col < 2; col++) {
                 let table = `<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>CFT</th></tr></thead><tbody>`;
                 for (let row = 0; row < 30; row++) {
@@ -175,52 +173,55 @@
                     if (idx < items.length) {
                         let itm = items[idx];
                         let m = itm.type === 'log' ? `${itm.v1}"×${itm.v2}'` : `${itm.v1}"×${itm.ve}"×${itm.v2}'`;
-                        table += `<tr>
-                            <td>${itm.sl} <button class="edit-btn" onclick="startEdit(${idx})">E</button></td>
-                            <td>${m}</td>
-                            <td>${itm.cft}</td>
-                        </tr>`;
-                        totalCFT += itm.cft;
-                        trees.add(itm.tNo);
-                    } else {
-                        table += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
-                    }
+                        table += `<tr><td>${itm.sl} <button class="edit-btn" onclick="startEdit(${idx})">E</button></td><td>${m}</td><td>${itm.cft}</td></tr>`;
+                        totalCFT += itm.cft; trees.add(itm.tNo);
+                    } else { table += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`; }
                 }
-                table += `</tbody></table>`;
-                tableContainer.innerHTML += table;
+                tableCont.innerHTML += table + `</tbody></table>`;
             }
-
-            pageDiv.innerHTML = headerHtml;
-            pageDiv.appendChild(tableContainer);
-            
-            // শুধুমাত্র শেষ পেজে সামারি দেখাবে
+            pageDiv.innerHTML = header; pageDiv.appendChild(tableCont);
             if (p === pageCount - 1) {
-                pageDiv.innerHTML += `
-                    <div class="footer-summary">
-                        <span>মোট গাছ: ${listType==='log'?trees.size:'0'} টি</span>
-                        <span>মোট পিস: ${items.length} টি</span>
-                        <span>সর্বমোট CFT: ${totalCFT.toFixed(2)}</span>
-                    </div>`;
+                pageDiv.innerHTML += `<div class="summary-box"><span>মোট গাছ: ${listType==='log'?trees.size:'0'} টি</span><span>মোট পিস: ${items.length} টি</span><span>মোট CFT: ${totalCFT.toFixed(2)}</span></div>`;
             }
             area.appendChild(pageDiv);
         }
     }
 
+    function toggleHistory() {
+        const panel = document.getElementById('history-panel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        let list = document.getElementById('hist-list');
+        list.innerHTML = "";
+        
+        let filtered = isAdmin ? history : history.filter(h => h.user === currentUser);
+        filtered.forEach(h => {
+            list.innerHTML += `<div class="hist-item">
+                <span>📅 ${h.date} ${isAdmin ? `<span class="user-tag">ID: ${h.user}</span>` : ''}</span>
+                <span><b>${h.total} CFT</b> (${h.count} পিস)</span>
+            </div>`;
+        });
+        if(filtered.length === 0) list.innerHTML = "কোন রেকর্ড পাওয়া যায়নি।";
+    }
+
+    function saveAndPrint() {
+        if (items.length === 0) return;
+        let total = items.reduce((sum, itm) => sum + itm.cft, 0).toFixed(2);
+        let record = { user: currentUser, date: new Date().toLocaleString('bn-BD'), total: total, count: items.length };
+        history.unshift(record);
+        localStorage.setItem('woodHistory', JSON.stringify(history));
+        window.print();
+    }
+
     function startEdit(idx) {
         editIdx = idx;
         let itm = items[idx];
-        document.getElementById('type').value = itm.type;
-        toggleInputs();
-        document.getElementById('slNo').value = itm.sl;
+        document.getElementById('type').value = itm.type; toggleInputs();
         document.getElementById('val1').value = itm.v1;
         document.getElementById('val2').value = itm.v2;
         if(itm.type === 'gas') document.getElementById('valExtra').value = itm.ve;
-        document.getElementById('addBtn').innerText = "আপডেট করুন (Update)";
-        document.getElementById('addBtn').style.background = "#0288d1";
+        document.getElementById('addBtn').innerText = "Update";
         window.scrollTo(0,0);
     }
-
-    function saveAndPrint() { if(items.length > 0) window.print(); }
 </script>
 </body>
 </html>
