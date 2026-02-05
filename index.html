@@ -50,9 +50,9 @@
     <div id="alert-msg">⚠️ সাবধান: মোট ঘনফুট ৪৩০ অতিক্রম করেছে!</div>
     
     <div class="input-grid">
-        <div><label>গাছ নং</label><input type="number" id="treeNo" value="154" onchange="updateSL()"></div>
+        <div><label>গাছ নং</label><input type="number" id="treeNo" value="1" onchange="updateSL()"></div>
         <div><label>লগ নং</label><input type="number" id="logNo" value="1" onchange="updateSL()"></div>
-        <div><label>ক্র.নং (SL)</label><input type="text" id="slNo" value="154/1" readonly style="background:#eee;"></div>
+        <div><label>ক্র.নং (SL)</label><input type="text" id="slNo" value="1/1" readonly style="background:#eee;"></div>
         <div>
             <label>ধরণ</label>
             <select id="type" onchange="toggleInputs()">
@@ -165,7 +165,7 @@
                 <div class="summary-box">
                     হিসাব সারসংক্ষেপ:<br>
                     ---------------------------------------<br>
-                    ১. মোট গাছ (Tree) সংখ্যা: ${uniqueTrees.size} টি (${Array.from(uniqueTrees).join(', ')}) <br>
+                    ১. মোট গাছ (Tree) সংখ্যা: ${uniqueTrees.size} টি <br>
                     ২. মোট লগ (Log) সংখ্যা: ${totalLogs} টি <br>
                     ৩. সর্বমোট ঘনফুট (CFT): <span class="${totalCFT >= 430 ? 'warning-text' : ''}">${totalCFT.toFixed(2)}</span>
                 </div>`;
