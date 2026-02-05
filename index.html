@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC Wood System - Login Fixed</title>
+    <title>BFIDC Wood System - Final Fixed</title>
     <style>
         @page { size: A4; margin: 10mm; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1b5e20; margin: 0; padding: 0; }
@@ -11,7 +11,7 @@
         /* লগইন ও অ্যাডমিন প্যানেল */
         #login-screen, #admin-panel { display: flex; justify-content: center; align-items: center; height: 100vh; position: fixed; width: 100%; top: 0; left: 0; z-index: 1000; background: #1b5e20; }
         .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .login-box h2 { color: #2e7d32; margin-bottom: 20px; }
+        .login-box h2 { color: #2e7d32; margin-bottom: 20px; font-size: 22px; }
         .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
         .login-box button { background: #2e7d32; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .admin-link { color: #2e7d32; font-size: 12px; cursor: pointer; display: block; margin-top: 15px; text-decoration: underline; }
@@ -36,7 +36,7 @@
         .sub-table th, .sub-table td { border: 1px solid black; padding: 4px; text-align: center; font-size: 11px; height: 24px; }
         .summary-box { margin-top: 10px; border: 2.5px solid black; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; font-size: 15px; }
 
-        @media print { .no-print, #admin-panel { display: none !important; } .page { margin: 0; border: none; width: 210mm; } }
+        @media print { .no-print, #admin-panel, #login-screen { display: none !important; } .page { margin: 0; border: none; width: 210mm; } }
     </style>
 </head>
 <body>
@@ -47,17 +47,16 @@
         <input type="text" id="loginId" placeholder="User ID (admin)">
         <input type="password" id="loginPass" placeholder="Password (1234)">
         <button onclick="attemptLogin()">Login</button>
-        <span class="admin-link" onclick="openAdmin()">Admin Settings</span>
+        <span class="admin-link" onclick="openAdmin()">Password Change</span>
     </div>
 </div>
 
 <div id="admin-panel" style="display:none;">
     <div class="login-box">
-        <h3>Admin Panel</h3>
-        <p style="font-size: 12px; color: red;">নতুন আইডি ও পাসওয়ার্ড দিন</p>
-        <input type="text" id="newUserId" placeholder="নতুন ইউজার আইডি">
-        <input type="text" id="newUserPass" placeholder="নতুন পাসওয়ার্ড">
-        <button onclick="saveAdminSettings()" style="background: #1565c0;">Save & Close</button>
+        <h3>Change Admin Info</h3>
+        <input type="text" id="newUserId" placeholder="New User ID">
+        <input type="text" id="newUserPass" placeholder="New Password">
+        <button onclick="saveAdminSettings()" style="background: #1565c0;">Update & Refresh</button>
         <button onclick="closeAdmin()" style="background: #ccc; color: black; margin-top: 5px;">Cancel</button>
     </div>
 </div>
@@ -94,14 +93,19 @@
 
 <script>
     let itemsLog = [], itemsWood = [];
-    
-    // ব্রাউজারে যদি আগে আইডি পাসওয়ার্ড সেভ না থাকে তবে ডিফল্ট সেট হবে
-    if(!localStorage.getItem('masterUser')) localStorage.setItem('masterUser', 'admin');
-    if(!localStorage.getItem('masterPass')) localStorage.setItem('masterPass', '1234');
+
+    // ফোর্স রিসেট: যদি আগে কোনো ভুল ডাটা থাকে তা ক্লিয়ার করে ডিফল্ট সেট করবে
+    if(!localStorage.getItem('masterUser') || localStorage.getItem('masterUser') === "undefined") {
+        localStorage.setItem('masterUser', 'admin');
+    }
+    if(!localStorage.getItem('masterPass') || localStorage.getItem('masterPass') === "undefined") {
+        localStorage.setItem('masterPass', '1234');
+    }
 
     function attemptLogin() {
-        const id = document.getElementById('loginId').value;
-        const pass = document.getElementById('loginPass').value;
+        const id = document.getElementById('loginId').value.trim();
+        const pass = document.getElementById('loginPass').value.trim();
+        
         const savedUser = localStorage.getItem('masterUser');
         const savedPass = localStorage.getItem('masterPass');
 
@@ -110,44 +114,48 @@
             sessionStorage.setItem('sessionUser', id);
             showMain(id);
         } else { 
-            alert("ভুল আইডি বা পাসওয়ার্ড! ডিফল্ট: admin / 1234"); 
+            alert("ভুল আইডি বা পাসওয়ার্ড! \nচেষ্টা করুন: admin / 1234"); 
         }
     }
 
     function showMain(user) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('main-wrapper').style.display = 'block';
-        document.getElementById('active-user').innerText = user;
+        document.getElementById('active-user').innerText = user.toUpperCase();
         renderPages();
     }
 
+    // অটো লগইন চেক
     if(sessionStorage.getItem('sessionActive') === 'true') {
         showMain(sessionStorage.getItem('sessionUser'));
     }
 
-    function logout() { sessionStorage.clear(); location.reload(); }
+    function logout() {
+        sessionStorage.clear();
+        location.reload();
+    }
 
     function openAdmin() {
-        let p = prompt("অ্যাডমিন পাসওয়ার্ড (বর্তমান পাসওয়ার্ডটি দিন):");
+        let p = prompt("অ্যাডমিন পাসওয়ার্ড (ডিফল্ট: 1234):");
         if(p === localStorage.getItem('masterPass')) {
             document.getElementById('admin-panel').style.display = 'flex';
-        } else { alert("ভুল অ্যাক্সেস!"); }
+        } else { alert("ভুল পাসওয়ার্ড!"); }
     }
 
     function saveAdminSettings() {
-        let nUser = document.getElementById('newUserId').value;
-        let nPass = document.getElementById('newUserPass').value;
+        let nUser = document.getElementById('newUserId').value.trim();
+        let nPass = document.getElementById('newUserPass').value.trim();
         if(nUser && nPass) {
             localStorage.setItem('masterUser', nUser);
             localStorage.setItem('masterPass', nPass);
-            alert("সফলভাবে পরিবর্তন হয়েছে! এখন নতুন আইডি দিয়ে লগইন করুন।");
-            location.reload();
-        } else { alert("সবগুলো ঘর পূরণ করুন।"); }
+            alert("সফলভাবে আপডেট হয়েছে! নতুন আইডি দিয়ে লগইন করুন।");
+            logout();
+        } else { alert("আইডি ও পাসওয়ার্ড দুটিই লিখুন।"); }
     }
 
     function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
 
-    // কিবোর্ড কন্ট্রোল এবং অটো-ফোকাস রিসেট
+    // কিবোর্ড নেভিগেশন ও অটো-ফোকাস
     document.addEventListener('keydown', (e) => {
         const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
         const idx = inputs.indexOf(document.activeElement);
@@ -187,11 +195,11 @@
         
         document.getElementById('pNo').value++;
         renderPages();
+        
+        // ইনপুট ক্লিয়ার ও ফোকাস গাছ নং এ পাঠানো
         document.getElementById('v1').value = ""; 
         document.getElementById('v2').value = ""; 
         if(document.getElementById('ve')) document.getElementById('ve').value = "";
-        
-        // এন্টার দেওয়ার পর সরাসরি গাছ নং-এ ফোকাস চলে যাবে
         document.getElementById('tNo').focus();
     }
 
