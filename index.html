@@ -6,13 +6,19 @@
     <title>কাঠের সাইজ লিস্ট - BFIDC</title>
     <style>
         /* পাসওয়ার্ড স্ক্রিন স্টাইল */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2e7d32; display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .login-box { background: white; padding: 30px; border-radius: 10px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .login-box h2 { margin-top: 0; color: #333; }
-        .login-box input { width: 80%; padding: 10px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; font-size: 18px; text-align: center; }
-        .login-box button { background: #1976d2; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
-        body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; margin: 0; padding: 10px; display: none; } /* শুরুতে কন্টেন্ট হাইড থাকবে */
+        #login-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #2e7d32; display: flex; justify-content: center; align-items: center; z-index: 9999; 
+        }
+        .login-box { background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 300px; }
+        .login-box h2 { margin: 0 0 20px; color: #333; font-size: 24px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #ddd; border-radius: 6px; font-size: 18px; text-align: center; box-sizing: border-box; }
+        .login-box button { background: #1976d2; color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; }
+        
+        /* মেইন কন্টেন্ট স্টাইল */
+        #main-content { display: none; padding: 10px; } /* লগইন না হওয়া পর্যন্ত লুকানো থাকবে */
+        
+        body { font-family: 'Arial', sans-serif; background-color: #f4f4f4; margin: 0; }
         .no-print { background: white; padding: 20px; max-width: 950px; margin: 0 auto 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
         .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; }
@@ -32,7 +38,12 @@
         .warning-text { color: red; font-weight: bold; }
         #alert-msg { display:none; background: #ffcccc; color: #cc0000; padding: 10px; border-radius: 5px; text-align: center; margin-bottom: 10px; font-weight: bold; }
 
-        @media print { .no-print, #login-screen { display: none !important; } body { display: block !important; background: white; padding: 0; } .page { margin: 0; border: none; width: 100%; box-shadow: none; } }
+        @media print { 
+            .no-print, #login-screen { display: none !important; } 
+            #main-content { display: block !important; padding: 0; }
+            body { background: white; } 
+            .page { margin: 0; border: none; width: 100%; box-shadow: none; } 
+        }
     </style>
 </head>
 <body>
@@ -40,57 +51,55 @@
 <div id="login-screen">
     <div class="login-box">
         <h2>BFIDC কাপ্তাই</h2>
-        <p>সফটওয়্যারটি ব্যবহার করতে পাসওয়ার্ড দিন</p>
-        <input type="password" id="passInput" placeholder="Password দিন">
-        <br>
-        <button onclick="checkPass()">Login</button>
+        <input type="password" id="passInput" placeholder="পাসওয়ার্ড দিন">
+        <button onclick="checkPass()">LOGIN</button>
     </div>
 </div>
 
-<div class="no-print">
-    <h3 style="text-align:center; margin-top:0;">বিএফআইডিসি কাঠের হিসাব এন্ট্রি</h3>
-    <div id="alert-msg">⚠️ সাবধান: মোট ঘনফুট ৪৩০ অতিক্রম করেছে!</div>
-    
-    <div class="input-grid">
-        <div id="treeBox"><label>গাছ নং</label><input type="number" id="treeNo" value="1" onchange="updateSL()"></div>
-        <div><label id="logLabel">লগ নং</label><input type="number" id="logNo" value="1" onchange="updateSL()"></div>
-        <div><label>ক্র.নং (Table SL)</label><input type="text" id="slNo" value="1/1" readonly style="background:#eee;"></div>
-        <div>
-            <label>ধরণ</label>
-            <select id="type" onchange="toggleInputs()">
-                <option value="log">গোল (Log)</option>
-                <option value="gas">সাইজ (Gas)</option>
-            </select>
+<div id="main-content">
+    <div class="no-print">
+        <h3 style="text-align:center; margin-top:0;">বিএফআইডিসি কাঠের হিসাব এন্ট্রি</h3>
+        <div id="alert-msg">⚠️ সাবধান: মোট ঘনফুট ৪৩০ অতিক্রম করেছে!</div>
+        
+        <div class="input-grid">
+            <div id="treeBox"><label>গাছ নং</label><input type="number" id="treeNo" value="1" onchange="updateSL()"></div>
+            <div><label id="logLabel">লগ নং</label><input type="number" id="logNo" value="1" onchange="updateSL()"></div>
+            <div><label>ক্র.নং (Table SL)</label><input type="text" id="slNo" value="1/1" readonly style="background:#eee;"></div>
+            <div>
+                <label>ধরণ</label>
+                <select id="type" onchange="toggleInputs()">
+                    <option value="log">গোল (Log)</option>
+                    <option value="gas">সাইজ (Gas)</option>
+                </select>
+            </div>
+            <div><label id="label1">বেড় (ইঞ্চি)</label><input type="number" id="val1" step="any"></div>
+            <div id="boxExtra" style="display:none;"><label>পুরুত্ব (ইঞ্চি)</label><input type="number" id="valExtra" step="any"></div>
+            <div><label>লম্বা (ফুট)</label><input type="number" id="val2" step="any"></div>
         </div>
-        <div><label id="label1">বেড় (ইঞ্চি)</label><input type="number" id="val1" step="any"></div>
-        <div id="boxExtra" style="display:none;"><label>পুরুত্ব (ইঞ্চি)</label><input type="number" id="valExtra" step="any"></div>
-        <div><label>লম্বা (ফুট)</label><input type="number" id="val2" step="any"></div>
+        <div class="btn-row">
+            <button class="add-btn" onclick="addItem()">তালিকায় যোগ করুন (+)</button>
+            <button class="print-btn" onclick="window.print()">লিস্ট প্রিন্ট করুন</button>
+        </div>
     </div>
-    <div class="btn-row">
-        <button id="submit-btn" class="add-btn" onclick="addItem()">তালিকায় যোগ করুন (+)</button>
-        <button class="print-btn" onclick="window.print()">লিস্ট প্রিন্ট করুন</button>
-    </div>
+    <div id="pages-container"></div>
 </div>
-
-<div id="pages-container"></div>
 
 <script>
-    // এই নিচের লাইনে আপনি আপনার পছন্দের পাসওয়ার্ডটি লিখে দিতে পারেন
+    // এখানে আপনার পাসওয়ার্ড সেট করুন
     const MY_PASSWORD = "1234"; 
 
     function checkPass() {
         let input = document.getElementById('passInput').value;
         if (input === MY_PASSWORD) {
             document.getElementById('login-screen').style.display = 'none';
-            document.body.style.display = 'block';
+            document.getElementById('main-content').style.display = 'block';
         } else {
-            alert("ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।");
+            alert("ভুল পাসওয়ার্ড!");
         }
     }
 
-    // পাসওয়ার্ড ইনপুটে Enter চাপলে লগইন হবে
-    document.getElementById("passInput").addEventListener("keyup", function(event) {
-        if (event.key === "Enter") { checkPass(); }
+    document.getElementById("passInput").addEventListener("keyup", function(e) {
+        if (e.key === "Enter") checkPass();
     });
 
     let items = [];
@@ -126,10 +135,8 @@
             document.getElementById('logNo').value = parseInt(document.getElementById('logNo').value) + 1;
             updateSL();
             renderPages();
-            
             let currentTotal = items.reduce((s, i) => s + i.cft, 0);
             if(currentTotal >= 430) document.getElementById('alert-msg').style.display = 'block';
-
             document.getElementById('val1').value = ""; document.getElementById('val2').value = ""; document.getElementById('valExtra').value = ""; document.getElementById('val1').focus();
         }
     }
@@ -145,7 +152,6 @@
             pageDiv.className = 'page';
             let header = `<div class="header-text"><strong>বিএফআইডিসি, কাপ্তাই</strong><br>রাবার বাগান হতে বিএফআইডিসি, এলপিসি, কাপ্তাই প্রেরণের জন্য কাঠের সাইজ লিস্ট।</div><div class="table-container">`;
             let tables = ['<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>', '<table class="sub-table"><thead><tr><th>ক্র.নং</th><th>পরিমাপ</th><th>ঘনফুট</th></tr></thead><tbody>'];
-            
             for (let r = 0; r < rowsPerCol; r++) {
                 [0, rowsPerCol].forEach((offset, colIdx) => {
                     let idx = (p * rowsPerPage) + offset + r;
