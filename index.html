@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC Wood System - Final Fixed</title>
+    <title>BFIDC Wood System - Clean UI</title>
     <style>
         @page { size: A4; margin: 10mm; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1b5e20; margin: 0; padding: 0; }
         
-        /* লগইন ও অ্যাডমিন প্যানেল */
         #login-screen, #admin-panel { display: flex; justify-content: center; align-items: center; height: 100vh; position: fixed; width: 100%; top: 0; left: 0; z-index: 1000; background: #1b5e20; }
         .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .login-box h2 { color: #2e7d32; margin-bottom: 20px; font-size: 22px; }
-        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        .login-box button { background: #2e7d32; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .admin-link { color: #2e7d32; font-size: 12px; cursor: pointer; display: block; margin-top: 15px; text-decoration: underline; }
+        .login-box h2 { color: #2e7d32; margin-bottom: 25px; font-size: 24px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .login-box button { background: #2e7d32; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .admin-link { color: #2e7d32; font-size: 13px; cursor: pointer; display: block; margin-top: 15px; text-decoration: none; opacity: 0.7; }
+        .admin-link:hover { opacity: 1; text-decoration: underline; }
 
-        /* মেইন ইন্টারফেস */
         #main-wrapper { display: none; background: #f0f2f5; min-height: 100vh; padding: 10px; }
         .no-print { background: white; padding: 20px; max-width: 980px; margin: 0 auto 10px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
@@ -28,7 +27,6 @@
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-group button { flex: 1; min-width: 90px; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; font-size: 13px; }
         
-        /* প্রিন্ট ডিজাইন */
         .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm 12mm; margin: 10px auto; display: flex; flex-direction: column; box-shadow: 0 0 10px rgba(0,0,0,0.1); border: 1px solid #ddd; }
         .header { text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 15px; }
         .table-container { display: flex; border: 1.5px solid black; flex-grow: 1; }
@@ -44,20 +42,20 @@
 <div id="login-screen">
     <div class="login-box">
         <h2>BFIDC কাপ্তাই</h2>
-        <input type="text" id="loginId" placeholder="User ID (admin)">
-        <input type="password" id="loginPass" placeholder="Password (1234)">
+        <input type="text" id="loginId" placeholder="User ID">
+        <input type="password" id="loginPass" placeholder="Password">
         <button onclick="attemptLogin()">Login</button>
-        <span class="admin-link" onclick="openAdmin()">Password Change</span>
+        <span class="admin-link" onclick="openAdmin()">Settings</span>
     </div>
 </div>
 
 <div id="admin-panel" style="display:none;">
     <div class="login-box">
-        <h3>Change Admin Info</h3>
-        <input type="text" id="newUserId" placeholder="New User ID">
+        <h3>Change Access</h3>
+        <input type="text" id="newUserId" placeholder="New ID">
         <input type="text" id="newUserPass" placeholder="New Password">
-        <button onclick="saveAdminSettings()" style="background: #1565c0;">Update & Refresh</button>
-        <button onclick="closeAdmin()" style="background: #ccc; color: black; margin-top: 5px;">Cancel</button>
+        <button onclick="saveAdminSettings()">Save Changes</button>
+        <button onclick="closeAdmin()" style="background:#ccc; color:#000; margin-top:5px;">Back</button>
     </div>
 </div>
 
@@ -85,7 +83,7 @@
         <div class="btn-group">
             <button onclick="addItem()" id="addBtn" style="background:#2e7d32; flex: 1.5;">যোগ করুন (+)</button>
             <button onclick="window.print()" style="background:#1565c0;">Print</button>
-            <button onclick="finishWork()" style="background:#d32f2f;">Finish (মুছুন)</button>
+            <button onclick="finishWork()" style="background:#d32f2f;">Clear All</button>
         </div>
     </div>
     <div id="pages-area"></div>
@@ -94,27 +92,20 @@
 <script>
     let itemsLog = [], itemsWood = [];
 
-    // ফোর্স রিসেট: যদি আগে কোনো ভুল ডাটা থাকে তা ক্লিয়ার করে ডিফল্ট সেট করবে
-    if(!localStorage.getItem('masterUser') || localStorage.getItem('masterUser') === "undefined") {
-        localStorage.setItem('masterUser', 'admin');
-    }
-    if(!localStorage.getItem('masterPass') || localStorage.getItem('masterPass') === "undefined") {
-        localStorage.setItem('masterPass', '1234');
-    }
+    // মাস্টার ফাংশন যা আইডি পাসওয়ার্ড চেক করে
+    const getStoredId = () => localStorage.getItem('masterUser') || "admin";
+    const getStoredPass = () => localStorage.getItem('masterPass') || "1234";
 
     function attemptLogin() {
         const id = document.getElementById('loginId').value.trim();
         const pass = document.getElementById('loginPass').value.trim();
         
-        const savedUser = localStorage.getItem('masterUser');
-        const savedPass = localStorage.getItem('masterPass');
-
-        if (id === savedUser && pass === savedPass) {
+        if (id === getStoredId() && pass === getStoredPass()) {
             sessionStorage.setItem('sessionActive', 'true');
             sessionStorage.setItem('sessionUser', id);
             showMain(id);
         } else { 
-            alert("ভুল আইডি বা পাসওয়ার্ড! \nচেষ্টা করুন: admin / 1234"); 
+            alert("ভুল আইডি বা পাসওয়ার্ড!"); 
         }
     }
 
@@ -125,19 +116,15 @@
         renderPages();
     }
 
-    // অটো লগইন চেক
     if(sessionStorage.getItem('sessionActive') === 'true') {
         showMain(sessionStorage.getItem('sessionUser'));
     }
 
-    function logout() {
-        sessionStorage.clear();
-        location.reload();
-    }
+    function logout() { sessionStorage.clear(); location.reload(); }
 
     function openAdmin() {
-        let p = prompt("অ্যাডমিন পাসওয়ার্ড (ডিফল্ট: 1234):");
-        if(p === localStorage.getItem('masterPass')) {
+        let p = prompt("অ্যাডমিন পাসওয়ার্ড দিন:");
+        if(p === getStoredPass()) {
             document.getElementById('admin-panel').style.display = 'flex';
         } else { alert("ভুল পাসওয়ার্ড!"); }
     }
@@ -148,27 +135,24 @@
         if(nUser && nPass) {
             localStorage.setItem('masterUser', nUser);
             localStorage.setItem('masterPass', nPass);
-            alert("সফলভাবে আপডেট হয়েছে! নতুন আইডি দিয়ে লগইন করুন।");
+            alert("আপডেট হয়েছে! নতুন করে লগইন করুন।");
             logout();
-        } else { alert("আইডি ও পাসওয়ার্ড দুটিই লিখুন।"); }
+        }
     }
 
     function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
 
-    // কিবোর্ড নেভিগেশন ও অটো-ফোকাস
+    // কিবোর্ড নেভিগেশন (এন্টার দিলে গাছ নং এ যাবে)
     document.addEventListener('keydown', (e) => {
         const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
         const idx = inputs.indexOf(document.activeElement);
         if(idx > -1) {
-            if(e.key === "ArrowRight") inputs[idx+1]?.focus();
-            if(e.key === "ArrowLeft") inputs[idx-1]?.focus();
+            if(e.key === "ArrowRight") { e.preventDefault(); inputs[idx+1]?.focus(); }
+            if(e.key === "ArrowLeft") { e.preventDefault(); inputs[idx-1]?.focus(); }
             if(e.key === "Enter") {
                 e.preventDefault();
-                if (document.activeElement.id === "v2") {
-                    addItem();
-                } else {
-                    inputs[idx+1]?.focus();
-                }
+                if (document.activeElement.id === "v2") { addItem(); } 
+                else { inputs[idx+1]?.focus(); }
             }
         }
     });
@@ -195,12 +179,11 @@
         
         document.getElementById('pNo').value++;
         renderPages();
-        
-        // ইনপুট ক্লিয়ার ও ফোকাস গাছ নং এ পাঠানো
-        document.getElementById('v1').value = ""; 
-        document.getElementById('v2').value = ""; 
+        document.getElementById('v1').value = ""; document.getElementById('v2').value = ""; 
         if(document.getElementById('ve')) document.getElementById('ve').value = "";
-        document.getElementById('tNo').focus();
+        
+        // এন্ট্রি হওয়ার পর গাছ নং (tNo) তে কার্সার যাবে
+        document.getElementById('tNo').focus(); 
     }
 
     function renderPages() {
@@ -233,7 +216,7 @@
         }
     }
 
-    function finishWork() { if(confirm("সব ডাটা মুছে যাবে! আপনি কি নিশ্চিত?")) { itemsLog=[]; itemsWood=[]; renderPages(); } }
+    function finishWork() { if(confirm("সব ডাটা মুছে যাবে!")) { itemsLog=[]; itemsWood=[]; renderPages(); } }
 </script>
 </body>
 </html>
