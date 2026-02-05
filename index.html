@@ -26,19 +26,19 @@
         .add-btn { background: #2e7d32; color: white; border: none; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 6px; flex: 2; }
         .save-btn { background: #ff9800; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 6px; flex: 1; font-weight: bold; }
         .print-btn { background: #1565c0; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 6px; flex: 1; font-weight: bold; }
-        .edit-btn { background: #0288d1; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 9px; border-radius: 3px; }
+        .edit-btn { background: #0288d1; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 10px; border-radius: 3px; margin-right: 2px; }
+        .del-btn { background: #d32f2f; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 10px; border-radius: 3px; }
 
         /* History Panel */
         #history-panel { display: none; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; max-width: 950px; margin: 10px auto; }
         .hist-item { border-bottom: 1px solid #eee; padding: 8px; display: flex; justify-content: space-between; font-size: 13px; }
-        .user-tag { background: #e8f5e9; color: #2e7d32; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
 
         /* A4 Page */
         .page { background: white; width: 210mm; height: 297mm; padding: 12mm; margin: 15px auto; box-sizing: border-box; border: 1px solid #ddd; page-break-after: always; display: flex; flex-direction: column; }
         .header { text-align: center; margin-bottom: 15px; min-height: 60px; display: flex; flex-direction: column; justify-content: center; }
         .header h1 { font-size: 15px; margin: 2px; }
         
-        /* সাইজ কাঠের জন্য স্পেশাল ক্লাস (হেডার হাইড হবে) */
+        /* সাইজ কাঠের জন্য স্পেশাল ক্লাস */
         .page.size-wood-mode .header { display: none; }
 
         .table-container { display: flex; border: 1.5px solid black; flex-grow: 1; align-items: flex-start; }
@@ -49,7 +49,7 @@
 
         @media print { 
             body { background: none; }
-            #login-screen, .no-print, #history-panel, .edit-btn { display: none !important; } 
+            #login-screen, .no-print, #history-panel, .edit-btn, .del-btn { display: none !important; } 
             .page { margin: 0; border: none; } 
         }
     </style>
@@ -95,7 +95,7 @@
     </div>
 
     <div id="history-panel">
-        <h3 id="hist-title">কাজের হিস্ট্রি</h3>
+        <h3>কাজের হিস্ট্রি</h3>
         <div id="hist-list"></div>
     </div>
 
@@ -147,9 +147,15 @@
 
         if(cft > 0) {
             let obj = { user: currentUser, sl: document.getElementById('slNo').value, type, v1, v2, ve, cft: parseFloat(cft.toFixed(2)), tNo: document.getElementById('treeNo').value };
-            if(editIdx === -1) { items.push(obj); document.getElementById('logNo').value++; }
-            else { items[editIdx] = obj; editIdx = -1; document.getElementById('addBtn').innerText = "তালিকায় যোগ করুন (+)"; }
-            
+            if(editIdx === -1) { 
+                items.push(obj); 
+                document.getElementById('logNo').value++; 
+            } else { 
+                items[editIdx] = obj; 
+                editIdx = -1; 
+                document.getElementById('addBtn').innerText = "তালিকায় যোগ করুন (+)";
+                document.getElementById('addBtn').style.background = "#2e7d32";
+            }
             localStorage.setItem('woodData', JSON.stringify(items));
             renderPages(); updateSL();
             document.getElementById('val1').value = ""; document.getElementById('val2').value = ""; document.getElementById('valExtra').value = "";
@@ -167,7 +173,6 @@
         for (let p = 0; p < pageCount; p++) {
             let pageDiv = document.createElement('div');
             pageDiv.className = 'page' + (listType === 'gas' ? ' size-wood-mode' : '');
-            
             let headerDiv = `<div class="header"><h1>বিএফআইডিসি, .................................... রাবার বাগান হতে কাপ্তাই প্রেরণের জন্য</h1><h1>জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h1><div style="border-bottom: 2px solid black; margin-top: 5px;"></div></div>`;
             let tableCont = document.createElement('div'); tableCont.className = 'table-container';
 
@@ -178,7 +183,13 @@
                     if (idx < items.length) {
                         let itm = items[idx];
                         let m = itm.type === 'log' ? `${itm.v1}"×${itm.v2}'` : `${itm.v1}"×${itm.ve}"×${itm.v2}'`;
-                        table += `<tr><td>${itm.sl} <button class="edit-btn" onclick="startEdit(${idx})">E</button></td><td>${m}</td><td>${itm.cft}</td></tr>`;
+                        table += `<tr>
+                            <td>${itm.sl} 
+                                <button class="edit-btn no-print" onclick="startEdit(${idx})">E</button>
+                                <button class="del-btn no-print" onclick="deleteItem(${idx})">D</button>
+                            </td>
+                            <td>${m}</td><td>${itm.cft}</td>
+                        </tr>`;
                         totalCFT += itm.cft; trees.add(itm.tNo);
                     } else { table += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`; }
                 }
@@ -192,40 +203,45 @@
         }
     }
 
-    function saveToHistory() {
-        if (items.length === 0) return alert("সেভ করার জন্য কোনো ডাটা নেই!");
-        let total = items.reduce((sum, itm) => sum + itm.cft, 0).toFixed(2);
-        historyRecords.unshift({ user: currentUser, date: new Date().toLocaleString('bn-BD'), total: total, count: items.length });
-        localStorage.setItem('woodHistory', JSON.stringify(historyRecords));
-        alert("সফলভাবে সেভ হয়েছে!");
-    }
-
-    function printPage() {
-        if (items.length === 0) return alert("প্রিন্ট করার জন্য কোনো ডাটা নেই!");
-        window.print();
-    }
-
-    function toggleHistory() {
-        const panel = document.getElementById('history-panel');
-        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-        let list = document.getElementById('hist-list');
-        list.innerHTML = "";
-        let filtered = isAdmin ? historyRecords : historyRecords.filter(h => h.user === currentUser);
-        filtered.forEach(h => {
-            list.innerHTML += `<div class="hist-item"><span>📅 ${h.date} ${isAdmin ? `<span class="user-tag">ID: ${h.user}</span>` : ''}</span><span><b>${h.total} CFT</b> (${h.count} পিস)</span></div>`;
-        });
-        if(filtered.length === 0) list.innerHTML = "কোনো রেকর্ড নেই।";
-    }
-
     function startEdit(idx) {
         editIdx = idx;
         let itm = items[idx];
         document.getElementById('type').value = itm.type; toggleInputs();
+        document.getElementById('slNo').value = itm.sl;
         document.getElementById('val1').value = itm.v1;
         document.getElementById('val2').value = itm.v2;
         if(itm.type === 'gas') document.getElementById('valExtra').value = itm.ve;
         document.getElementById('addBtn').innerText = "Update";
+        document.getElementById('addBtn').style.background = "#0288d1";
         window.scrollTo(0,0);
+    }
+
+    function deleteItem(idx) {
+        if(confirm("আপনি কি এটি মুছে ফেলতে চান?")) {
+            items.splice(idx, 1);
+            localStorage.setItem('woodData', JSON.stringify(items));
+            renderPages();
+        }
+    }
+
+    function saveToHistory() {
+        if (items.length === 0) return alert("ডাটা নেই!");
+        let total = items.reduce((sum, itm) => sum + itm.cft, 0).toFixed(2);
+        historyRecords.unshift({ user: currentUser, date: new Date().toLocaleString('bn-BD'), total: total, count: items.length });
+        localStorage.setItem('woodHistory', JSON.stringify(historyRecords));
+        alert("Saved!");
+    }
+
+    function printPage() { if (items.length > 0) window.print(); }
+
+    function toggleHistory() {
+        const panel = document.getElementById('history-panel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        let list = document.getElementById('hist-list'); list.innerHTML = "";
+        let filtered = isAdmin ? historyRecords : historyRecords.filter(h => h.user === currentUser);
+        filtered.forEach(h => {
+            list.innerHTML += `<div class="hist-item"><span>📅 ${h.date} ${isAdmin ? '[ID: '+h.user+']' : ''}</span><span><b>${h.total} CFT</b></span></div>`;
+        });
     }
 </script>
 </body>
