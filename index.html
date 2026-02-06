@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC ULTRA ERP - FOCUS FIXED</title>
+<title>BFIDC ULTRA ERP - FAST NAV</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -78,9 +78,9 @@ th { background: #f3f4f6; }
 <div class="card no-print">
     <div class="grid-inputs">
         <div>Tree No<input id="tree" value="1" oninput="updatePiece()"></div>
-        <div>Piece<input id="piece" readonly style="background:#e2e8f0"></div>
+        <div>Piece<input id="piece" readonly tabindex="-1" style="background:#e2e8f0; cursor: default;"></div>
         <div>Type
-            <select id="type" onchange="toggleInputs()">
+            <select id="type" onchange="toggleInputs()" tabindex="-1">
                 <option value="log">Round Log</option>
                 <option value="wood">Sawn Wood</option>
             </select>
@@ -132,44 +132,38 @@ function addUser() {
     alert("User Updated!");
 }
 
-/* KEYBOARD NAVIGATION - CUSTOMIZED FOR YOUR FLOW */
+/* KEYBOARD NAVIGATION - FAST FLOW (SKIPS TYPE & PIECE) */
 document.addEventListener('keydown', function(e) {
     const active = document.activeElement.id;
     const isWood = document.getElementById("type").value === 'wood';
 
-    if (e.key === "Enter") {
-        e.preventDefault();
-        if (active === "tree") {
-            document.getElementById("v1").focus();
-            document.getElementById("v1").select();
-        } else if (active === "v1") {
-            if(isWood) {
-                document.getElementById("ve").focus();
-                document.getElementById("ve").select();
-            } else {
-                document.getElementById("v2").focus();
-                document.getElementById("v2").select();
-            }
-        } else if (active === "ve") {
-            document.getElementById("v2").focus();
-            document.getElementById("v2").select();
-        } else if (active === "v2") {
-            addItem();
-            document.getElementById("tree").focus();
-            document.getElementById("tree").select();
-        }
-    } else if (e.key === "ArrowDown") {
+    // অ্যারো কি এবং এন্টার নেভিগেশন (Skip Type and Piece)
+    if (e.key === "ArrowDown" || e.key === "ArrowRight" || (e.key === "Enter" && active !== "v2")) {
         e.preventDefault();
         if (active === "tree") document.getElementById("v1").focus();
         else if (active === "v1" && isWood) document.getElementById("ve").focus();
         else if (active === "v1" && !isWood) document.getElementById("v2").focus();
         else if (active === "ve") document.getElementById("v2").focus();
-    } else if (e.key === "ArrowUp") {
+        
+        // সিলেকশন হাইলাইট করার জন্য
+        if(document.activeElement.tagName === "INPUT") document.activeElement.select();
+    } 
+    else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
         e.preventDefault();
         if (active === "v2" && isWood) document.getElementById("ve").focus();
         else if (active === "v2" && !isWood) document.getElementById("v1").focus();
         else if (active === "ve") document.getElementById("v1").focus();
         else if (active === "v1") document.getElementById("tree").focus();
+        
+        if(document.activeElement.tagName === "INPUT") document.activeElement.select();
+    }
+
+    // Feet (v2) এ এন্টার দিলে ডাটা সেভ এবং Tree তে ব্যাক
+    if (e.key === "Enter" && active === "v2") {
+        e.preventDefault();
+        addItem();
+        document.getElementById("tree").focus();
+        document.getElementById("tree").select();
     }
 });
 
