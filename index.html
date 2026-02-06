@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDC ERP - CUSTOM KEYS</title>
+<title>BFIDC ERP - PC AUTO FIX</title>
 
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://accounts.google.com/gsi/client"></script>
@@ -57,10 +57,10 @@ th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13
 
 <div class="card no-print">
     <div class="grid-inputs">
-        <div>গাছ নং<input id="tree" value="1" onkeydown="move(event, 'v1')"></div>
+        <div>গাছ নং<input id="tree" value="1" oninput="updatePiece()" onkeydown="move(event, 'v1')"></div>
         <div>পিস নং<input id="piece" readonly style="background:#e2e8f0"></div>
         <div style="grid-column: span 2">ধরণ
-            <select id="type" onchange="toggleInputs()">
+            <select id="type" onchange="toggleInputs(); updatePiece();">
                 <option value="log">গোল কাঠ (Round Log)</option>
                 <option value="wood">সাইজ কাঠ (Sawn Wood)</option>
             </select>
@@ -76,15 +76,12 @@ th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13
 </div>
 
 <script>
-// --- কাস্টম কী নেভিগেশন (Right Arrow & Enter) ---
+// --- নেভিগেশন (Right Arrow & Enter) ---
 function move(e, next) {
-    // এন্টার দিলে সরাসরি ডাটা সেভ হবে (যেকোনো ঘরে থাকলেই হবে)
     if (e.key === "Enter") {
         e.preventDefault();
         addItem();
     }
-    
-    // রাইট অ্যারো (→) দিলে পরের ঘরে যাবে
     if (e.key === "ArrowRight") {
         e.preventDefault();
         if (e.target.id === 'tree') {
@@ -95,16 +92,14 @@ function move(e, next) {
             document.getElementById(next).focus();
         }
     }
-
-    // আপ অ্যারো (↑) আগের ঘরে যাওয়ার জন্য
-    if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+    if (e.key === "ArrowUp") {
         e.preventDefault();
         let prev = (e.target.id === 'v2') ? (type.value === 'wood' ? 've' : 'v1') : (e.target.id === 've' ? 'v1' : 'tree');
         document.getElementById(prev).focus();
     }
 }
 
-// --- ড্রাইভ ও অ্যাপ লজিক ---
+// --- অ্যাপ লজিক ---
 const CLIENT_ID = '234418632833-gv6d3hqpnfjeodsi21t2g6afkh81o95i.apps.googleusercontent.com'; 
 const API_KEY = 'AIzaSyDvmF9t7WvsUvZLs5tFjGVfxTaQxsOKRJs'; 
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
@@ -131,23 +126,38 @@ function handleLogin() { if(uID.value.toLowerCase()==="admin" && uPass.value==="
 function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); who.innerText = "USER: ADMIN"; updatePiece(); render(); }
 function logout() { sessionStorage.clear(); location.reload(); }
 function toggleInputs() { let isW = type.value==='wood'; thickBox.classList.toggle("hidden", !isW); labelV1.innerText = isW ? "চওড়া" : "বেড়"; render(); }
-function updatePiece() { piece.value = items.filter(i => i.tree == tree.value).length + 1; }
+
+// পিস নম্বর ক্যালকুলেশন ফিক্স
+function updatePiece() { 
+    let tVal = tree.value;
+    let tyVal = type.value;
+    // একই গাছ এবং একই টাইপ (গোল/সাইজ) অনুযায়ী পিস গুনে ১ যোগ করবে
+    let count = items.filter(i => i.tree == tVal && i.type == tyVal).length;
+    piece.value = count + 1; 
+}
 
 function addItem() {
     let t = tree.value, ty = type.value, v1v = parseFloat(v1.value), v2v = parseFloat(v2.value), vev = parseFloat(ve.value) || 0;
     if(!v1v || !v2v) return;
     let cft = ty==='log' ? ((v1v/4)**2 * v2v)/144 : (v1v * vev * v2v)/144;
-    let data = {tree: t, piece: editIdx!==null ? items[editIdx].piece : (items.filter(i=>i.tree==t).length+1), type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)};
+    
+    // সেভ করার সময় পিস নম্বরটি ডাটাবেস থেকে কনফার্ম করা হচ্ছে
+    let pc = editIdx!==null ? items[editIdx].piece : (items.filter(i=>i.tree==t && i.type==ty).length + 1);
+    
+    let data = {tree: t, piece: pc, type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)};
     if(editIdx!==null) { items[editIdx] = data; editIdx = null; addBtn.innerText = "সেভ করুন (ENTER)"; } else items.push(data);
+    
     localStorage.setItem("bfidc_data", JSON.stringify(items));
-    v1.value=""; v2.value=""; ve.value=""; updatePiece(); render();
-    document.getElementById('tree').focus(); // সেভ শেষে আবার গাছ নং-এ ফিরবে
+    v1.value=""; v2.value=""; ve.value=""; 
+    render(); 
+    updatePiece(); // সেভ হওয়ার পর পিস অটো বাড়বে
+    document.getElementById('tree').focus(); 
 }
 
 function deleteItem(idx) { if(confirm("Delete?")) { items.splice(idx, 1); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); } }
 function startEdit(idx) {
     let i=items[idx]; editIdx=idx; tree.value=i.tree; type.value=i.type; v1.value=i.v1; v2.value=i.v2; ve.value=i.ve;
-    addBtn.innerText="আপডেট করুন"; toggleInputs(); window.scrollTo(0,0);
+    addBtn.innerText="আপডেট করুন"; toggleInputs(); updatePiece(); window.scrollTo(0,0);
 }
 
 function render() {
