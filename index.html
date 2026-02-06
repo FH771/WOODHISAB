@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDC ULTRA ERP - FINAL SAFE</title>
+<title>BFIDC ULTRA ERP - STORAGE SYSTEM</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -22,6 +22,12 @@ button{background:#22c55e;color:white;font-weight:bold;cursor:pointer;}
 header{position:sticky;top:0;background:#020617;color:white;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:999;}
 .card{background:white;padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.1);margin:10px;color:black}
 
+/* STORAGE MODAL */
+#storageModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center; }
+.modal-content { background:white; color:black; padding:20px; border-radius:15px; width:90%; max-width:400px; max-height:80vh; overflow-y:auto; }
+.file-item { display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #ddd; }
+.file-item:last-child { border:none; }
+
 .grid-inputs{display:grid;grid-template-columns: repeat(2, 1fr); gap:10px}
 .full-width { grid-column: span 2; }
 
@@ -30,12 +36,12 @@ header{position:sticky;top:0;background:#020617;color:white;padding:10px;display
 .report-header h3 { margin: 2px 0; font-size: 20px; font-weight: normal; }
 .multi-column { column-count: 2; column-gap: 30px; column-fill: auto; height: 230mm; }
 
-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; border: 1.5px solid #000; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 5px; border: 2px solid #000; }
 th, td { border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 12px; }
 th { background: #f3f4f6; }
 
 .summary{border:2px solid black;padding:10px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between;font-size:14px}
-.hidden{display:none!important}
+.hidden { display:none!important; }
 
 @media (max-width: 600px) {
     header { flex-direction: column; gap: 8px; text-align: center; }
@@ -44,7 +50,7 @@ th { background: #f3f4f6; }
 }
 
 @media print {
-    header, .no-print, #loginLayer {display:none!important}
+    header, .no-print, #loginLayer, #storageModal {display:none!important}
     body {background: white}
     .page { margin: 0; border: none; width: 100%; padding: 10mm; }
     @page { size: A4; margin: 0; }
@@ -62,15 +68,22 @@ th { background: #f3f4f6; }
   </div>
 </div>
 
+<div id="storageModal">
+    <div class="modal-content">
+        <h3 style="margin-top:0">Saved History</h3>
+        <div id="fileList"></div>
+        <button onclick="storageModal.style.display='none'" style="background:#64748b; margin-top:15px">Close</button>
+    </div>
+</div>
+
 <div id="appArea">
 <header>
     <div id="who"></div>
-    <div style="font-weight:bold; font-size: 16px;">🔥 ULTRA BOSS ERP</div>
+    <div style="font-weight:bold; font-size: 14px;">🔥 ULTRA BOSS ERP</div>
     <div style="display:flex;gap:5px">
-        <button onclick="saveToFile()" style="background:#3b82f6;width:auto;padding:4px 10px; font-size: 12px;">💾 SAVE</button>
-        <button onclick="document.getElementById('fileInput').click()" style="background:#f59e0b;width:auto;padding:4px 10px; font-size: 12px;">📂 OPEN</button>
-        <input type="file" id="fileInput" class="hidden" accept=".json" onchange="openFile(event)">
-        <button onclick="logout()" style="background:#ef4444;width:auto;padding:4px 8px; font-size: 12px;">X</button>
+        <button onclick="saveToInternal()" style="background:#3b82f6;width:auto;padding:4px 8px; font-size: 11px;">💾 SAVE TO LIST</button>
+        <button onclick="showFileList()" style="background:#f59e0b;width:auto;padding:4px 8px; font-size: 11px;">📂 OPEN LIST</button>
+        <button onclick="logout()" style="background:#ef4444;width:auto;padding:4px 8px; font-size: 11px;">X</button>
     </div>
 </header>
 
@@ -115,7 +128,7 @@ function start() {
     loginLayer.style.display = "none";
     appArea.style.display = "block";
     let user = sessionStorage.getItem("active");
-    who.innerText = "User: " + user.toUpperCase();
+    who.innerText = user.toUpperCase();
     updatePiece(); render();
     document.getElementById("tree").focus();
 }
@@ -199,31 +212,52 @@ function startEdit(idx) {
     window.scrollTo(0,0);
 }
 
-function saveToFile() {
+/* INTERNAL STORAGE SYSTEM */
+function saveToInternal() {
     if(items.length === 0) return alert("No data to save!");
-    let fileName = prompt("Enter File Name:", "BFIDC_" + new Date().toLocaleDateString());
-    if(!fileName) return;
-    let blob = new Blob([JSON.stringify(items)], {type:"application/json"});
-    let a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = fileName + ".json"; a.click();
+    let name = prompt("Enter Name (e.g. Garden_01):");
+    if(!name) return;
+    
+    let db = JSON.parse(localStorage.getItem("bfidc_db")) || {};
+    db[name] = { date: new Date().toLocaleString(), data: items };
+    localStorage.setItem("bfidc_db", JSON.stringify(db));
+    alert("Saved to Internal History!");
 }
 
-function openFile(event) {
-    let file = event.target.files[0];
-    if (!file) return;
-    let reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            let importedData = JSON.parse(e.target.result);
-            if(Array.isArray(importedData)) {
-                if(confirm("Replace current work?")) {
-                    items = importedData;
-                    localStorage.setItem("bfidc_data", JSON.stringify(items));
-                    render(); updatePiece();
-                }
-            }
-        } catch (err) { alert("Invalid File!"); }
-    };
-    reader.readAsText(file);
+function showFileList() {
+    let db = JSON.parse(localStorage.getItem("bfidc_db")) || {};
+    let html = "";
+    for(let name in db) {
+        html += `<div class="file-item">
+            <div><strong>${name}</strong><br><small>${db[name].date}</small></div>
+            <div style="display:flex; gap:5px">
+                <button onclick="loadFromInternal('${name}')" style="background:#22c55e; width:auto; padding:5px 10px; font-size:12px">Open</button>
+                <button onclick="deleteFromInternal('${name}')" style="background:#ef4444; width:auto; padding:5px 10px; font-size:12px">Del</button>
+            </div>
+        </div>`;
+    }
+    if(html === "") html = "<p>No saved files found.</p>";
+    document.getElementById("fileList").innerHTML = html;
+    document.getElementById("storageModal").style.display = "flex";
+}
+
+function loadFromInternal(name) {
+    let db = JSON.parse(localStorage.getItem("bfidc_db"));
+    if(confirm(`Open "${name}" and replace current work?`)) {
+        items = db[name].data;
+        localStorage.setItem("bfidc_data", JSON.stringify(items));
+        render(); updatePiece();
+        storageModal.style.display = "none";
+    }
+}
+
+function deleteFromInternal(name) {
+    if(confirm(`Delete "${name}" permanently?`)) {
+        let db = JSON.parse(localStorage.getItem("bfidc_db"));
+        delete db[name];
+        localStorage.setItem("bfidc_db", JSON.stringify(db));
+        showFileList();
+    }
 }
 
 function exportExcel() {
@@ -232,7 +266,7 @@ function exportExcel() {
     XLSX.writeFile(wb, "Report.xlsx");
 }
 
-function clearAll() { if(confirm("Clear current data?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
+function clearAll() { if(confirm("Clear current work?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
 
 if(sessionStorage.getItem("active")) start();
 </script>
