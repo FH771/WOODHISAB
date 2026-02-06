@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC ERP - A4 PRINT PRO</title>
+<title>BFIDC ERP - EDIT RESTORED</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -16,13 +16,11 @@ body.dark{background:#121212;color:#eee}
 body.dark .card{background:#1e1e1e;color:#eee}
 body.dark header{background:#000}
 
-/* LOGIN & PANELS */
 #login,#adminPanel,.history-modal{display:flex;justify-content:center;align-items:center;height:100vh;position:fixed;width:100%;top:0;left:0;z-index:2000;background:rgba(27,94,32,.98)}
 .box{background:#fff;padding:25px;border-radius:12px;width:340px;box-shadow:0 10px 25px rgba(0,0,0,.3);color:black}
 input,select,button{width:100%;padding:10px;margin-top:8px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box}
 button{background:#2e7d32;color:#fff;border:none;font-weight:bold;cursor:pointer}
 
-/* APP LAYOUT */
 #app{display:none;background:#f4f7f6;min-height:100vh}
 header{position:sticky;top:0;background:#2e7d32;color:white;padding:12px;display:flex;justify-content:space-between;align-items:center;z-index:999}
 .container{max-width:1100px;margin:auto;padding:15px}
@@ -31,11 +29,11 @@ header{position:sticky;top:0;background:#2e7d32;color:white;padding:12px;display
 .dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:15px}
 .stat{background:#2e7d32;color:white;padding:12px;border-radius:8px;font-weight:bold;text-align:center}
 
-/* A4 PRINT & TABLE STYLING - HIGH VISIBILITY */
+/* A4 & TABLE DESIGN */
 .page {
     background: white;
     width: 210mm; 
-    min-height: 297mm; /* Standard A4 height */
+    min-height: 297mm;
     margin: 10px auto;
     padding: 15mm; 
     border: 1px solid #ddd;
@@ -50,31 +48,33 @@ table {
     border-collapse: collapse;
     margin-bottom: 10px;
     break-inside: avoid;
-    border: 2px solid #000; /* Darker Outer Border */
+    border: 2px solid #000;
 }
 th, td {
-    border: 1.5px solid #000; /* Clear Bold Columns */
-    padding: 8px 4px; /* More Spacing for Readability */
+    border: 1.5px solid #000;
+    padding: 6px 4px;
     text-align: center;
-    font-size: 15px; /* Larger Text */
-    font-weight: 500;
+    font-size: 15px;
 }
 th { background: #f0f0f0; font-weight: bold; }
+
+.btn-edit {
+    background: #1565c0;
+    color: white;
+    font-size: 10px;
+    padding: 2px 5px;
+    width: auto;
+    margin: 0;
+    cursor: pointer;
+}
 
 .summary{border:2px solid black;padding:12px;margin-top:20px;font-weight:bold;display:flex;justify-content:space-between;font-size:16px}
 .hidden{display:none!important}
 
-/* PRINT SETTINGS */
 @media print {
-    header, .no-print, #adminPanel, #login, .history-modal, #saveStatus {display:none!important}
+    header, .no-print, #adminPanel, #login, .history-modal, #saveStatus, .btn-edit {display:none!important}
     body {background: white}
-    .page {
-        margin: 0;
-        border: none;
-        width: 100%;
-        height: auto;
-        padding: 10mm;
-    }
+    .page { margin: 0; border: none; width: 100%; padding: 10mm; }
     @page { size: A4; margin: 0; }
 }
 </style>
@@ -108,7 +108,7 @@ th { background: #f0f0f0; font-weight: bold; }
 <div id="app">
 <header>
 <div id="who"></div>
-<div style="font-weight:bold">BFIDC ERP - A4 PRO</div>
+<div style="font-weight:bold">BFIDC ERP</div>
 <div>
 <button onclick="toggleDark()" style="background:#333;width:auto;padding:5px 12px">Dark</button>
 <button onclick="showHistory()" style="background:#f39c12;width:auto;padding:5px 12px">History</button>
@@ -158,7 +158,7 @@ th { background: #f0f0f0; font-weight: bold; }
 </div>
 
 <script>
-/* SECURITY SYSTEM */
+/* SECURITY & NAV */
 async function hash(text){ const msgUint8 = new TextEncoder().encode(text); const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8); return Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
 (async()=>{ if(!localStorage.getItem("erpUsers")){ localStorage.setItem("erpUsers",JSON.stringify({ superadmin:{password:await hash("0000"),role:"super"}, admin:{password:await hash("1234"),role:"admin"} })); } })();
 
@@ -175,7 +175,6 @@ render();
 }
 function logout(){sessionStorage.clear();location.reload()}
 
-/* --- KEYBOARD NAVIGATION --- */
 document.addEventListener('keydown', function(e) {
     const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.closest('div').style.display !== 'none');
     const idx = inputs.indexOf(document.activeElement);
@@ -192,8 +191,9 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-/* --- CORE SYSTEM & AUTO SAVE --- */
+/* CORE LOGIC */
 let items=JSON.parse(localStorage.getItem("bfidc_data"))||[];
+let editIndex=null;
 let currentFileName = localStorage.getItem("bfidc_current_file") || "Default_AutoSave";
 
 function resetPieceOnTreeChange(){ piece.value=items.filter(i=>i.tree==tree.value).length+1 }
@@ -223,11 +223,23 @@ function addItem(){
     let tV=tree.value, typ=type.value, v1V=parseFloat(v1.value), v2V=parseFloat(v2.value), veV=parseFloat(ve.value)||0;
     if(!v1V || !v2V)return alert("Invalid!");
     let cft=typ==="log"?((v1V/4)**2*v2V)/144:(v1V*veV*v2V)/144;
-    items.push({tree:tV, piece:(items.filter(i=>i.tree==tV).length+1), type:typ, v1:v1V, v2:v2V, ve:veV, cft:+cft.toFixed(2)});
+    let pNo = editIndex !== null ? items[editIndex].piece : (items.filter(i=>i.tree==tV).length+1);
+    let data = {tree:tV, piece:pNo, type:typ, v1:v1V, v2:v2V, ve:veV, cft:+cft.toFixed(2)};
+    
+    if(editIndex !== null){ items[editIndex] = data; editIndex = null; document.getElementById("addBtn").innerText = "Add Data (+)"; }
+    else { items.push(data); }
+    
     localStorage.setItem("bfidc_data",JSON.stringify(items));
-    render();
-    autoSaveToFile();
+    render(); autoSaveToFile();
     v1.value="";v2.value="";ve.value=""; piece.value=items.filter(i=>i.tree==tV).length+1;
+}
+
+function startEdit(idx){
+    let i = items[idx]; editIndex = idx;
+    tree.value = i.tree; piece.value = i.piece; v1.value = i.v1; v2.value = i.v2; ve.value = i.ve; type.value = i.type;
+    document.getElementById("addBtn").innerText = "Update Data (✔)";
+    toggleInputs();
+    window.scrollTo(0,0);
 }
 
 function render(){
@@ -238,21 +250,21 @@ function render(){
     dashboard.innerHTML=`<div class="stat">Trees: ${tSet.size}</div><div class="stat">Pieces: ${fil.length}</div><div class="stat">Total: ${total.toFixed(2)} CFT</div>`;
     
     let hHTML=typF==='log'?`<div class="report-header"><h2>বিএফআইডিসি, ............................ কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>`:`<div style="height:40px"></div>`;
-    let html=`<div class='page' id='printContent'>${hHTML}<div class="multi-column-container"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th></tr>`;
+    let html=`<div class='page' id='printContent'>${hHTML}<div class="multi-column-container"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
     fil.forEach(i=>{
+        let actualIdx = items.indexOf(i);
         let sz=i.type=="log"?`${i.v1}"x${i.v2}'`:`${i.v1}"x${i.ve}"x${i.v2}'`;
-        html+=`<tr><td>${i.tree}/${i.piece}</td><td>${sz}</td><td>${i.cft}</td></tr>`;
+        html+=`<tr><td>${i.tree}/${i.piece}</td><td>${sz}</td><td>${i.cft}</td><td class="no-print"><button class="btn-edit" onclick="startEdit(${actualIdx})">Edit</button></td></tr>`;
     });
-    html+=`</table></div><div class='summary'><span>Total Tree: ${tSet.size}</span><span>Total Piece: ${fil.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`;
+    html+=`</table></div><div class='summary'><span>Total Tree: ${tSet.size}</span><span>Piece: ${fil.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`;
     pagesArea.innerHTML=html;
 }
 
-/* EXPORTS */
-function exportExcel(){let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(items),"Data"); XLSX.writeFile(wb,currentFileName+".xlsx")}
-async function exportPDF(){const { jsPDF } = window.jspdf; let doc=new jsPDF(); doc.text(document.getElementById("printContent").innerText,10,10); doc.save(currentFileName+".pdf");}
 function showHistory(){let h=JSON.parse(localStorage.getItem("bfidc_history"))||[]; historyList.innerHTML=h.map((x,i)=>`<div style="padding:10px;border-bottom:1px solid #eee"><b>${x.name}</b><button onclick="loadFromHistory(${i})" style="width:auto;float:right">Load</button></div>`).join(''); historyModal.classList.remove("hidden")}
 function loadFromHistory(idx){ let h=JSON.parse(localStorage.getItem("bfidc_history"))[idx]; items=h.data; currentFileName=h.name; localStorage.setItem("bfidc_data",JSON.stringify(items)); localStorage.setItem("bfidc_current_file",h.name); render(); closeHistory(); }
-function clearAll(){if(confirm("Clear All Data?")){items=[]; localStorage.removeItem("bfidc_data"); render();}}
+function clearAll(){if(confirm("Clear All?")){items=[]; localStorage.removeItem("bfidc_data"); render();}}
+function exportExcel(){let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(items),"Data"); XLSX.writeFile(wb,currentFileName+".xlsx")}
+async function exportPDF(){const { jsPDF } = window.jspdf; let doc=new jsPDF(); doc.text(document.getElementById("printContent").innerText,10,10); doc.save(currentFileName+".pdf");}
 function toggleDark(){document.body.classList.toggle("dark"); localStorage.setItem("darkMode",document.body.classList.contains("dark")?"on":"off")}
 if(localStorage.getItem("darkMode")==="on")document.body.classList.add("dark")
 function openAdmin(){adminPanel.classList.remove("hidden")}
