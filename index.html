@@ -3,30 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC Wood System ULTRA PRO</title>
+<title>BFIDC Wood System ULTRA PRO + EDIT</title>
 
-<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2e7d32">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
 <style>
 @page{size:A4;margin:10mm}
 body{font-family:Segoe UI;margin:0;background:#eef2f7}
 .dark{background:#121212;color:white}
-header{position:sticky;top:0;background:#2e7d32;color:white;padding:10px;display:flex;justify-content:space-between}
-.card{background:white;margin:10px auto;padding:12px;border-radius:10px;max-width:1100px}
+header{position:sticky;top:0;background:#2e7d32;color:white;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:1000}
+.card{background:white;margin:10px auto;padding:12px;border-radius:10px;max-width:1100px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
-input,select,button{padding:10px;border-radius:8px;border:1px solid #ccc}
-button{background:#2e7d32;color:white;border:none;cursor:pointer}
-.page{background:white;width:210mm;min-height:297mm;margin:10px auto;padding:10mm;border:1px solid #ddd}
+input,select,button{padding:10px;border-radius:8px;border:1px solid #ccc;font-size:14px}
+button{background:#2e7d32;color:white;border:none;cursor:pointer;font-weight:bold}
+.page{background:white;width:210mm;min-height:297mm;margin:10px auto;padding:10mm;border:1px solid #ddd;box-shadow:0 0 10px rgba(0,0,0,0.1)}
 table{width:100%;border-collapse:collapse}
-th,td{border:1px solid black;padding:4px;text-align:center}
-.summary{border:2px solid black;padding:10px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between}
-@media print{header,.no-print{display:none}.page{margin:0;border:none}}
+th,td{border:1px solid black;padding:6px;text-align:center;font-size:13px}
+.summary{border:2px solid black;padding:10px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between;background:#f9f9f9}
+.edit-btn{background:#1565c0;margin-right:4px}
+.del-btn{background:#c62828}
+@media print{header,.no-print,.edit-btn,.del-btn{display:none !important}.page{margin:0;border:none;box-shadow:none}}
 </style>
 </head>
 <body>
@@ -35,189 +36,195 @@ th,td{border:1px solid black;padding:4px;text-align:center}
 <span>BFIDC Wood ULTRA PRO 🌲</span>
 <div>
 <button onclick="toggleDark()">🌙</button>
-<button onclick="installApp()">Install</button>
-<button onclick="logout()">Logout</button>
+<button onclick="installApp()"><i class="fas fa-download"></i> Install</button>
 </div>
 </header>
 
 <div class="card no-print">
 <div class="grid">
-<input id="tree" placeholder="গাছ নং">
-<input id="piece" placeholder="পিস" readonly>
-<select id="type" onchange="toggleInputs()">
-<option value="log">গোল</option>
-<option value="wood">সাইজ</option>
-</select>
-<input id="v1" placeholder="বেড় / চওড়া">
-<input id="ve" placeholder="পুরুত্ব">
-<input id="v2" placeholder="লম্বা">
-<input id="search" placeholder="🔎 Search" oninput="render()">
+    <div><label style="font-size:11px">গাছ নং</label><input id="tree" value="1" oninput="resetPieceOnTreeChange()" class="nav-item"></div>
+    <div><label style="font-size:11px">পিস</label><input id="piece" value="1" readonly></div>
+    <div><label style="font-size:11px">ধরণ</label>
+        <select id="type" onchange="toggleInputs()" class="nav-item">
+            <option value="log">গোল</option>
+            <option value="wood">সাইজ</option>
+        </select>
+    </div>
+    <div><label id="l1" style="font-size:11px">বেড় (ইঞ্চি)</label><input id="v1" placeholder="বেড় / চওড়া" class="nav-item"></div>
+    <div id="ve-box" style="display:none;"><label style="font-size:11px">পুরুত্ব (ইঞ্চি)</label><input id="ve" placeholder="পুরুত্ব" class="nav-item"></div>
+    <div><label style="font-size:11px">লম্বা (ফুট)</label><input id="v2" placeholder="লম্বা" class="nav-item"></div>
 </div>
 
-<div class="grid" style="margin-top:8px">
-<button onclick="addItem()">Add</button>
-<button onclick="exportExcel()">Excel</button>
-<button onclick="exportPDF()">PDF</button>
-<button onclick="dailyReport()">Daily Report</button>
-<button onclick="window.print()">Print</button>
+<div class="grid" style="margin-top:12px">
+<button onclick="addItem()" id="addBtn" style="flex:1.5">Add (+)</button>
+<button onclick="exportExcel()" style="background:#1f6e43">Excel</button>
+<button onclick="exportDoc()" style="background:#2b579a">Word (Doc)</button>
+<button onclick="dailyReport()" style="background:#607d8b">Today's Total</button>
+<button onclick="window.print()" style="background:#000">Print</button>
 <button onclick="clearAll()" style="background:#c62828">Clear</button>
 </div>
+<div style="margin-top:10px"><input id="search" placeholder="🔎 Search measurement..." oninput="render()" style="width:100%"></div>
 </div>
 
 <div id="pages"></div>
 
 <script>
+let items=JSON.parse(localStorage.getItem("wood_ultra"))||[];
+let editIndex = null;
 
-// INSTALLABLE APP
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt',(e)=>{
-e.preventDefault();
-deferredPrompt=e;
+// ARROW NAVIGATION & ENTER KEY
+document.addEventListener('keydown', (e) => {
+    const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
+    const idx = inputs.indexOf(document.activeElement);
+    if (idx > -1) {
+        if (e.key === "ArrowRight") { e.preventDefault(); inputs[idx + 1]?.focus(); }
+        else if (e.key === "ArrowLeft") { e.preventDefault(); inputs[idx - 1]?.focus(); }
+        else if (e.key === "Enter") {
+            e.preventDefault();
+            if (document.activeElement.id === "v2") addItem();
+            else inputs[idx + 1]?.focus();
+        }
+    }
 });
 
-async function installApp(){
-if(!deferredPrompt) return alert("Install not available yet");
-deferredPrompt.prompt();
+function resetPieceOnTreeChange(){
+    const tVal = document.getElementById("tree").value;
+    document.getElementById("piece").value = items.filter(i=>i.tree == tVal).length + 1;
 }
-
-// SERVICE WORKER
-if('serviceWorker' in navigator){
-navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
-
-// AUTO SAVE
-let items=JSON.parse(localStorage.getItem("wood_ultra"))||[];
-function save(){localStorage.setItem("wood_ultra",JSON.stringify(items));}
-
-function autoPiece(tree){return items.filter(i=>i.tree==tree).length+1;}
 
 function toggleInputs(){
-ve.style.display=type.value==="wood"?"block":"none";
+    const isWood = document.getElementById("type").value === "wood";
+    document.getElementById("ve-box").style.display = isWood ? "block" : "none";
+    document.getElementById("l1").innerText = isWood ? "চওড়া (ইঞ্চি)" : "বেড় (ইঞ্চি)";
+    render();
 }
 
 function addItem(){
-let tree=treeEl().value;
-let type=typeEl().value;
-let v1=parseFloat(v1El().value);
-let v2=parseFloat(v2El().value);
-let ve=parseFloat(veEl().value)||0;
+    let tree=document.getElementById("tree").value;
+    let type=document.getElementById("type").value;
+    let v1=parseFloat(document.getElementById("v1").value);
+    let v2=parseFloat(document.getElementById("v2").value);
+    let ve=parseFloat(document.getElementById("ve").value)||0;
 
-if(!tree||!v1||!v2) return alert("Missing data");
+    if(!tree||!v1||!v2) return alert("মাপ দেওয়া হয়নি!");
 
-if(items.find(i=>i.tree==tree&&i.v1==v1&&i.v2==v2&&i.ve==ve))
-return alert("Duplicate entry!");
+    let cft = type==="log" ? ((v1/4)**2*v2)/144 : (v1*ve*v2)/144;
+    let piece = editIndex !== null ? items[editIndex].piece : (items.filter(i=>i.tree==tree).length+1);
 
-let piece=autoPiece(tree);
+    let newData = {tree, piece, type, v1, v2, ve, cft:+cft.toFixed(2), date:new Date().toLocaleDateString()};
 
-let cft=type==="log"
-?((v1/4)**2*v2)/144
-:(v1*ve*v2)/144;
+    if(editIndex !== null){
+        items[editIndex] = newData;
+        editIndex = null;
+        document.getElementById("addBtn").innerText = "Add (+)";
+        document.getElementById("addBtn").style.background = "#2e7d32";
+    } else {
+        items.push(newData);
+    }
 
-items.push({tree,piece,type,v1,v2,ve,cft:+cft.toFixed(2),date:new Date().toLocaleDateString()});
+    localStorage.setItem("wood_ultra", JSON.stringify(items));
+    render();
 
-save();
-render();
-
-pieceEl().value=autoPiece(tree);
-v1El().value="";v2El().value="";veEl().value="";
+    // Reset fields and focus back to Tree No
+    document.getElementById("v1").value="";
+    document.getElementById("v2").value="";
+    document.getElementById("ve").value="";
+    document.getElementById("piece").value = items.filter(i=>i.tree == tree).length + 1;
+    document.getElementById("tree").focus();
+    document.getElementById("tree").select();
 }
 
 function render(){
-let s=search.value?.toLowerCase()||"";
-let filtered=items.filter(i=>JSON.stringify(i).toLowerCase().includes(s));
+    let s=document.getElementById("search").value.toLowerCase();
+    let typeFilter = document.getElementById("type").value;
+    let filtered=items.filter(i=> i.type === typeFilter && JSON.stringify(i).toLowerCase().includes(s));
 
-let total=0;let trees=new Set();
+    let total=0; let trees=new Set();
+    
+    // Header Logic
+    let headerHTML = "";
+    if(typeFilter === 'log') {
+        headerHTML = `<div style="text-align:center"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>`;
+    } else {
+        headerHTML = `<div style="height:40px"></div>`; 
+    }
 
-let html=`<div class='page'><table>
-<tr><th>ক্র.নং</th><th>পরিমাপ</th><th>CFT</th><th>❌</th></tr>`;
+    let html=`<div class='page'>${headerHTML}<table>
+    <tr><th>ক্র.নং</th><th>পরিমাপ</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
 
-filtered.forEach((i,idx)=>{
-let m=i.type==="log"
-?`${i.v1}" x ${i.v2}'`
-:`${i.v1}" x ${i.ve}" x ${i.v2}'`;
+    filtered.forEach((i, idx)=>{
+        let realIdx = items.indexOf(i);
+        let m=i.type==="log" ? `${i.v1}" x ${i.v2}'` : `${i.v1}" x ${i.ve}" x ${i.v2}'`;
+        html+=`<tr>
+            <td>${i.tree}/${i.piece}</td>
+            <td>${m}</td>
+            <td>${i.cft}</td>
+            <td class="no-print">
+                <button class="edit-btn" onclick="startEdit(${realIdx})"><i class="fas fa-edit"></i></button>
+                <button class="del-btn" onclick="del(${realIdx})"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>`;
+        total+=i.cft; trees.add(i.tree);
+    });
 
-html+=`<tr>
-<td>${i.tree}/${i.piece}</td>
-<td>${m}</td>
-<td>${i.cft}</td>
-<td><button onclick="del(${idx})">X</button></td>
-</tr>`;
+    for(let r=filtered.length; r<25; r++){ html+=`<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="no-print">&nbsp;</td></tr>`; }
 
-total+=i.cft;trees.add(i.tree);
-});
+    html+=`</table>
+    <div class='summary'>
+    <span>গাছ: ${trees.size}</span>
+    <span>পিস: ${filtered.length}</span>
+    <span>মোট: ${total.toFixed(2)} CFT</span>
+    </div></div>`;
 
-html+=`</table>
-<div class='summary'>
-<span>গাছ: ${trees.size}</span>
-<span>পিস: ${filtered.length}</span>
-<span>মোট: ${total.toFixed(2)} CFT</span>
-</div></div>`;
+    document.getElementById("pages").innerHTML=html;
+}
 
-pages.innerHTML=html;
+function startEdit(idx){
+    let i = items[idx];
+    editIndex = idx;
+    document.getElementById("tree").value = i.tree;
+    document.getElementById("piece").value = i.piece;
+    document.getElementById("type").value = i.type;
+    document.getElementById("v1").value = i.v1;
+    document.getElementById("v2").value = i.v2;
+    document.getElementById("ve").value = i.ve;
+    toggleInputs();
+    document.getElementById("addBtn").innerText = "Update (✔)";
+    document.getElementById("addBtn").style.background = "#1565c0";
+    document.getElementById("v1").focus();
 }
 
 function dailyReport(){
-let today=new Date().toLocaleDateString();
-let todayItems=items.filter(i=>i.date===today);
-let total=todayItems.reduce((a,b)=>a+b.cft,0);
-alert(`Today Pieces: ${todayItems.length}\nTotal CFT: ${total.toFixed(2)}`);
+    let today=new Date().toLocaleDateString();
+    let todayItems=items.filter(i=>i.date===today);
+    let total=todayItems.reduce((a,b)=>a+b.cft,0);
+    alert(`আজকের মোট পিস: ${todayItems.length}\nমোট সিএফটি: ${total.toFixed(2)}`);
 }
 
-function del(i){if(confirm("Delete?")){items.splice(i,1);save();render();}}
-function clearAll(){if(confirm("Clear all?")){items=[];save();render();}}
+function del(i){if(confirm("মুছে ফেলবেন?")){items.splice(i,1);localStorage.setItem("wood_ultra", JSON.stringify(items));render();}}
+function clearAll(){if(confirm("সব ডাটা মুছে ফেলবেন?")){items=[];localStorage.removeItem("wood_ultra");render();}}
 function toggleDark(){document.body.classList.toggle("dark");}
 
 function exportExcel(){
-let ws=XLSX.utils.json_to_sheet(items);
-let wb=XLSX.utils.book_new();
-XLSX.utils.book_append_sheet(wb,ws,"Wood");
-XLSX.writeFile(wb,"wood_report.xlsx");
+    let ws=XLSX.utils.json_to_sheet(items);
+    let wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,"Wood");
+    XLSX.writeFile(wb,"Wood_Report.xlsx");
 }
 
-async function exportPDF(){
-const {jsPDF}=window.jspdf;
-let doc=new jsPDF();
-let y=10;
-items.forEach(i=>{doc.text(`${i.tree}/${i.piece} ${i.cft} CFT`,10,y);y+=8;});
-doc.save("wood.pdf");
+function exportDoc() {
+    let content = document.getElementById("pages").innerHTML;
+    let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>table{border-collapse:collapse; width:100%;} th, td{border:1px solid black; padding:5px; text-align:center;}</style></head><body>";
+    let blob = new Blob(['\ufeff', header + content + "</body></html>"], { type: 'application/msword' });
+    saveAs(blob, "Wood_Report.doc");
 }
 
-function treeEl(){return tree}
-function pieceEl(){return piece}
-function typeEl(){return type}
-function v1El(){return v1}
-function v2El(){return v2}
-function veEl(){return ve}
+// SERVICE WORKER & INSTALL LOGIC
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',(e)=>{ e.preventDefault(); deferredPrompt=e; });
+async function installApp(){ if(deferredPrompt){ deferredPrompt.prompt(); } else { alert("App is already installed or not supported."); } }
 
 render();
 </script>
 </body>
 </html>
-
-<!-- SERVICE WORKER FILE -->
-<!-- Save as sw.js in same folder -->
-<script type="text/plain" id="swfile">
-self.addEventListener('install',e=>{
-e.waitUntil(caches.open('wood-cache').then(cache=>cache.addAll(['./'])));
-});
-self.addEventListener('fetch',e=>{
-e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));
-});
-</script>
-
-<!-- MANIFEST FILE -->
-<script type="text/plain" id="manifestfile">
-{
-"name":"BFIDC Wood Manager",
-"short_name":"WoodPro",
-"start_url":".",
-"display":"standalone",
-"background_color":"#2e7d32",
-"theme_color":"#2e7d32",
-"icons":[{
-"src":"https://cdn-icons-png.flaticon.com/512/2909/2909767.png",
-"sizes":"192x192",
-"type":"image/png"
-}]
-}
-</script>
