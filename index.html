@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC ERP - ULTRA HYBRID</title>
+<title>BFIDC ERP - COLUMN FLOW FIX</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -12,14 +12,12 @@
 <style>
 @font-face { font-family: 'SutonnyMJ'; src: local('SutonnyMJ'), local('SutonnyMJ-Bold'); }
 body{font-family:'Segoe UI',Arial;background:#0f172a;margin:0;transition:.3s;color:white}
-body.dark{background:#000;color:#eee}
 
 /* PANELS */
 #login,#adminPanel,.history-modal{display:flex;justify-content:center;align-items:center;height:100vh;position:fixed;width:100%;top:0;left:0;z-index:2000;background:rgba(2,6,23,.98)}
 .box{background:#111827;padding:25px;border-radius:14px;width:320px;box-shadow:0 10px 25px rgba(0,0,0,.5);color:white}
 input,select,button{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:none;box-sizing:border-box;background:#1e293b;color:white}
 button{background:#22c55e;font-weight:bold;cursor:pointer}
-button:hover{opacity:0.9}
 
 /* APP CONTENT */
 #app{display:none;background:#f4f7f6;min-height:100vh;color:black}
@@ -30,7 +28,7 @@ header{position:sticky;top:0;background:#020617;color:white;padding:12px;display
 .statGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:15px}
 .stat{background:#22c55e;color:white;padding:15px;border-radius:10px;text-align:center;font-weight:bold}
 
-/* A4 PRINT & TABLE */
+/* A4 PRINT & COLUMN FLOW FIX */
 .page {
     background: white;
     width: 210mm; 
@@ -42,23 +40,31 @@ header{position:sticky;top:0;background:#020617;color:white;padding:12px;display
     box-sizing: border-box;
 }
 .report-header{text-align:center;margin-bottom:20px;font-family:'SutonnyMJ'; line-height: 1.2;}
-.multi-column-container{column-count:2;column-gap:40px}
+
+/* কলাম ফ্লো ঠিক করার জন্য এই অংশটি গুরুত্বপূর্ণ */
+.multi-column-container {
+    column-count: 2;
+    column-gap: 40px;
+    column-fill: auto; /* প্রথম কলাম শেষ করে তবেই দ্বিতীয় কলামে যাবে */
+    height: 220mm; /* A4 পেজের ডাটা এরিয়ার আনুমানিক হাইট */
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     border: 2px solid #000;
 }
 th, td {
     border: 1.5px solid #000;
-    padding: 8px 4px;
+    padding: 6px 4px;
     text-align: center;
     font-size: 15px;
 }
 th { background: #f3f4f6; }
-.btn-edit { background: #3b82f6; color: white; font-size: 11px; padding: 3px 8px; width: auto; }
+.btn-edit { background: #3b82f6; color: white; font-size: 11px; padding: 2px 6px; width: auto; }
 
-.summary{border:2px solid black;padding:12px;margin-top:20px;font-weight:bold;display:flex;justify-content:space-between;font-size:16px}
+.summary{border:2px solid black;padding:12px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between;font-size:16px}
 .hidden{display:none!important}
 
 @media print {
@@ -135,35 +141,14 @@ th { background: #f3f4f6; }
 </div>
 
 <script>
-/* ===== SECURITY & NAVIGATION ===== */
-async function hash(t){
-    const e=new TextEncoder().encode(t);
-    const b=await crypto.subtle.digest('SHA-256',e);
-    return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
-}
-(async()=>{
-    if(!localStorage.getItem("users")){
-        localStorage.setItem("users",JSON.stringify({
-            superadmin:{password:await hash("0000"),role:"super"},
-            admin:{password:await hash("1234"),role:"admin"}
-        }))
-    }
-})();
-
-async function login(){
-    let id=idInput.value.trim(), p=await hash(passInput.value.trim());
-    let users=JSON.parse(localStorage.getItem("users"));
-    if(users[id] && users[id].password===p){ sessionStorage.setItem("active",id); start(); }
-    else alert("Access Denied");
-}
+/* SECURITY & SESSION */
+async function hash(t){ const e=new TextEncoder().encode(t); const b=await crypto.subtle.digest('SHA-256',e); return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''); }
+(async()=>{ if(!localStorage.getItem("users")){ localStorage.setItem("users",JSON.stringify({ superadmin:{password:await hash("0000"),role:"super"}, admin:{password:await hash("1234"),role:"admin"} })); } })();
+async function login(){ let id=idInput.value.trim(), p=await hash(passInput.value.trim()); let users=JSON.parse(localStorage.getItem("users")); if(users[id] && users[id].password===p){ sessionStorage.setItem("active",id); start(); } else alert("Access Denied"); }
 function logout(){sessionStorage.clear();location.reload()}
-function start(){
-    document.getElementById("login").classList.add("hidden");
-    document.getElementById("app").style.display="block";
-    who.innerText="User: "+sessionStorage.getItem("active").toUpperCase();
-    render();
-}
+function start(){ document.getElementById("login").classList.add("hidden"); document.getElementById("app").style.display="block"; who.innerText="User: "+sessionStorage.getItem("active").toUpperCase(); render(); }
 
+/* ARROW NAVIGATION */
 document.addEventListener('keydown', function(e) {
     const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.closest('div').style.display !== 'none');
     const idx = inputs.indexOf(document.activeElement);
@@ -180,25 +165,14 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-/* ===== CORE ENGINE ===== */
+/* CORE LOGIC */
 let items=JSON.parse(localStorage.getItem("bfidc_ultra"))||[];
 let editIndex=null;
 let currentFileName = localStorage.getItem("bfidc_current_file") || "AutoSave_Default";
 
 function resetPiece(){ piece.value=items.filter(i=>i.tree==tree.value).length+1 }
-
-function toggleInputs(){
-    const isWood=document.getElementById("type").value==="wood";
-    document.getElementById("ve-box").style.display=isWood?"block":"none";
-    document.getElementById("l1").innerText=isWood?"Width (Inch)":"Girth (Inch)";
-    render();
-}
-
-function setFileName(){
-    let n = prompt("File Name:", currentFileName);
-    if(n){ currentFileName = n; localStorage.setItem("bfidc_current_file", n); autoSave(); }
-}
-
+function toggleInputs(){ const isWood=document.getElementById("type").value==="wood"; document.getElementById("ve-box").style.display=isWood?"block":"none"; document.getElementById("l1").innerText=isWood?"Width (Inch)":"Girth (Inch)"; render(); }
+function setFileName(){ let n = prompt("File Name:", currentFileName); if(n){ currentFileName = n; localStorage.setItem("bfidc_current_file", n); autoSave(); } }
 function autoSave(){
     let history = JSON.parse(localStorage.getItem("bfidc_history")) || [];
     let idx = history.findIndex(h => h.name.toLowerCase() === currentFileName.toLowerCase());
@@ -236,17 +210,13 @@ function render(){
     filtered.forEach(i=>{total+=i.cft; tSet.add(i.tree)});
     stats.innerHTML=`<div class="stat">Trees: ${tSet.size}</div><div class="stat">Pieces: ${filtered.length}</div><div class="stat">Total: ${total.toFixed(2)} CFT</div>`;
     
-    // --- Special Header Logic ---
     let headerText = "";
     if(typF === 'log') {
-        headerText = `
-        <div class="report-header">
+        headerText = `<div class="report-header">
             <h3>weGdAvBwWwm, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ivevi evMvb n‡Z weGdAvBwWwm, Gjwcwm, KvßvB</h3>
             <h3>‡c«i‡Yi Rb¨ KZ©bK…Z RxebPµ nviv‡bv ivevi Kv‡Vi mvBR wj÷|</h3>
         </div>`;
-    } else {
-        headerText = `<div style="height:40px"></div>`; // No header for wood
-    }
+    } else { headerText = `<div style="height:20px"></div>`; }
 
     let html=`<div class='page' id='printContent'>${headerText}<div class="multi-column-container"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
     filtered.forEach(i=>{
@@ -258,10 +228,10 @@ function render(){
     document.getElementById("pagesArea").innerHTML=html;
 }
 
-/* ===== EXPORTS ===== */
+/* BACKUP & HISTORY */
 function exportExcel(){let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(items),"Data"); XLSX.writeFile(wb,currentFileName+".xlsx")}
 function backup(){let b=new Blob([JSON.stringify(localStorage)],{type:"application/json"}); let a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="ULTRA_BACKUP.json"; a.click();}
-function showHistory(){let h=JSON.parse(localStorage.getItem("bfidc_history"))||[]; historyList.innerHTML=h.map((x,i)=>`<div style="padding:10px;border-bottom:1px solid #334155;color:white"><b>${x.name}</b><button onclick="loadFromHistory(${i})" style="width:auto;float:right;padding:2px 8px">Load</button></div>`).join(''); historyModal.classList.remove("hidden")}
+function showHistory(){let h=JSON.parse(localStorage.getItem("bfidc_history"))||[]; historyList.innerHTML=h.map((x,i)=>`<div style="padding:10px;border-bottom:1px solid #334155;color:white"><b>${x.name}</b><button onclick="loadFromHistory(${i})" style="width:auto;float:right">Load</button></div>`).join(''); historyModal.classList.remove("hidden")}
 function loadFromHistory(idx){ let h=JSON.parse(localStorage.getItem("bfidc_history"))[idx]; items=h.data; currentFileName=h.name; localStorage.setItem("bfidc_ultra",JSON.stringify(items)); localStorage.setItem("bfidc_current_file",h.name); render(); closeHistory(); }
 function clearAll(){if(confirm("Delete All Data?")){items=[]; localStorage.removeItem("bfidc_ultra"); render();}}
 function closeHistory(){historyModal.classList.add("hidden")}
