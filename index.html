@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDC ERP - FAST NAVIGATION</title>
+<title>BFIDC ERP - CUSTOM KEYS</title>
 
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://accounts.google.com/gsi/client"></script>
@@ -50,7 +50,6 @@ th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13
     <div style="display:flex; gap:5px">
         <button id="auth_btn" onclick="handleAuthClick()" style="background:#1a73e8; color:white; border:none; padding:5px 8px; border-radius:4px; font-size:10px">☁️ DRIVE LOGIN</button>
         <button id="sync_btn" onclick="saveToDrive()" class="hidden" style="background:#34a853; color:white; border:none; padding:5px 8px; border-radius:4px; font-size:10px">📤 SYNC</button>
-        <button id="load_btn" onclick="loadFromDrive()" class="hidden" style="background:#fbbc05; color:white; border:none; padding:5px 8px; border-radius:4px; font-size:10px">📥 LOAD</button>
         <button onclick="logout()" style="background:#ef4444; color:white; border:none; padding:5px 8px; border-radius:4px; font-size:10px">X</button>
     </div>
 </header>
@@ -77,33 +76,35 @@ th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13
 </div>
 
 <script>
-// --- স্মার্ট নেভিগেশন লজিক ---
+// --- কাস্টম কী নেভিগেশন (Right Arrow & Enter) ---
 function move(e, next) {
-    if (e.key === "Enter" || e.key === "ArrowDown") {
+    // এন্টার দিলে সরাসরি ডাটা সেভ হবে (যেকোনো ঘরে থাকলেই হবে)
+    if (e.key === "Enter") {
         e.preventDefault();
-        // গাছ নং থেকে সরাসরি বেড়ে (v1) যাবে
+        addItem();
+    }
+    
+    // রাইট অ্যারো (→) দিলে পরের ঘরে যাবে
+    if (e.key === "ArrowRight") {
+        e.preventDefault();
         if (e.target.id === 'tree') {
             document.getElementById('v1').focus();
-        } 
-        // গোল কাঠ হলে v1 থেকে সরাসরি v2 তে যাবে (পুরুত্ব স্কিপ করবে)
-        else if (next === 'v2' && type.value === 'wood' && e.target.id === 'v1') {
+        } else if (next === 'v2' && type.value === 'wood' && e.target.id === 'v1') {
             document.getElementById('ve').focus();
-        } 
-        // লম্বা (v2) বক্সে এন্টার দিলে সেভ হবে
-        else if (next === 'save') {
-            addItem();
-        } else {
+        } else if (next !== 'save') {
             document.getElementById(next).focus();
         }
     }
-    if (e.key === "ArrowUp") {
+
+    // আপ অ্যারো (↑) আগের ঘরে যাওয়ার জন্য
+    if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
         e.preventDefault();
         let prev = (e.target.id === 'v2') ? (type.value === 'wood' ? 've' : 'v1') : (e.target.id === 've' ? 'v1' : 'tree');
         document.getElementById(prev).focus();
     }
 }
 
-// --- অ্যাপ লজিক ---
+// --- ড্রাইভ ও অ্যাপ লজিক ---
 const CLIENT_ID = '234418632833-gv6d3hqpnfjeodsi21t2g6afkh81o95i.apps.googleusercontent.com'; 
 const API_KEY = 'AIzaSyDvmF9t7WvsUvZLs5tFjGVfxTaQxsOKRJs'; 
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
@@ -111,11 +112,10 @@ const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 let tokenClient, items = JSON.parse(localStorage.getItem("bfidc_data")) || [], editIdx = null;
 
 function gapiLoaded() { gapi.load('client', async () => { await gapi.client.init({apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS}); }); }
-function gsiLoaded() { tokenClient = google.accounts.oauth2.initTokenClient({client_id: CLIENT_ID, scope: SCOPES, callback: ''}); }
-function handleAuthClick() {
-    tokenClient.callback = async (resp) => { auth_btn.classList.add('hidden'); sync_btn.classList.remove('hidden'); load_btn.classList.remove('hidden'); sync_status.innerText = "☁️ Connected"; };
-    tokenClient.requestAccessToken({prompt: 'consent'});
-}
+function gsiLoaded() { tokenClient = google.accounts.oauth2.initTokenClient({client_id: CLIENT_ID, scope: SCOPES, callback: (resp) => {
+    if(resp.access_token) { auth_btn.classList.add('hidden'); sync_btn.classList.remove('hidden'); sync_status.innerText = "☁️ Connected"; }
+}}); }
+function handleAuthClick() { tokenClient.requestAccessToken({prompt: 'consent'}); }
 
 async function saveToDrive() {
     sync_status.innerText = "Saving...";
@@ -125,14 +125,6 @@ async function saveToDrive() {
     if(method === 'PATCH') url = `https://www.googleapis.com/upload/drive/v3/files/${res.result.files[0].id}?uploadType=media`;
     await fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }, body: blob });
     sync_status.innerText = "✅ Saved!";
-}
-
-async function loadFromDrive() {
-    const res = await gapi.client.drive.files.list({ q: "name = 'wood_data.json' and trashed = false" });
-    if (res.result.files.length > 0) {
-        const file = await gapi.client.drive.files.get({ fileId: res.result.files[0].id, alt: 'media' });
-        items = file.result; localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece();
-    }
 }
 
 function handleLogin() { if(uID.value.toLowerCase()==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("Wrong!"); }
@@ -149,9 +141,7 @@ function addItem() {
     if(editIdx!==null) { items[editIdx] = data; editIdx = null; addBtn.innerText = "সেভ করুন (ENTER)"; } else items.push(data);
     localStorage.setItem("bfidc_data", JSON.stringify(items));
     v1.value=""; v2.value=""; ve.value=""; updatePiece(); render();
-    
-    // সেভ হওয়ার পর কার্সার আবার 'গাছ নং' বক্সে যাবে আপনার চাহিদা অনুযায়ী
-    document.getElementById('tree').focus(); 
+    document.getElementById('tree').focus(); // সেভ শেষে আবার গাছ নং-এ ফিরবে
 }
 
 function deleteItem(idx) { if(confirm("Delete?")) { items.splice(idx, 1); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); } }
