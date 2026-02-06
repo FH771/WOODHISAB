@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDC ULTRA ERP - SAVE FIXED</title>
+<title>BFIDC ULTRA ERP - FILE SAVE</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -26,7 +26,7 @@ header{position:sticky;top:0;background:#020617;color:white;padding:10px;display
 .grid-inputs{display:grid;grid-template-columns: repeat(2, 1fr); gap:10px}
 .full-width { grid-column: span 2; }
 
-/* REPORT AREA (A4) */
+/* REPORT AREA */
 .page { 
     background: white; width: 210mm; min-height: 297mm; 
     margin: 10px auto; padding: 10mm; border: 1px solid #ddd; 
@@ -74,7 +74,7 @@ th { background: #f3f4f6; }
     <div id="who"></div>
     <div style="font-weight:bold; font-size: 16px;">🔥 ULTRA BOSS ERP</div>
     <div style="display:flex;gap:5px">
-        <button onclick="backup()" style="background:#3b82f6;width:auto;padding:4px 8px; font-size: 12px;">💾 Save Backup</button>
+        <button onclick="saveToFile()" style="background:#3b82f6;width:auto;padding:4px 10px; font-size: 12px;">💾 FILE SAVE</button>
         <button onclick="logout()" style="background:#ef4444;width:auto;padding:4px 8px; font-size: 12px;">Logout</button>
     </div>
 </header>
@@ -173,7 +173,7 @@ function updatePiece() {
 
 function addItem() {
     let t = tree.value, ty = type.value, v1v = parseFloat(v1.value), v2v = parseFloat(v2.value), vev = parseFloat(ve.value) || 0;
-    if(!v1v || !v2v) { alert("Please fill the sizes!"); return; }
+    if(!v1v || !v2v) return;
     
     let cft = ty === 'log' ? ((v1v/4)**2 * v2v)/144 : (v1v * vev * v2v)/144;
     let pNo = editIdx !== null ? items[editIdx].piece : (items.filter(i => i.tree == t).length + 1);
@@ -221,15 +221,23 @@ function startEdit(idx) {
     window.scrollTo(0,0);
 }
 
+// নাম দিয়ে ফাইল সেভ করার ফাংশন
+function saveToFile() {
+    if(items.length === 0) return alert("No data to save!");
+    let fileName = prompt("Enter File Name:", "BFIDC_Report_" + new Date().toLocaleDateString());
+    if(!fileName) return;
+
+    let blob = new Blob([JSON.stringify(items)], {type:"application/json"});
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = fileName + ".json";
+    a.click();
+}
+
 function exportExcel() {
     let wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(items), "Data");
-    XLSX.writeFile(wb, "BFIDC_Report.xlsx");
-}
-
-function backup() {
-    let b = new Blob([JSON.stringify(localStorage)], {type:"application/json"});
-    let a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "BFIDC_DATABASE_SAVE.json"; a.click();
+    XLSX.writeFile(wb, "BFIDC_Excel_Export.xlsx");
 }
 
 function clearAll() { if(confirm("Clear all data?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
