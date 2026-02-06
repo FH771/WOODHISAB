@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDC ULTRA ERP - FINAL</title>
+<title>BFIDC ULTRA ERP - SAVE FIXED</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -44,16 +44,14 @@ th { background: #f3f4f6; }
 .summary{border:2px solid black;padding:10px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between;font-size:14px}
 .hidden{display:none!important}
 
-/* MOBILE VIEW - মোবাইলে যেন রিপোর্ট ঠিকঠাক দেখা যায় */
 @media (max-width: 600px) {
     header { flex-direction: column; gap: 8px; text-align: center; }
     .page { width: 98%; margin: 5px auto; padding: 5mm; height: auto; min-height: auto; }
     .multi-column { column-count: 1; height: auto; }
-    .report-header h3 { font-size: 16px; } /* মোবাইলে ফন্ট একটু ছোট করা হয়েছে */
 }
 
 @media print {
-    header, .no-print, #loginLayer, #adminPanel {display:none!important}
+    header, .no-print, #loginLayer {display:none!important}
     body {background: white}
     .page { margin: 0; border: none; width: 100%; padding: 10mm; }
     @page { size: A4; margin: 0; }
@@ -76,8 +74,7 @@ th { background: #f3f4f6; }
     <div id="who"></div>
     <div style="font-weight:bold; font-size: 16px;">🔥 ULTRA BOSS ERP</div>
     <div style="display:flex;gap:5px">
-        <button id="adminBtn" class="hidden" onclick="toggleAdmin()" style="background:#f59e0b;width:auto;padding:4px 8px; font-size: 12px;">⚙️ Users</button>
-        <button onclick="backup()" style="background:#3b82f6;width:auto;padding:4px 8px; font-size: 12px;">Backup</button>
+        <button onclick="backup()" style="background:#3b82f6;width:auto;padding:4px 8px; font-size: 12px;">💾 Save Backup</button>
         <button onclick="logout()" style="background:#ef4444;width:auto;padding:4px 8px; font-size: 12px;">Logout</button>
     </div>
 </header>
@@ -96,11 +93,13 @@ th { background: #f3f4f6; }
         <div id="thickBox" class="hidden">Thickness<input id="ve" inputmode="decimal"></div>
         <div>Length (Foot)<input id="v2" inputmode="decimal"></div>
     </div>
-    <button onclick="addItem()" id="addBtn" style="margin-top:15px; background:#22c55e; padding: 15px; font-size: 18px;">ADD DATA (+)</button>
+    
+    <button onclick="addItem()" id="addBtn" style="margin-top:15px; background:#22c55e; padding: 15px; font-size: 18px; color: white; border-bottom: 4px solid #16a34a;">SAVE DATA (✔)</button>
+    
     <div class="grid-inputs" style="margin-top:10px">
-        <button onclick="exportExcel()" style="background:#16a34a; font-size: 12px;">Excel</button>
-        <button onclick="window.print()" style="background:#475569; font-size: 12px;">Print A4</button>
-        <button onclick="clearAll()" class="full-width" style="background:#dc2626; font-size: 12px; margin-top: 5px;">Clear Data</button>
+        <button onclick="exportExcel()" style="background:#16a34a; font-size: 12px;">Excel Export</button>
+        <button onclick="window.print()" style="background:#475569; font-size: 12px;">Print Report</button>
+        <button onclick="clearAll()" class="full-width" style="background:#dc2626; font-size: 12px; margin-top: 5px;">Clear All Data</button>
     </div>
 </div>
 
@@ -120,15 +119,13 @@ function start() {
     appArea.style.display = "block";
     let user = sessionStorage.getItem("active");
     who.innerText = "User: " + user.toUpperCase();
-    if(user === 'admin') adminBtn.classList.remove("hidden");
     updatePiece(); render();
     document.getElementById("tree").focus();
 }
 
 function logout() { sessionStorage.clear(); location.reload(); }
-function toggleAdmin() { alert("Use Admin Panel via Desktop for better control."); }
 
-/* KEYBOARD NAVIGATION - FAST FLOW (SKIPS TYPE & PIECE) */
+/* KEYBOARD NAVIGATION */
 document.addEventListener('keydown', function(e) {
     const active = document.activeElement.id;
     const isWood = document.getElementById("type").value === 'wood';
@@ -176,12 +173,21 @@ function updatePiece() {
 
 function addItem() {
     let t = tree.value, ty = type.value, v1v = parseFloat(v1.value), v2v = parseFloat(v2.value), vev = parseFloat(ve.value) || 0;
-    if(!v1v || !v2v) return;
+    if(!v1v || !v2v) { alert("Please fill the sizes!"); return; }
+    
     let cft = ty === 'log' ? ((v1v/4)**2 * v2v)/144 : (v1v * vev * v2v)/144;
     let pNo = editIdx !== null ? items[editIdx].piece : (items.filter(i => i.tree == t).length + 1);
+    
     let data = {tree: t, piece: pNo, type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)};
-    if(editIdx !== null) { items[editIdx] = data; editIdx = null; addBtn.innerText = "ADD DATA (+)"; }
-    else { items.push(data); }
+    
+    if(editIdx !== null) { 
+        items[editIdx] = data; 
+        editIdx = null; 
+        addBtn.innerText = "SAVE DATA (✔)"; 
+    } else { 
+        items.push(data); 
+    }
+    
     localStorage.setItem("bfidc_data", JSON.stringify(items));
     v1.value = ""; v2.value = ""; ve.value = "";
     updatePiece(); render();
@@ -193,7 +199,6 @@ function render() {
     let total = 0, treeSet = new Set();
     filtered.forEach(i => { total += i.cft; treeSet.add(i.tree); });
     
-    // হেডার যেটা আপনি ডট ডট দিয়ে চেয়েছিলেন
     let headerText = ty === 'log' ? `
         <div class="report-header">
             <h3>weGdAvBwWwm, .....................&nbsp; ivevi evMvb n‡Z weGdAvBwWwm, Gjwcwm</h3>
@@ -224,7 +229,7 @@ function exportExcel() {
 
 function backup() {
     let b = new Blob([JSON.stringify(localStorage)], {type:"application/json"});
-    let a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "BFIDC_BACKUP.json"; a.click();
+    let a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "BFIDC_DATABASE_SAVE.json"; a.click();
 }
 
 function clearAll() { if(confirm("Clear all data?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
