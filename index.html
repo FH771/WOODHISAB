@@ -2,38 +2,55 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC ULTRA ERP - FAST NAV</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<title>BFIDC ULTRA ERP - MOBILE READY</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
 @font-face { font-family: 'SutonnyMJ'; src: local('SutonnyMJ'), local('SutonnyMJ-Bold'); }
-body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;margin:0;transition:.3s;color:white}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;margin:0;transition:.3s;color:white; -webkit-tap-highlight-color: transparent;}
 
 /* LOGIN SYSTEM */
 #loginLayer {position:fixed;inset:0;background:#020617;display:flex;align-items:center;justify-content:center;z-index:9999}
-.box{background:#111827;padding:25px;border-radius:14px;width:320px;box-shadow:0 10px 25px rgba(0,0,0,.5);text-align:center}
-input,select,button{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:none;box-sizing:border-box;background:#1e293b;color:white}
-button{background:#22c55e;color:white;font-weight:bold;cursor:pointer}
+.box{background:#111827;padding:25px;border-radius:14px;width:90%; max-width:320px; box-shadow:0 10px 25px rgba(0,0,0,.5);text-align:center}
+input,select,button{width:100%;padding:12px;margin-top:8px;border-radius:8px;border:none;box-sizing:border-box;background:#1e293b;color:white; font-size: 16px;}
+button{background:#22c55e;color:white;font-weight:bold;cursor:pointer; transition: 0.2s;}
+button:active{transform: scale(0.98);}
 
 /* APP AREA */
 #appArea{display:none;background:#f4f7f6;min-height:100vh;color:black}
-header{position:sticky;top:0;background:#020617;color:white;padding:12px;display:flex;justify-content:space-between;align-items:center;z-index:999}
-.card{background:white;padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.1);margin:15px;color:black}
-.grid-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+header{position:sticky;top:0;background:#020617;color:white;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:999; font-size: 14px;}
+.card{background:white;padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.1);margin:10px;color:black}
+
+/* GRID ADAPTATION */
+.grid-inputs{display:grid;grid-template-columns: repeat(2, 1fr); gap:10px}
+.grid-inputs > div { display: flex; flex-direction: column; font-size: 13px; font-weight: bold; color: #475569;}
+.full-width { grid-column: span 2; }
 
 /* A4 PRINT & COLUMN FLOW */
-.page { background: white; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 15mm; border: 1px solid #ddd; color: black; box-sizing: border-box; }
-.report-header{text-align:center;margin-bottom:20px;font-family:'SutonnyMJ'; line-height: 1.3;}
-.multi-column { column-count: 2; column-gap: 40px; column-fill: auto; height: 215mm; }
+.page { 
+    background: white; width: 210mm; min-height: 297mm; 
+    margin: 10px auto; padding: 10mm; border: 1px solid #ddd; 
+    color: black; box-sizing: border-box; overflow: hidden;
+}
+.report-header{text-align:center;margin-bottom:15px;font-family:'SutonnyMJ'; line-height: 1.2;}
+.multi-column { column-count: 2; column-gap: 30px; column-fill: auto; height: 230mm; }
 
-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; border: 2px solid #000; }
-th, td { border: 1.5px solid #000; padding: 6px 4px; text-align: center; font-size: 14px; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 5px; border: 1.5px solid #000; }
+th, td { border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 12px; }
 th { background: #f3f4f6; }
 
-.summary{border:2px solid black;padding:12px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between;font-size:16px}
+.summary{border:2px solid black;padding:10px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between;font-size:14px}
 .hidden{display:none!important}
+
+/* MOBILE VIEW OVERRIDES */
+@media (max-width: 600px) {
+    header { flex-direction: column; gap: 8px; text-align: center; }
+    .page { width: 95%; margin: 5px auto; padding: 5mm; height: auto; min-height: auto; }
+    .multi-column { column-count: 1; height: auto; }
+    .no-mobile { display: none; }
+}
 
 @media print {
     header, .no-print, #loginLayer, #adminPanel, .btn-edit {display:none!important}
@@ -47,54 +64,54 @@ th { background: #f3f4f6; }
 
 <div id="loginLayer">
   <div class="box">
-    <h2 style="color:white">BFIDC ERP LOGIN</h2>
+    <h2 style="color:white; margin-bottom: 20px;">BFIDC ERP LOGIN</h2>
     <input id="uID" placeholder="User ID">
     <input id="uPass" type="password" placeholder="Password">
     <button onclick="handleLogin()">Login</button>
-    <p style="color:#64748b; font-size:12px; margin-top:10px">Default: admin | 0000</p>
+    <p style="color:#64748b; font-size:12px; margin-top:15px">Default: admin | 0000</p>
   </div>
 </div>
 
 <div id="appArea">
 <header>
     <div id="who"></div>
-    <div style="font-weight:bold">🔥 ULTRA BOSS ERP</div>
-    <div style="display:flex;gap:10px">
-        <button id="adminBtn" class="hidden" onclick="toggleAdmin()" style="background:#f59e0b;width:auto;padding:5px 12px">⚙️ Users</button>
-        <button onclick="backup()" style="background:#3b82f6;width:auto;padding:5px 12px">Backup</button>
-        <button onclick="logout()" style="background:#ef4444;width:auto;padding:5px 12px">Logout</button>
+    <div style="font-weight:bold; font-size: 16px;">🔥 ULTRA BOSS ERP</div>
+    <div style="display:flex;gap:5px">
+        <button id="adminBtn" class="hidden" onclick="toggleAdmin()" style="background:#f59e0b;width:auto;padding:4px 8px; font-size: 12px;">⚙️ Users</button>
+        <button onclick="backup()" style="background:#3b82f6;width:auto;padding:4px 8px; font-size: 12px;">Backup</button>
+        <button onclick="logout()" style="background:#ef4444;width:auto;padding:4px 8px; font-size: 12px;">Logout</button>
     </div>
 </header>
 
 <div id="adminPanel" class="card no-print hidden">
-    <h4>User Management</h4>
+    <h4 style="margin:0 0 10px 0">User Management</h4>
     <div class="grid-inputs">
         <input id="newU" placeholder="New ID">
         <input id="newP" placeholder="New Password">
-        <button onclick="addUser()">Save/Reset User</button>
+        <button class="full-width" onclick="addUser()">Save/Reset User</button>
     </div>
 </div>
 
 <div class="card no-print">
     <div class="grid-inputs">
-        <div>Tree No<input id="tree" value="1" oninput="updatePiece()"></div>
-        <div>Piece<input id="piece" readonly tabindex="-1" style="background:#e2e8f0; cursor: default;"></div>
-        <div>Type
+        <div>Tree No<input id="tree" value="1" inputmode="numeric" oninput="updatePiece()"></div>
+        <div>Piece<input id="piece" readonly tabindex="-1" style="background:#e2e8f0; border: 1px solid #cbd5e1;"></div>
+        <div class="full-width">Type
             <select id="type" onchange="toggleInputs()" tabindex="-1">
                 <option value="log">Round Log</option>
                 <option value="wood">Sawn Wood</option>
             </select>
         </div>
-        <div><span id="labelV1">Girth (Inch)</span><input id="v1"></div>
-        <div id="thickBox" class="hidden">Thickness<input id="ve"></div>
-        <div>Length (Foot)<input id="v2"></div>
+        <div><span id="labelV1">Girth (Inch)</span><input id="v1" inputmode="decimal"></div>
+        <div id="thickBox" class="hidden">Thickness<input id="ve" inputmode="decimal"></div>
+        <div>Length (Foot)<input id="v2" inputmode="decimal"></div>
     </div>
-    <button onclick="addItem()" id="addBtn" style="margin-top:15px; background:#22c55e">ADD DATA (+)</button>
+    <button onclick="addItem()" id="addBtn" style="margin-top:15px; background:#22c55e; padding: 15px; font-size: 18px;">ADD DATA (+)</button>
     
     <div class="grid-inputs" style="margin-top:10px">
-        <button onclick="exportExcel()" style="background:#16a34a">Excel Export</button>
-        <button onclick="window.print()" style="background:#475569">Print A4 Report</button>
-        <button onclick="clearAll()" style="background:#dc2626">Clear All Data</button>
+        <button onclick="exportExcel()" style="background:#16a34a; font-size: 12px;">Excel</button>
+        <button onclick="window.print()" style="background:#475569; font-size: 12px;">Print A4</button>
+        <button onclick="clearAll()" class="full-width" style="background:#dc2626; font-size: 12px; margin-top: 5px;">Clear All Data</button>
     </div>
 </div>
 
@@ -104,8 +121,7 @@ th { background: #f3f4f6; }
 <script>
 /* SECURITY & LOGIN */
 function handleLogin() {
-    let id = uID.value.trim().toLowerCase();
-    let ps = uPass.value.trim();
+    let id = uID.value.trim().toLowerCase(), ps = uPass.value.trim();
     let users = JSON.parse(localStorage.getItem("bfidc_users")) || {"admin": "0000"};
     if(users[id] && users[id] === ps) { sessionStorage.setItem("active", id); start(); } else alert("Invalid Login!");
 }
@@ -132,20 +148,17 @@ function addUser() {
     alert("User Updated!");
 }
 
-/* KEYBOARD NAVIGATION - FAST FLOW (SKIPS TYPE & PIECE) */
+/* KEYBOARD & MOBILE NAV */
 document.addEventListener('keydown', function(e) {
     const active = document.activeElement.id;
     const isWood = document.getElementById("type").value === 'wood';
 
-    // অ্যারো কি এবং এন্টার নেভিগেশন (Skip Type and Piece)
     if (e.key === "ArrowDown" || e.key === "ArrowRight" || (e.key === "Enter" && active !== "v2")) {
         e.preventDefault();
         if (active === "tree") document.getElementById("v1").focus();
         else if (active === "v1" && isWood) document.getElementById("ve").focus();
         else if (active === "v1" && !isWood) document.getElementById("v2").focus();
         else if (active === "ve") document.getElementById("v2").focus();
-        
-        // সিলেকশন হাইলাইট করার জন্য
         if(document.activeElement.tagName === "INPUT") document.activeElement.select();
     } 
     else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
@@ -154,11 +167,9 @@ document.addEventListener('keydown', function(e) {
         else if (active === "v2" && !isWood) document.getElementById("v1").focus();
         else if (active === "ve") document.getElementById("v1").focus();
         else if (active === "v1") document.getElementById("tree").focus();
-        
         if(document.activeElement.tagName === "INPUT") document.activeElement.select();
     }
 
-    // Feet (v2) এ এন্টার দিলে ডাটা সেভ এবং Tree তে ব্যাক
     if (e.key === "Enter" && active === "v2") {
         e.preventDefault();
         addItem();
@@ -203,15 +214,15 @@ function render() {
     filtered.forEach(i => { total += i.cft; treeSet.add(i.tree); });
     let header = ty === 'log' ? `
         <div class="report-header">
-            <h3>weGdAvBwWwm, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ivevi evMvb n‡Z weGdAvBwWwm, Gjwcwm, KvßvB</h3>
-            <h3>‡c«i‡Yi Rb¨ KZ©bK…Z RxebPµ nviv‡bv ivevi Kv‡Vi mvBR wj÷|</h3>
-        </div>` : `<div style="height:30px"></div>`;
-    let html = `<div class="page">${header}<div class="multi-column"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
+            <h3 style="margin:0">weGdAvBwWwm, &nbsp; ivevi evMvb n‡Z weGdAvBwWwm, Gjwcwm</h3>
+            <h3 style="margin:0">‡c«i‡Yi Rb¨ KZ©bK…Z RxebPµ nviv‡bv ivevi Kv‡Vi mvBR wj÷|</h3>
+        </div>` : `<div style="height:10px"></div>`;
+    let html = `<div class="page">${header}<div class="multi-column"><table><tr><th>Tr/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
     filtered.forEach((item) => {
         let size = item.type === 'log' ? `${item.v1}"x${item.v2}'` : `${item.v1}"x${item.ve}"x${item.v2}'`;
-        html += `<tr><td>${item.tree}/${item.piece}</td><td>${size}</td><td>${item.cft}</td><td class="no-print"><button onclick="startEdit(${items.indexOf(item)})" style="padding:2px 5px;font-size:10px;width:auto;background:#3b82f6">Edit</button></td></tr>`;
+        html += `<tr><td>${item.tree}/${item.piece}</td><td>${size}</td><td>${item.cft}</td><td class="no-print"><button onclick="startEdit(${items.indexOf(item)})" style="padding:2px; font-size:10px; background:#3b82f6; width:100%;">Edit</button></td></tr>`;
     });
-    html += `</table></div><div class="summary"><span>Trees: ${treeSet.size}</span><span>Pieces: ${filtered.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`;
+    html += `</table></div><div class="summary"><span>Trees: ${treeSet.size}</span><span>Pcs: ${filtered.length}</span><span>Total: ${total.toFixed(2)}</span></div></div>`;
     document.getElementById("printArea").innerHTML = html;
 }
 
@@ -219,6 +230,7 @@ function startEdit(idx) {
     let i = items[idx]; editIdx = idx;
     tree.value = i.tree; type.value = i.type; v1.value = i.v1; v2.value = i.v2; ve.value = i.ve;
     addBtn.innerText = "UPDATE DATA (✔)"; toggleInputs();
+    window.scrollTo(0,0);
 }
 
 function exportExcel() {
@@ -229,7 +241,7 @@ function exportExcel() {
 
 function backup() {
     let b = new Blob([JSON.stringify(localStorage)], {type:"application/json"});
-    let a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "ULTRA_ERP_BACKUP.json"; a.click();
+    let a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "BFIDC_BACKUP.json"; a.click();
 }
 
 function clearAll() { if(confirm("Clear all data?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
