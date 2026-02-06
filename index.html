@@ -3,81 +3,117 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC Wood System ULTRA PRO + History</title>
+<title>BFIDC Forestry ERP ULTRA PRO</title>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
 @page{size:A4;margin:10mm}
-body{font-family:Segoe UI;margin:0;background:#eef2f7}
+body{margin:0;font-family:Segoe UI;background:#eef2f7}
 .dark{background:#121212;color:white}
-header{position:sticky;top:0;background:#2e7d32;color:white;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:1000}
-.card{background:white;margin:10px auto;padding:12px;border-radius:10px;max-width:1100px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
-input,select,button{padding:10px;border-radius:8px;border:1px solid #ccc;font-size:14px}
-button{background:#2e7d32;color:white;border:none;cursor:pointer;font-weight:bold}
-.page{background:white;width:210mm;min-height:297mm;margin:10px auto;padding:10mm;border:1px solid #ddd;box-shadow:0 0 10px rgba(0,0,0,0.1)}
+header{position:sticky;top:0;background:#0d47a1;color:white;padding:12px;display:flex;justify-content:space-between;z-index:1000}
+.container{max-width:1300px;margin:auto;padding:10px}
+.card{background:white;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+button{padding:10px;border:none;border-radius:8px;background:#1565c0;color:white;cursor:pointer;font-weight:bold}
+input,select{padding:10px;border-radius:8px;border:1px solid #ccc;width:100%;box-sizing:border-box}
+.page{background:white;width:210mm;min-height:297mm;margin:10px auto;padding:10mm;border:1px solid #ddd;box-shadow:0 0 10px rgba(0,0,0,0.1);color:black}
 table{width:100%;border-collapse:collapse}
 th,td{border:1px solid black;padding:6px;text-align:center;font-size:13px}
-.summary{border:2px solid black;padding:10px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between;background:#f9f9f9}
-.history-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2000; justify-content:center; align-items:center; }
-.modal-content { background:white; padding:20px; border-radius:10px; width:90%; max-width:500px; max-height:80vh; overflow-y:auto; color: black; }
-@media print{header,.no-print,.edit-btn,.del-btn{display:none !important}.page{margin:0;border:none;box-shadow:none}}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.stat{background:#e3f2fd;padding:16px;border-radius:10px;font-weight:bold;font-size:18px;text-align:center;color:#0d47a1}
+.summary{border:2px solid black;padding:10px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between}
+.no-print{display:block}
+@media print{header,.no-print,.edit-btn,.del-btn,#loginCard{display:none !important}.page{margin:0;border:none;box-shadow:none}}
 </style>
 </head>
 <body>
 
 <header>
-<span>BFIDC Wood ULTRA PRO 🌲</span>
+<span>🌲 BFIDC ERP ULTRA PRO</span>
 <div>
+<span id="roleLabel" style="margin-right:10px"></span>
 <button onclick="toggleDark()">🌙</button>
-<button onclick="showHistory()"><i class="fas fa-folder-open"></i> History</button>
+<button onclick="logout()" style="background:#c62828">Logout</button>
 </div>
 </header>
 
-<div id="historyModal" class="history-modal">
-    <div class="modal-content">
-        <h3>সংরক্ষিত কাজের তালিকা</h3>
-        <div id="historyList"></div>
-        <br>
-        <button onclick="closeHistory()" style="background:#666; width:100%">বন্ধ করুন</button>
+<div class="container">
+    <div class="card no-print" id="loginCard" style="max-width:400px; margin: 50px auto; text-align:center">
+        <h2 style="color:#0d47a1">ERP Login</h2>
+        <input id="user" placeholder="User (admin)" style="margin-bottom:10px">
+        <input id="pass" type="password" placeholder="Pass (1234)" style="margin-bottom:15px">
+        <button onclick="login()" style="width:100%">Login</button>
+    </div>
+
+    <div id="app" style="display:none">
+        <div class="card no-print">
+            <div class="stat-grid">
+                <div class="stat" id="statTrees">Trees: 0</div>
+                <div class="stat" id="statPieces">Pieces: 0</div>
+                <div class="stat" id="statCft">Total: 0.00 CFT</div>
+            </div>
+        </div>
+
+        <div class="card no-print">
+            <div class="grid">
+                <div><label style="font-size:11px">গাছ নং</label><input id="tree" value="1" oninput="resetPieceOnTreeChange()" class="nav-item"></div>
+                <div><label style="font-size:11px">পিস</label><input id="piece" value="1" readonly></div>
+                <div><label style="font-size:11px">ধরণ</label>
+                    <select id="type" onchange="toggleInputs()" class="nav-item">
+                        <option value="log">গোল (Log)</option>
+                        <option value="wood">সাইজ (Wood)</option>
+                    </select>
+                </div>
+                <div><label id="l1" style="font-size:11px">বেড় (ইঞ্চি)</label><input id="v1" class="nav-item"></div>
+                <div id="ve-box" style="display:none;"><label style="font-size:11px">পুরুত্ব (ইঞ্চি)</label><input id="ve" class="nav-item"></div>
+                <div><label style="font-size:11px">লম্বা (ফুট)</label><input id="v2" class="nav-item"></div>
+            </div>
+
+            <div class="grid" style="margin-top:12px">
+                <button onclick="addItem()" id="addBtn" style="background:#2e7d32">Add (+)</button>
+                <button onclick="exportExcel()" style="background:#1f6e43">Excel</button>
+                <button onclick="exportDoc()" style="background:#2b579a">Word (Doc)</button>
+                <button onclick="window.print()" style="background:#000">Print</button>
+                <button onclick="clearAll()" style="background:#c62828">Delete All</button>
+            </div>
+            <div style="margin-top:10px"><input id="search" placeholder="স্মার্ট সার্চ (গাছ নং বা পিস)..." oninput="render()"></div>
+        </div>
+
+        <div id="pagesArea"></div>
     </div>
 </div>
-
-<div class="card no-print">
-<div class="grid">
-    <div><label style="font-size:11px">গাছ নং</label><input id="tree" value="1" oninput="resetPieceOnTreeChange()" class="nav-item"></div>
-    <div><label style="font-size:11px">পিস</label><input id="piece" value="1" readonly></div>
-    <div><label style="font-size:11px">ধরণ</label>
-        <select id="type" onchange="toggleInputs()" class="nav-item">
-            <option value="log">গোল</option>
-            <option value="wood">সাইজ</option>
-        </select>
-    </div>
-    <div><label id="l1" style="font-size:11px">বেড় (ইঞ্চি)</label><input id="v1" placeholder="বেড় / চওড়া" class="nav-item"></div>
-    <div id="ve-box" style="display:none;"><label style="font-size:11px">পুরুত্ব (ইঞ্চি)</label><input id="ve" placeholder="পুরুত্ব" class="nav-item"></div>
-    <div><label style="font-size:11px">লম্বা (ফুট)</label><input id="v2" placeholder="লম্বা" class="nav-item"></div>
-</div>
-
-<div class="grid" style="margin-top:12px">
-<button onclick="addItem()" id="addBtn" style="background:#2e7d32">Add (+)</button>
-<button onclick="saveToHistory()" style="background:#ff9800">Save with Name</button>
-<button onclick="exportExcel()" style="background:#1f6e43">Excel</button>
-<button onclick="exportDoc()" style="background:#2b579a">Word (Doc)</button>
-<button onclick="window.print()" style="background:#000">Print</button>
-<button onclick="clearAll()" style="background:#c62828">Clear All</button>
-</div>
-</div>
-
-<div id="pages"></div>
 
 <script>
-let items=JSON.parse(localStorage.getItem("wood_ultra"))||[];
-let editIndex = null;
+// --- FIREBASE SETUP ---
+const firebaseConfig={ apiKey:"YOUR_KEY", authDomain:"YOUR_DOMAIN", projectId:"YOUR_PROJECT" };
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
 
-// ARROW NAVIGATION
+let items=[];
+let role="operator";
+let editId = null;
+
+// --- LOGIN ---
+function login(){
+    let u=document.getElementById("user").value;
+    let p=document.getElementById("pass").value;
+    if(u==="admin" && p==="1234") { role="admin"; }
+    else if(u==="operator" && p==="0000") { role="operator"; }
+    else { return alert("ভুল লগইন!"); }
+
+    document.getElementById("roleLabel").innerText="Role: "+role.toUpperCase();
+    document.getElementById("loginCard").style.display="none";
+    document.getElementById("app").style.display="block";
+    loadCloud();
+}
+function logout(){location.reload();}
+
+// --- KEYBOARD NAVIGATION ---
 document.addEventListener('keydown', (e) => {
     const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
     const idx = inputs.indexOf(document.activeElement);
@@ -104,135 +140,122 @@ function toggleInputs(){
     render();
 }
 
-function addItem(){
+// --- CLOUD DATA ---
+async function loadCloud(){
+    db.collection("trees").orderBy("tree", "asc").onSnapshot(snap => {
+        items = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        render();
+    });
+}
+
+// --- ADD / EDIT ---
+async function addItem(){
     let tree=document.getElementById("tree").value;
-    let type=document.getElementById("type").value;
     let v1=parseFloat(document.getElementById("v1").value);
     let v2=parseFloat(document.getElementById("v2").value);
     let ve=parseFloat(document.getElementById("ve").value)||0;
+    let type=document.getElementById("type").value;
 
     if(!tree||!v1||!v2) return alert("মাপ দিন!");
 
-    let cft = type==="log" ? ((v1/4)**2*v2)/144 : (v1*ve*v2)/144;
-    let piece = editIndex !== null ? items[editIndex].piece : (items.filter(i=>i.tree==tree).length+1);
+    let cft= type==="log"?((v1/4)**2*v2)/144:(v1*ve*v2)/144;
+    let piece = editId ? document.getElementById("piece").value : (items.filter(i=>i.tree==tree).length+1);
 
-    let newData = {tree, piece, type, v1, v2, ve, cft: +cft.toFixed(2), date:new Date().toLocaleDateString()};
+    let obj={tree, piece, v1, v2, ve, type, cft:+cft.toFixed(2), timestamp: Date.now()};
 
-    if(editIndex !== null){
-        items[editIndex] = newData; editIndex = null;
+    if(editId){
+        await db.collection("trees").doc(editId).update(obj);
+        editId = null;
         document.getElementById("addBtn").innerText = "Add (+)";
         document.getElementById("addBtn").style.background = "#2e7d32";
     } else {
-        items.push(newData);
+        await db.collection("trees").add(obj);
     }
 
-    localStorage.setItem("wood_ultra", JSON.stringify(items));
-    render();
     document.getElementById("v1").value=""; document.getElementById("v2").value=""; document.getElementById("ve").value="";
     document.getElementById("piece").value = items.filter(i=>i.tree == tree).length + 1;
     document.getElementById("tree").focus(); document.getElementById("tree").select();
 }
 
+// --- RENDER & HEADER LOGIC ---
 function render(){
+    let s=document.getElementById("search").value.toLowerCase();
     let typeFilter = document.getElementById("type").value;
-    let filtered=items.filter(i=> i.type === typeFilter);
-    let total=0; let trees=new Set();
+    let filtered = items.filter(i=> i.type === typeFilter && JSON.stringify(i).toLowerCase().includes(s));
+
+    let total=0; let treesSet=new Set();
     
+    // Header Logic (Size wood হলে হেডার থাকবে না)
     let headerHTML = typeFilter === 'log' ? `<div style="text-align:center"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>` : `<div style="height:40px"></div>`;
 
     let html=`<div class='page'>${headerHTML}<table>
     <tr><th>ক্র.নং</th><th>পরিমাপ</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
 
-    filtered.forEach((i, idx)=>{
-        let realIdx = items.indexOf(i);
+    filtered.forEach((i)=>{
         let m=i.type==="log" ? `${i.v1}" x ${i.v2}'` : `${i.v1}" x ${i.ve}" x ${i.v2}'`;
-        html+=`<tr><td>${i.tree}/${i.piece}</td><td>${m}</td><td>${i.cft}</td><td class="no-print"><button onclick="startEdit(${realIdx})" style="background:#1565c0; padding:2px 6px">Edit</button> <button onclick="del(${realIdx})" style="background:#c62828; padding:2px 6px">X</button></td></tr>`;
-        total+=i.cft; trees.add(i.tree);
+        html+=`<tr>
+            <td>${i.tree}/${i.piece}</td>
+            <td>${m}</td>
+            <td>${i.cft}</td>
+            <td class="no-print">
+                <button onclick="startEdit('${i.id}')" style="background:#1565c0; padding:2px 6px">Edit</button>
+                <button onclick="del('${i.id}')" style="background:#c62828; padding:2px 6px">X</button>
+            </td>
+        </tr>`;
+        total+=i.cft; treesSet.add(i.tree);
     });
 
-    html+=`</table><div class='summary'><span>গাছ: ${trees.size}</span><span>পিস: ${filtered.length}</span><span>মোট: ${total.toFixed(2)} CFT</span></div></div>`;
-    document.getElementById("pages").innerHTML=html;
+    html+=`</table><div class='summary'><span>গাছ: ${treesSet.size}</span><span>পিস: ${filtered.length}</span><span>মোট: ${total.toFixed(2)} CFT</span></div></div>`;
+    document.getElementById("pagesArea").innerHTML=html;
+
+    document.getElementById("statTrees").innerText = "Trees: " + treesSet.size;
+    document.getElementById("statPieces").innerText = "Pieces: " + filtered.length;
+    document.getElementById("statCft").innerText = "Total: " + total.toFixed(2) + " CFT";
 }
 
-function startEdit(idx){
-    let i = items[idx]; editIndex = idx;
+function startEdit(id){
+    let i = items.find(x => x.id === id);
+    editId = id;
     document.getElementById("tree").value = i.tree;
-    document.getElementById("type").value = i.type;
+    document.getElementById("piece").value = i.piece;
     document.getElementById("v1").value = i.v1;
     document.getElementById("v2").value = i.v2;
     document.getElementById("ve").value = i.ve;
+    document.getElementById("type").value = i.type;
     toggleInputs();
     document.getElementById("addBtn").innerText = "Update (✔)";
     document.getElementById("addBtn").style.background = "#1565c0";
     document.getElementById("v1").focus();
 }
 
-// --- History Feature ---
-function saveToHistory() {
-    if(items.length === 0) return alert("কোনো ডাটা নেই!");
-    let name = prompt("এই কাজের একটি নাম দিন (যেমন: কাপ্তাই বাগান ১):");
-    if(!name) return;
-    
-    let history = JSON.parse(localStorage.getItem("wood_history_logs")) || [];
-    history.push({ name: name, date: new Date().toLocaleString(), data: [...items] });
-    localStorage.setItem("wood_history_logs", JSON.stringify(history));
-    alert("সফলভাবে সেভ হয়েছে!");
+async function del(id){
+    if(role!=="admin") return alert("Admin only!");
+    if(confirm("মুছে ফেলবেন?")) await db.collection("trees").doc(id).delete();
 }
 
-function showHistory() {
-    let history = JSON.parse(localStorage.getItem("wood_history_logs")) || [];
-    let listHTML = history.length === 0 ? "<p>কোনো হিস্ট্রি পাওয়া যায়নি।</p>" : history.map((h, i) => `
-        <div style="border-bottom:1px solid #ddd; padding:10px; display:flex; justify-content:space-between; align-items:center">
-            <div><strong>${h.name}</strong><br><small>${h.date}</small></div>
-            <div>
-                <button onclick="loadFromHistory(${i})" style="background:#2e7d32; padding:5px 10px">Load</button>
-                <button onclick="deleteHistory(${i})" style="background:red; padding:5px 10px">X</button>
-            </div>
-        </div>
-    `).join('');
-    document.getElementById("historyList").innerHTML = listHTML;
-    document.getElementById("historyModal").style.display = 'flex';
-}
-
-function loadFromHistory(idx) {
-    let history = JSON.parse(localStorage.getItem("wood_history_logs"));
-    if(confirm("বর্তমান ডাটা মুছে কি এই হিস্ট্রি লোড করবেন?")) {
-        items = history[idx].data;
-        localStorage.setItem("wood_ultra", JSON.stringify(items));
-        render();
-        closeHistory();
+async function clearAll(){
+    if(role!=="admin") return alert("Admin only!");
+    if(confirm("সব ডাটা মুছে যাবে!")){
+        let snap = await db.collection("trees").get();
+        snap.docs.forEach(d => d.ref.delete());
     }
 }
-
-function deleteHistory(idx) {
-    if(confirm("এই হিস্ট্রিটি চিরতরে মুছে ফেলবেন?")) {
-        let history = JSON.parse(localStorage.getItem("wood_history_logs"));
-        history.splice(idx, 1);
-        localStorage.setItem("wood_history_logs", JSON.stringify(history));
-        showHistory();
-    }
-}
-
-function closeHistory() { document.getElementById("historyModal").style.display = 'none'; }
-function del(i){if(confirm("মুছে ফেলবেন?")){items.splice(i,1);localStorage.setItem("wood_ultra", JSON.stringify(items));render();}}
-function clearAll(){if(confirm("সব ক্লিয়ার করবেন?")){items=[];localStorage.removeItem("wood_ultra");render();}}
-function toggleDark(){document.body.classList.toggle("dark");}
 
 function exportExcel(){
     let ws=XLSX.utils.json_to_sheet(items);
     let wb=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,ws,"Wood");
-    XLSX.writeFile(wb,"Wood_Report.xlsx");
+    XLSX.utils.book_append_sheet(wb,ws,"Data");
+    XLSX.writeFile(wb,"BFIDC_Report.xlsx");
 }
 
 function exportDoc() {
-    let content = document.getElementById("pages").innerHTML;
+    let content = document.getElementById("pagesArea").innerHTML;
     let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>table{border-collapse:collapse; width:100%;} th, td{border:1px solid black; padding:5px; text-align:center;}</style></head><body>" + content + "</body></html>";
     let blob = new Blob(['\ufeff', header], { type: 'application/msword' });
-    saveAs(blob, "Wood_Report.doc");
+    saveAs(blob, "BFIDC_Report.doc");
 }
 
-render();
+function toggleDark(){document.body.classList.toggle("dark");}
 </script>
 </body>
 </html>
