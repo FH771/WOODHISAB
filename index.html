@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC ERP - EDIT RESTORED</title>
+<title>BFIDC ERP - ULTRA HYBRID</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -11,25 +11,26 @@
 
 <style>
 @font-face { font-family: 'SutonnyMJ'; src: local('SutonnyMJ'), local('SutonnyMJ-Bold'); }
-body{font-family:'Segoe UI',Arial;background:#1b5e20;margin:0;transition:.3s}
-body.dark{background:#121212;color:#eee}
-body.dark .card{background:#1e1e1e;color:#eee}
-body.dark header{background:#000}
+body{font-family:'Segoe UI',Arial;background:#0f172a;margin:0;transition:.3s;color:white}
+body.dark{background:#000;color:#eee}
 
-#login,#adminPanel,.history-modal{display:flex;justify-content:center;align-items:center;height:100vh;position:fixed;width:100%;top:0;left:0;z-index:2000;background:rgba(27,94,32,.98)}
-.box{background:#fff;padding:25px;border-radius:12px;width:340px;box-shadow:0 10px 25px rgba(0,0,0,.3);color:black}
-input,select,button{width:100%;padding:10px;margin-top:8px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box}
-button{background:#2e7d32;color:#fff;border:none;font-weight:bold;cursor:pointer}
+/* PANELS */
+#login,#adminPanel,.history-modal{display:flex;justify-content:center;align-items:center;height:100vh;position:fixed;width:100%;top:0;left:0;z-index:2000;background:rgba(2,6,23,.98)}
+.box{background:#111827;padding:25px;border-radius:14px;width:320px;box-shadow:0 10px 25px rgba(0,0,0,.5);color:white}
+input,select,button{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:none;box-sizing:border-box;background:#1e293b;color:white}
+button{background:#22c55e;font-weight:bold;cursor:pointer}
+button:hover{opacity:0.9}
 
-#app{display:none;background:#f4f7f6;min-height:100vh}
-header{position:sticky;top:0;background:#2e7d32;color:white;padding:12px;display:flex;justify-content:space-between;align-items:center;z-index:999}
+/* APP CONTENT */
+#app{display:none;background:#f4f7f6;min-height:100vh;color:black}
+header{position:sticky;top:0;background:#020617;color:white;padding:12px;display:flex;justify-content:space-between;align-items:center;z-index:999}
 .container{max-width:1100px;margin:auto;padding:15px}
-.card{background:white;padding:15px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1);margin-bottom:15px;color:black}
+.card{background:white;padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.1);margin-bottom:15px;color:black}
 .grid-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:15px}
-.stat{background:#2e7d32;color:white;padding:12px;border-radius:8px;font-weight:bold;text-align:center}
+.statGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:15px}
+.stat{background:#22c55e;color:white;padding:15px;border-radius:10px;text-align:center;font-weight:bold}
 
-/* A4 & TABLE DESIGN */
+/* A4 PRINT & TABLE */
 .page {
     background: white;
     width: 210mm; 
@@ -42,31 +43,20 @@ header{position:sticky;top:0;background:#2e7d32;color:white;padding:12px;display
 }
 .report-header{text-align:center;margin-bottom:20px;font-family:'SutonnyMJ'}
 .multi-column-container{column-count:2;column-gap:40px}
-
 table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 10px;
-    break-inside: avoid;
     border: 2px solid #000;
 }
 th, td {
     border: 1.5px solid #000;
-    padding: 6px 4px;
+    padding: 8px 4px;
     text-align: center;
     font-size: 15px;
 }
-th { background: #f0f0f0; font-weight: bold; }
-
-.btn-edit {
-    background: #1565c0;
-    color: white;
-    font-size: 10px;
-    padding: 2px 5px;
-    width: auto;
-    margin: 0;
-    cursor: pointer;
-}
+th { background: #f3f4f6; }
+.btn-edit { background: #3b82f6; color: white; font-size: 11px; padding: 3px 8px; width: auto; }
 
 .summary{border:2px solid black;padding:12px;margin-top:20px;font-weight:bold;display:flex;justify-content:space-between;font-size:16px}
 .hidden{display:none!important}
@@ -83,47 +73,31 @@ th { background: #f0f0f0; font-weight: bold; }
 
 <div id="login">
   <div class="box">
-    <h2 style="text-align:center;color:#2e7d32">Secure Login</h2>
-    <input id="id" placeholder="User ID">
-    <input id="pass" type="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-  </div>
-</div>
-
-<div id="adminPanel" class="hidden">
-  <div class="box" style="width:360px">
-    <h3>Admin Control</h3>
-    <input id="newUser" placeholder="New User ID">
-    <input id="newPass" placeholder="New Password">
-    <select id="newRole"><option value="operator">Operator</option><option value="admin">Admin</option></select>
-    <button onclick="createUser()">Create User</button>
-    <hr>
-    <button onclick="downloadBackup()" style="background:#f39c12">Download Backup</button>
-    <button onclick="document.getElementById('restoreFile').click()" style="background:#1565c0">Restore Backup</button>
-    <input type="file" id="restoreFile" hidden onchange="restoreBackup(event)">
-    <button onclick="closeAdmin()" style="background:#555;margin-top:10px">Close</button>
+    <h2 style="text-align:center">ULTRA LOGIN</h2>
+    <input id="idInput" placeholder="User ID">
+    <input id="passInput" type="password" placeholder="Password">
+    <button onclick="login()">Access System</button>
   </div>
 </div>
 
 <div id="app">
 <header>
 <div id="who"></div>
-<div style="font-weight:bold">BFIDC ERP</div>
+<div style="font-weight:bold">🔥 BFIDC ULTRA HYBRID</div>
 <div>
-<button onclick="toggleDark()" style="background:#333;width:auto;padding:5px 12px">Dark</button>
-<button onclick="showHistory()" style="background:#f39c12;width:auto;padding:5px 12px">History</button>
-<button onclick="openAdmin()" id="adminBtn" style="background:#1565c0;width:auto;padding:5px 12px">Admin</button>
-<button onclick="logout()" style="background:#c62828;width:auto;padding:5px 12px">Logout</button>
+<button onclick="showHistory()" style="background:#f59e0b;width:auto;padding:5px 12px">History</button>
+<button onclick="backup()" style="background:#3b82f6;width:auto;padding:5px 12px">Backup</button>
+<button onclick="logout()" style="background:#ef4444;width:auto;padding:5px 12px">Logout</button>
 </div>
 </header>
 
 <div class="container">
-<div class="dashboard" id="dashboard"></div>
+<div class="statGrid" id="stats"></div>
+
 <div class="card no-print">
-<input placeholder="Search Tree..." id="search" oninput="render()">
 <div class="grid-inputs">
-<div><label>Tree No</label><input id="tree" value="1" oninput="resetPieceOnTreeChange()" class="nav-item"></div>
-<div><label>Piece</label><input id="piece" value="1" readonly style="background:#f9f9f9"></div>
+<div><label>Tree No</label><input id="tree" value="1" oninput="resetPiece()" class="nav-item"></div>
+<div><label>Piece</label><input id="piece" readonly style="background:#e2e8f0"></div>
 <div><label>Type</label>
 <select id="type" onchange="toggleInputs()">
 <option value="log">Round Log</option>
@@ -135,46 +109,65 @@ th { background: #f0f0f0; font-weight: bold; }
 <div><label>Length (Foot)</label><input id="v2" class="nav-item"></div>
 </div>
 
-<div style="margin-top:15px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px" class="no-print">
-<button onclick="addItem()" id="addBtn" style="grid-column:span 3;background:#2e7d32;padding:15px">Add Data (+)</button>
-<button onclick="exportExcel()" style="background:#1d6f42">Download XL</button>
-<button onclick="exportPDF()" style="background:#6a1b9a">Download PDF</button>
-<button onclick="window.print()" style="background:#333">Print Report (A4)</button>
-<button onclick="setFileName()" style="background:#f39c12">Set File Name</button>
-<button onclick="clearAll()" style="background:#c62828">Clear All</button>
+<button onclick="addItem()" id="addBtn" style="margin-top:15px;padding:15px">ADD DATA (+)</button>
+
+<div style="margin-top:15px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+<button onclick="exportExcel()" style="background:#16a34a">Excel</button>
+<button onclick="window.print()" style="background:#475569">Print A4</button>
+<button onclick="setFileName()" style="background:#f59e0b">Set Name</button>
+<button onclick="clearAll()" style="background:#dc2626">Clear</button>
 </div>
-<p id="saveStatus" style="font-size:12px; color:green; text-align:right; margin-top:5px; font-weight:bold;"></p>
+<p id="saveStatus" style="font-size:12px; color:#16a34a; text-align:right; margin-top:5px; font-weight:bold;"></p>
 </div>
+
+<input id="search" placeholder="Search tree no..." oninput="render()" class="card no-print" style="width:calc(100% - 30px)">
+
 <div id="pagesArea"></div>
 </div>
 </div>
 
 <div id="historyModal" class="history-modal hidden">
-<div class="box" style="width:90%;max-width:450px">
+<div class="box" style="width:90%;max-width:400px">
 <h3>Saved Files</h3>
-<div id="historyList"></div>
-<button onclick="closeHistory()" style="background:#666;margin-top:10px">Close</button>
+<div id="historyList" style="max-height:300px;overflow:auto"></div>
+<button onclick="closeHistory()" style="background:#475569;margin-top:10px">Close</button>
 </div>
 </div>
 
 <script>
-/* SECURITY & NAV */
-async function hash(text){ const msgUint8 = new TextEncoder().encode(text); const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8); return Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
-(async()=>{ if(!localStorage.getItem("erpUsers")){ localStorage.setItem("erpUsers",JSON.stringify({ superadmin:{password:await hash("0000"),role:"super"}, admin:{password:await hash("1234"),role:"admin"} })); } })();
+/* ===== ULTRA SECURITY (FROM BOSS CODE) ===== */
+async function hash(t){
+    const e=new TextEncoder().encode(t);
+    const b=await crypto.subtle.digest('SHA-256',e);
+    return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+(async()=>{
+    if(!localStorage.getItem("users")){
+        localStorage.setItem("users",JSON.stringify({
+            superadmin:{password:await hash("0000"),role:"super"},
+            admin:{password:await hash("1234"),role:"admin"}
+        }))
+    }
+})();
 
 async function login(){
-let id=document.getElementById("id").value.trim(), pass=document.getElementById("pass").value.trim();
-let users=JSON.parse(localStorage.getItem("erpUsers"));
-if(users[id] && users[id].password===await hash(pass)){ sessionStorage.setItem("erpActive",id); startApp(); } else alert("Access Denied!");
+    let id=idInput.value.trim(), p=await hash(passInput.value.trim());
+    let users=JSON.parse(localStorage.getItem("users"));
+    if(users[id] && users[id].password===p){ sessionStorage.setItem("active",id); start(); }
+    else alert("Access Denied");
 }
 
-function startApp(){
-let id=sessionStorage.getItem("erpActive"); if(!id)return;
-document.getElementById("login").classList.add("hidden"); document.getElementById("app").style.display="block";
-render();
-}
 function logout(){sessionStorage.clear();location.reload()}
 
+function start(){
+    document.getElementById("login").classList.add("hidden");
+    document.getElementById("app").style.display="block";
+    who.innerText="User: "+sessionStorage.getItem("active").toUpperCase();
+    render();
+}
+
+/* ===== ARROW KEY NAVIGATION ===== */
 document.addEventListener('keydown', function(e) {
     const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.closest('div').style.display !== 'none');
     const idx = inputs.indexOf(document.activeElement);
@@ -191,12 +184,12 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-/* CORE LOGIC */
-let items=JSON.parse(localStorage.getItem("bfidc_data"))||[];
+/* ===== DATA ENGINE & AUTO SAVE ===== */
+let items=JSON.parse(localStorage.getItem("bfidc_ultra"))||[];
 let editIndex=null;
-let currentFileName = localStorage.getItem("bfidc_current_file") || "Default_AutoSave";
+let currentFileName = localStorage.getItem("bfidc_current_file") || "AutoSave_Default";
 
-function resetPieceOnTreeChange(){ piece.value=items.filter(i=>i.tree==tree.value).length+1 }
+function resetPiece(){ piece.value=items.filter(i=>i.tree==tree.value).length+1 }
 
 function toggleInputs(){
     const isWood=document.getElementById("type").value==="wood";
@@ -206,71 +199,75 @@ function toggleInputs(){
 }
 
 function setFileName(){
-    let n = prompt("Enter File Name:", currentFileName);
-    if(n){ currentFileName = n; localStorage.setItem("bfidc_current_file", n); autoSaveToFile(); }
+    let n = prompt("File Name for Auto-Save:", currentFileName);
+    if(n){ currentFileName = n; localStorage.setItem("bfidc_current_file", n); autoSave(); }
 }
 
-function autoSaveToFile(){
+function autoSave(){
     let history = JSON.parse(localStorage.getItem("bfidc_history")) || [];
     let idx = history.findIndex(h => h.name.toLowerCase() === currentFileName.toLowerCase());
     if(idx !== -1) history[idx].data = [...items];
     else history.push({name: currentFileName, data: [...items]});
     localStorage.setItem("bfidc_history", JSON.stringify(history));
+    localStorage.setItem("bfidc_ultra", JSON.stringify(items));
     document.getElementById("saveStatus").innerText = "✔ Auto-Saved: " + currentFileName;
 }
 
 function addItem(){
     let tV=tree.value, typ=type.value, v1V=parseFloat(v1.value), v2V=parseFloat(v2.value), veV=parseFloat(ve.value)||0;
-    if(!v1V || !v2V)return alert("Invalid!");
+    if(!v1V || !v2V)return alert("Missing Data!");
+    
     let cft=typ==="log"?((v1V/4)**2*v2V)/144:(v1V*veV*v2V)/144;
     let pNo = editIndex !== null ? items[editIndex].piece : (items.filter(i=>i.tree==tV).length+1);
     let data = {tree:tV, piece:pNo, type:typ, v1:v1V, v2:v2V, ve:veV, cft:+cft.toFixed(2)};
     
-    if(editIndex !== null){ items[editIndex] = data; editIndex = null; document.getElementById("addBtn").innerText = "Add Data (+)"; }
+    if(editIndex !== null){ items[editIndex] = data; editIndex = null; document.getElementById("addBtn").innerText = "ADD DATA (+)"; }
     else { items.push(data); }
     
-    localStorage.setItem("bfidc_data",JSON.stringify(items));
-    render(); autoSaveToFile();
-    v1.value="";v2.value="";ve.value=""; piece.value=items.filter(i=>i.tree==tV).length+1;
+    render(); autoSave();
+    v1.value="";v2.value="";ve.value=""; resetPiece();
 }
 
 function startEdit(idx){
     let i = items[idx]; editIndex = idx;
     tree.value = i.tree; piece.value = i.piece; v1.value = i.v1; v2.value = i.v2; ve.value = i.ve; type.value = i.type;
-    document.getElementById("addBtn").innerText = "Update Data (✔)";
-    toggleInputs();
-    window.scrollTo(0,0);
+    document.getElementById("addBtn").innerText = "UPDATE DATA (✔)";
+    toggleInputs(); window.scrollTo(0,0);
 }
 
 function render(){
-    let searchStr=document.getElementById("search").value?.toLowerCase()||"";
-    let typF=type.value; let fil=items.filter(i=>i.type===typF && i.tree.toString().includes(searchStr));
+    let s=search.value?.toLowerCase()||"";
+    let typF=type.value;
+    let filtered=items.filter(i=>i.type===typF && i.tree.toString().includes(s));
+    
     let total=0, tSet=new Set();
-    fil.forEach(i=>{total+=i.cft; tSet.add(i.tree)});
-    dashboard.innerHTML=`<div class="stat">Trees: ${tSet.size}</div><div class="stat">Pieces: ${fil.length}</div><div class="stat">Total: ${total.toFixed(2)} CFT</div>`;
+    filtered.forEach(i=>{total+=i.cft; tSet.add(i.tree)});
+    
+    stats.innerHTML=`<div class="stat">Trees: ${tSet.size}</div><div class="stat">Pieces: ${filtered.length}</div><div class="stat">Total: ${total.toFixed(2)} CFT</div>`;
     
     let hHTML=typF==='log'?`<div class="report-header"><h2>বিএফআইডিসি, ............................ কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>`:`<div style="height:40px"></div>`;
     let html=`<div class='page' id='printContent'>${hHTML}<div class="multi-column-container"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
-    fil.forEach(i=>{
+    
+    filtered.forEach(i=>{
         let actualIdx = items.indexOf(i);
         let sz=i.type=="log"?`${i.v1}"x${i.v2}'`:`${i.v1}"x${i.ve}"x${i.v2}'`;
         html+=`<tr><td>${i.tree}/${i.piece}</td><td>${sz}</td><td>${i.cft}</td><td class="no-print"><button class="btn-edit" onclick="startEdit(${actualIdx})">Edit</button></td></tr>`;
     });
-    html+=`</table></div><div class='summary'><span>Total Tree: ${tSet.size}</span><span>Piece: ${fil.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`;
-    pagesArea.innerHTML=html;
+    
+    html+=`</table></div><div class='summary'><span>Trees: ${tSet.size}</span><span>Pieces: ${filtered.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`;
+    document.getElementById("pagesArea").innerHTML=html;
 }
 
-function showHistory(){let h=JSON.parse(localStorage.getItem("bfidc_history"))||[]; historyList.innerHTML=h.map((x,i)=>`<div style="padding:10px;border-bottom:1px solid #eee"><b>${x.name}</b><button onclick="loadFromHistory(${i})" style="width:auto;float:right">Load</button></div>`).join(''); historyModal.classList.remove("hidden")}
-function loadFromHistory(idx){ let h=JSON.parse(localStorage.getItem("bfidc_history"))[idx]; items=h.data; currentFileName=h.name; localStorage.setItem("bfidc_data",JSON.stringify(items)); localStorage.setItem("bfidc_current_file",h.name); render(); closeHistory(); }
-function clearAll(){if(confirm("Clear All?")){items=[]; localStorage.removeItem("bfidc_data"); render();}}
+/* ===== EXPORTS & BACKUP ===== */
 function exportExcel(){let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(items),"Data"); XLSX.writeFile(wb,currentFileName+".xlsx")}
-async function exportPDF(){const { jsPDF } = window.jspdf; let doc=new jsPDF(); doc.text(document.getElementById("printContent").innerText,10,10); doc.save(currentFileName+".pdf");}
-function toggleDark(){document.body.classList.toggle("dark"); localStorage.setItem("darkMode",document.body.classList.contains("dark")?"on":"off")}
-if(localStorage.getItem("darkMode")==="on")document.body.classList.add("dark")
-function openAdmin(){adminPanel.classList.remove("hidden")}
-function closeAdmin(){adminPanel.classList.add("hidden")}
+function backup(){let b=new Blob([JSON.stringify(localStorage)],{type:"application/json"}); let a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="ULTRA_BACKUP.json"; a.click();}
+function showHistory(){let h=JSON.parse(localStorage.getItem("bfidc_history"))||[]; historyList.innerHTML=h.map((x,i)=>`<div style="padding:10px;border-bottom:1px solid #334155;color:white"><b>${x.name}</b><button onclick="loadFromHistory(${i})" style="width:auto;float:right;padding:2px 8px">Load</button></div>`).join(''); historyModal.classList.remove("hidden")}
+function loadFromHistory(idx){ let h=JSON.parse(localStorage.getItem("bfidc_history"))[idx]; items=h.data; currentFileName=h.name; localStorage.setItem("bfidc_ultra",JSON.stringify(items)); localStorage.setItem("bfidc_current_file",h.name); render(); closeHistory(); }
+function clearAll(){if(confirm("Delete All?")){items=[]; localStorage.removeItem("bfidc_ultra"); render();}}
 function closeHistory(){historyModal.classList.add("hidden")}
-if(sessionStorage.getItem("erpActive"))startApp()
+
+if(sessionStorage.getItem("active"))start();
+resetPiece();
 </script>
 </body>
 </html>
