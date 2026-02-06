@@ -1,266 +1,243 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC Wood Manager PRO</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BFIDC Wood Manager PRO - Updated</title>
 
-<!-- Libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-<style>
-body{
-    font-family:Segoe UI;
-    margin:0;
-    background:#eef2f7;
-}
+    <style>
+        body { font-family: Segoe UI, Arial; margin: 0; background: #eef2f7; transition: 0.3s; }
+        header { position: sticky; top: 0; background: #1b5e20; color: white; padding: 12px; font-size: 20px; text-align: center; z-index: 999; display: flex; justify-content: space-between; align-items: center; }
+        .container { max-width: 1100px; margin: auto; padding: 10px; }
+        .card { background: white; padding: 12px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,.1); margin-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+        input, select, button { padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; }
+        button { background: #2e7d32; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { opacity: .9; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 13px; }
+        th { background: #f4f4f4; }
+        .summary { font-weight: bold; padding: 15px; background: #e8f5e9; border-radius: 8px; display: flex; justify-content: space-between; margin-top: 10px; border: 1px solid #2e7d32; }
+        .dark { background: #121212; color: white; }
+        .dark .card { background: #1e1e1e; color: white; }
+        .dark input, .dark select { background: #2c2c2c; color: white; border: 1px solid #444; }
+        .dark th { background: #333; color: white; }
+        .edit-btn { background: #1565c0; margin-right: 5px; padding: 5px 10px; }
+        .del-btn { background: #c62828; padding: 5px 10px; }
 
-header{
-    position:sticky;
-    top:0;
-    background:#1b5e20;
-    color:white;
-    padding:12px;
-    font-size:20px;
-    text-align:center;
-    z-index:999;
-}
-
-.container{
-    max-width:1100px;
-    margin:auto;
-    padding:10px;
-}
-
-.card{
-    background:white;
-    padding:12px;
-    border-radius:12px;
-    box-shadow:0 3px 10px rgba(0,0,0,.1);
-    margin-bottom:10px;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
-    gap:8px;
-}
-
-input,select,button{
-    padding:10px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    font-size:14px;
-}
-
-button{
-    background:#2e7d32;
-    color:white;
-    border:none;
-    cursor:pointer;
-}
-
-button:hover{
-    opacity:.9;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th,td{
-    border:1px solid #ddd;
-    padding:6px;
-    text-align:center;
-}
-
-.summary{
-    font-weight:bold;
-    padding:10px;
-    background:#e8f5e9;
-    border-radius:8px;
-}
-
-.dark{
-    background:#121212;
-    color:white;
-}
-
-.dark .card{background:#1e1e1e}
-.dark input,.dark select{background:#2c2c2c;color:white;border:none}
-
-</style>
+        /* Print Style - As per your requirement */
+        @media print {
+            .card, header, .no-print { display: none !important; }
+            body { background: white; }
+            .print-area { display: block !important; }
+            table { border: 1px solid black; }
+            th, td { border: 1px solid black; }
+        }
+    </style>
 </head>
 <body>
 
 <header>
-BFIDC Wood Manager PRO 🌲
-<button onclick="toggleDark()" style="float:right">🌙</button>
+    <div style="width: 40px;"></div>
+    <span>BFIDC Wood Manager PRO 🌲</span>
+    <button onclick="toggleDark()" style="background:none; font-size:20px;">🌙</button>
 </header>
 
 <div class="container">
+    <div class="card grid no-print">
+        <div><label style="font-size:11px">Tree No</label><input id="tree" value="1" class="nav-item"></div>
+        <div><label style="font-size:11px">Piece</label><input id="piece" value="1" readonly></div>
+        <div><label style="font-size:11px">Type</label>
+            <select id="type" onchange="toggleType()" class="nav-item">
+                <option value="log">Log (গোল)</option>
+                <option value="wood">Wood (সাইজ)</option>
+            </select>
+        </div>
+        <div><label id="l1" style="font-size:11px">Round (বেড়)</label><input id="v1" placeholder="Inches" class="nav-item"></div>
+        <div id="ve-box" style="display:none;"><label style="font-size:11px">Thickness</label><input id="ve" placeholder="Inches" class="nav-item"></div>
+        <div><label style="font-size:11px">Length (লম্বা)</label><input id="v2" placeholder="Feet" class="nav-item"></div>
+        <button onclick="addItem()" id="addBtn" style="height: 40px; margin-top: 18px;">Add Item (+)</button>
+    </div>
 
-<div class="card grid">
-<input id="tree" placeholder="Tree No">
-<input id="piece" placeholder="Piece" readonly>
-<select id="type">
-<option value="log">Log</option>
-<option value="wood">Wood</option>
-</select>
-<input id="v1" placeholder="Width / Round">
-<input id="v2" placeholder="Length">
-<input id="ve" placeholder="Thickness (wood only)">
-<button onclick="addItem()">Add</button>
-</div>
+    <div class="card grid no-print">
+        <input id="search" placeholder="🔎 Search history..." oninput="render()">
+        <button onclick="exportExcel()" style="background:#1f6e43">Excel</button>
+        <button onclick="exportDoc()" style="background:#2b579a">Word (Doc)</button>
+        <button onclick="window.print()" style="background:#000">Print Report</button>
+        <button onclick="clearAll()" style="background:#c62828">Clear All</button>
+    </div>
 
-<div class="card grid">
-<input id="search" placeholder="🔎 Search" oninput="render()">
-<button onclick="exportExcel()">Excel</button>
-<button onclick="exportPDF()">PDF</button>
-<button onclick="clearAll()" style="background:#c62828">Clear</button>
-</div>
-
-<div class="card">
-<table>
-<thead>
-<tr>
-<th>Tree/Piece</th>
-<th>Type</th>
-<th>Size</th>
-<th>CFT</th>
-<th>❌</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-</div>
-
-<div class="summary" id="summary"></div>
-
+    <div class="card" id="print-content">
+        <div id="report-header" style="text-align:center; margin-bottom:10px;"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tree/Piece</th>
+                    <th>Type</th>
+                    <th>Size (Measurement)</th>
+                    <th>CFT</th>
+                    <th class="no-print">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+        <div class="summary" id="summary"></div>
+    </div>
 </div>
 
 <script>
+    let items = JSON.parse(localStorage.getItem("wood_pro")) || [];
+    let editIndex = null;
 
-let items = JSON.parse(localStorage.getItem("wood_pro")) || [];
+    // --- Navigation & Enter Logic ---
+    document.addEventListener('keydown', (e) => {
+        const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
+        const idx = inputs.indexOf(document.activeElement);
+        if (idx > -1) {
+            if (e.key === "ArrowRight") { e.preventDefault(); inputs[idx + 1]?.focus(); }
+            else if (e.key === "ArrowLeft") { e.preventDefault(); inputs[idx - 1]?.focus(); }
+            else if (e.key === "Enter") {
+                e.preventDefault();
+                if (document.activeElement.id === "v2") addItem();
+                else inputs[idx + 1]?.focus();
+            }
+        }
+    });
 
-function save(){
-    localStorage.setItem("wood_pro",JSON.stringify(items));
-}
+    function toggleType() {
+        const type = document.getElementById("type").value;
+        const isWood = type === "wood";
+        document.getElementById("ve-box").style.display = isWood ? "block" : "none";
+        document.getElementById("l1").innerText = isWood ? "Width (চওড়া)" : "Round (বেড়)";
+        render();
+    }
 
-function autoPiece(tree){
-    let filtered = items.filter(i=>i.tree==tree);
-    return filtered.length+1;
-}
+    function addItem() {
+        let tree = document.getElementById("tree").value;
+        let type = document.getElementById("type").value;
+        let v1 = parseFloat(document.getElementById("v1").value) || 0;
+        let v2 = parseFloat(document.getElementById("v2").value) || 0;
+        let ve = parseFloat(document.getElementById("ve").value) || 0;
 
-function addItem(){
-    let tree=document.getElementById("tree").value;
-    let type=document.getElementById("type").value;
-    let v1=parseFloat(v1El().value);
-    let v2=parseFloat(v2El().value);
-    let ve=parseFloat(veEl().value)||0;
+        if (!tree || !v1 || !v2) return alert("মাপ দিন!");
 
-    if(!tree||!v1||!v2) return alert("Missing data");
+        let cft = type === "log" ? ((v1 / 4) ** 2 * v2) / 144 : (v1 * ve * v2) / 144;
+        let piece = editIndex !== null ? items[editIndex].piece : (items.filter(i => i.tree == tree).length + 1);
 
-    let piece=autoPiece(tree);
+        let data = { tree, piece, type, v1, v2, ve, cft: +cft.toFixed(2) };
 
-    let cft = type==="log"
-        ? ((v1/4)**2*v2)/144
-        : (v1*ve*v2)/144;
+        if (editIndex !== null) {
+            items[editIndex] = data;
+            editIndex = null;
+            document.getElementById("addBtn").innerText = "Add Item (+)";
+            document.getElementById("addBtn").style.background = "#2e7d32";
+        } else {
+            items.push(data);
+            document.getElementById("piece").value = items.filter(i => i.tree == tree).length + 1;
+        }
 
-    items.push({tree,piece,type,v1,v2,ve,cft:+cft.toFixed(2)});
+        localStorage.setItem("wood_pro", JSON.stringify(items));
+        render();
 
-    save();
+        // Reset fields and focus to Tree No
+        document.getElementById("v1").value = "";
+        document.getElementById("v2").value = "";
+        document.getElementById("ve").value = "";
+        document.getElementById("tree").focus();
+        document.getElementById("tree").select();
+    }
+
+    function render() {
+        let search = document.getElementById("search").value.toLowerCase();
+        let typeFilter = document.getElementById("type").value;
+        let tbody = document.getElementById("tbody");
+        let header = document.getElementById("report-header");
+        
+        // Header Logic
+        if(typeFilter === 'log') {
+            header.innerHTML = `<h3>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h3><h4>গোল কাঠের মেজারমেন্ট স্লিপ</h4>`;
+        } else {
+            header.innerHTML = ``; // সাইজ কাঠের জন্য হেডার ডিলিট
+        }
+
+        tbody.innerHTML = "";
+        let total = 0;
+        let trees = new Set();
+
+        items.forEach((i, idx) => {
+            if (i.type !== typeFilter) return;
+            if (JSON.stringify(i).toLowerCase().includes(search)) {
+                let size = i.type == "log" ? `${i.v1}" x ${i.v2}'` : `${i.v1}" x ${i.ve}" x ${i.v2}'`;
+                tbody.innerHTML += `
+                <tr>
+                    <td>${i.tree}/${i.piece}</td>
+                    <td>${i.type.toUpperCase()}</td>
+                    <td>${size}</td>
+                    <td>${i.cft}</td>
+                    <td class="no-print">
+                        <button class="edit-btn" onclick="startEdit(${idx})">Edit</button>
+                        <button class="del-btn" onclick="del(${idx})">X</button>
+                    </td>
+                </tr>`;
+                total += i.cft;
+                trees.add(i.tree);
+            }
+        });
+
+        document.getElementById("summary").innerHTML = `<span>Trees: ${trees.size}</span> <span>Pieces: ${items.filter(i=>i.type===typeFilter).length}</span> <span>Total CFT: ${total.toFixed(2)}</span>`;
+    }
+
+    function startEdit(idx) {
+        let i = items[idx];
+        editIndex = idx;
+        document.getElementById("tree").value = i.tree;
+        document.getElementById("piece").value = i.piece;
+        document.getElementById("type").value = i.type;
+        document.getElementById("v1").value = i.v1;
+        document.getElementById("v2").value = i.v2;
+        document.getElementById("ve").value = i.ve;
+        toggleType();
+        document.getElementById("addBtn").innerText = "Update Item (✔)";
+        document.getElementById("addBtn").style.background = "#1565c0";
+        document.getElementById("v1").focus();
+    }
+
+    function del(i) {
+        if (confirm("Delete this item?")) {
+            items.splice(i, 1);
+            localStorage.setItem("wood_pro", JSON.stringify(items));
+            render();
+        }
+    }
+
+    function clearAll() {
+        if (confirm("সব ডাটা মুছে ফেলবেন?")) {
+            items = [];
+            localStorage.removeItem("wood_pro");
+            render();
+        }
+    }
+
+    function toggleDark() { document.body.classList.toggle("dark"); }
+
+    function exportExcel() {
+        let ws = XLSX.utils.json_to_sheet(items);
+        let wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "WoodData");
+        XLSX.writeFile(wb, "Wood_Report.xlsx");
+    }
+
+    function exportDoc() {
+        let content = document.getElementById("print-content").innerHTML;
+        let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>table{border-collapse:collapse; width:100%;} th, td{border:1px solid black; padding:5px; text-align:center;}</style></head><body>";
+        let blob = new Blob(['\ufeff', header + content + "</body></html>"], { type: 'application/msword' });
+        saveAs(blob, "Wood_Report.doc");
+    }
+
     render();
-
-    document.getElementById("piece").value=autoPiece(tree);
-    v1El().value="";
-    v2El().value="";
-    veEl().value="";
-}
-
-function v1El(){return document.getElementById("v1")}
-function v2El(){return document.getElementById("v2")}
-function veEl(){return document.getElementById("ve")}
-
-function render(){
-
-let search=document.getElementById("search").value.toLowerCase();
-let tbody=document.getElementById("tbody");
-
-tbody.innerHTML="";
-
-let total=0;
-let trees=new Set();
-
-items
-.filter(i=>JSON.stringify(i).toLowerCase().includes(search))
-.forEach((i,idx)=>{
-
-let size=i.type=="log"
-? `${i.v1}" x ${i.v2}'`
-: `${i.v1}" x ${i.ve}" x ${i.v2}'`;
-
-let tr=`
-<tr>
-<td>${i.tree}/${i.piece}</td>
-<td>${i.type}</td>
-<td>${size}</td>
-<td>${i.cft}</td>
-<td><button onclick="del(${idx})">X</button></td>
-</tr>`;
-
-tbody.innerHTML+=tr;
-
-total+=i.cft;
-trees.add(i.tree);
-});
-
-summary.innerText=`Trees: ${trees.size} | Pieces: ${items.length} | Total CFT: ${total.toFixed(2)}`;
-}
-
-function del(i){
-if(confirm("Delete?") ){
-items.splice(i,1);
-save();
-render();
-}
-}
-
-function clearAll(){
-if(confirm("Clear all data?")){
-items=[];
-save();
-render();
-}
-}
-
-function toggleDark(){
-document.body.classList.toggle("dark");
-}
-
-function exportExcel(){
-let ws=XLSX.utils.json_to_sheet(items);
-let wb=XLSX.utils.book_new();
-XLSX.utils.book_append_sheet(wb,ws,"Wood");
-XLSX.writeFile(wb,"wood_report.xlsx");
-}
-
-async function exportPDF(){
-const {jsPDF}=window.jspdf;
-let doc=new jsPDF();
-let y=10;
-
-items.forEach(i=>{
-doc.text(`${i.tree}/${i.piece} | ${i.cft} CFT`,10,y);
-y+=8;
-});
-
-doc.save("wood.pdf");
-}
-
-render();
 </script>
 
 </body>
