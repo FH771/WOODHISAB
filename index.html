@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC ERP - Professional Version</title>
+<title>BFIDC ERP - Two Column Pro</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
 /* SutonnyMJ Support */
@@ -29,19 +30,22 @@ header{position:sticky;top:0;background:#2e7d32;color:white;padding:12px;display
 .card{background:white;padding:12px;border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.1);margin-bottom:10px; color: black;}
 .grid-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
 
-/* ২ কলাম রিপোর্ট লেআউট */
+/* ২ কলাম রিপোর্ট লেআউট - সিরিয়াল অনুযায়ী */
 .page{ background:white; width:210mm; min-height:280mm; margin:10px auto; padding:8mm; border:1px solid #ddd; color: black; }
-.multi-column-container { display: flex; gap: 25px; }
-.column { flex: 1; }
-table{width:100%;border-collapse:collapse; margin-bottom: 10px;}
-th,td{border:1px solid black;padding:4px;text-align:center;font-size:15px}
-.summary{border:2px solid black;padding:10px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between}
+.multi-column-container { 
+    column-count: 2; /* ডাটা বাম কলাম শেষ করে ডানে যাবে */
+    column-gap: 30px; 
+    column-rule: 1px solid #eee;
+}
+table{width:100%; border-collapse:collapse; margin-bottom: 5px; break-inside: avoid;}
+th,td{border:1px solid black; padding:4px; text-align:center; font-size:14px}
+.summary{border:2px solid black; padding:10px; margin-top:10px; font-weight:bold; display:flex; justify-content:space-between}
 .hidden{display:none !important}
 
 @media print{
     header, .no-print, #adminPanel, #login, .history-modal{display:none !important} 
     body{background:white} 
-    .page{margin:0;border:none;box-shadow:none; width: 100%;}
+    .page{margin:0; border:none; box-shadow:none; width: 100%;}
 }
 </style>
 </head>
@@ -112,13 +116,12 @@ th,td{border:1px solid black;padding:4px;text-align:center;font-size:15px}
                 <button onclick="clearAll()" style="background:#c62828">Clear All</button>
             </div>
         </div>
-
         <div id="pagesArea"></div>
     </div>
 </div>
 
 <script>
-// --- SECURITY & LOGS (আপনার কোড অনুযায়ী) ---
+// --- আপনার অরিজিনাল সিকিউরিটি লজিক ---
 if(!localStorage.getItem("erpUsers")){
   localStorage.setItem("erpUsers",JSON.stringify({ admin:{password:"1234",role:"admin",fails:0,locked:false} }));
 }
@@ -151,11 +154,10 @@ function startApp(){
 }
 function logout(){ sessionStorage.clear(); location.reload(); }
 
-// --- MEASUREMENT LOGIC ---
+// --- মেজারমেন্ট লজিক ---
 let items = JSON.parse(localStorage.getItem("bfidc_data")) || [];
 let editIndex = null;
 
-// ARROW NAVIGATION & ENTER KEY LOGIC
 document.addEventListener('keydown', (e) => {
     const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
     const idx = inputs.indexOf(document.activeElement);
@@ -198,6 +200,7 @@ function addItem(){
     document.getElementById("tree").focus(); document.getElementById("tree").select();
 }
 
+// --- ২ কলাম লজিক (নিউজপেপার স্টাইল) ---
 function render(){
     let typeFilter = document.getElementById("type").value;
     let filtered = items.filter(i => i.type === typeFilter);
@@ -206,30 +209,17 @@ function render(){
     let headerHTML = typeFilter === 'log' ? 
     `<div style="text-align:center"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>` : `<div style="height:40px"></div>`;
 
-    let half = Math.ceil(filtered.length / 2);
-    let leftCol = filtered.slice(0, half);
-    let rightCol = filtered.slice(half);
-
-    function createTable(dataList) {
-        let tableHtml = `<table><tr><th>গাছ/পিস</th><th>পরিমাপ</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
-        dataList.forEach((i) => {
-            let size = i.type == "log" ? `${i.v1}"x${i.v2}'` : `${i.v1}"x${i.ve}"x${i.v2}'`;
-            tableHtml += `<tr><td>${i.tree}/${i.piece}</td><td>${size}</td><td>${i.cft}</td><td class="no-print">
-                <button onclick="startEdit(${items.indexOf(i)})" style="background:#1565c0;padding:2px 5px">E</button>
-            </td></tr>`;
-            total += i.cft; treesSet.add(i.tree);
-        });
-        tableHtml += `</table>`;
-        return tableHtml;
-    }
-
-    let html = `<div class='page'>${headerHTML}
-                <div class="multi-column-container">
-                    <div class="column">${createTable(leftCol)}</div>
-                    <div class="column">${createTable(rightCol)}</div>
-                </div>
-                <div class='summary'><span>গাছ: ${treesSet.size}</span><span>পিস: ${filtered.length}</span><span>মোট: ${total.toFixed(2)} সিএফটি</span></div>
-                </div>`;
+    let html = `<div class='page'>${headerHTML}<div class="multi-column-container"><table><tr><th>গাছ/পিস</th><th>পরিমাপ</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
+    
+    filtered.forEach((i, idx) => {
+        let size = i.type == "log" ? `${i.v1}"x${i.v2}'` : `${i.v1}"x${i.ve}"x${i.v2}'`;
+        html += `<tr><td>${i.tree}/${i.piece}</td><td>${size}</td><td>${i.cft}</td><td class="no-print">
+            <button onclick="startEdit(${items.indexOf(i)})" style="background:#1565c0;padding:2px 5px">E</button>
+        </td></tr>`;
+        total += i.cft; treesSet.add(i.tree);
+    });
+    
+    html += `</table></div><div class='summary'><span>গাছ: ${treesSet.size}</span><span>পিস: ${filtered.length}</span><span>মোট: ${total.toFixed(2)} সিএফটি</span></div></div>`;
     document.getElementById("pagesArea").innerHTML = html;
 }
 
