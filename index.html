@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Forestry ERP - Full Version</title>
+<title>BFIDC ERP - Final Fix</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -14,7 +14,7 @@
 
 body{font-family: 'Segoe UI', Arial, sans-serif; background:#1b5e20; margin:0;}
 
-/* Login & Admin Styles (আপনার অরিজিনাল ডিজাইন) */
+/* Login & Admin Styles (Original) */
 #login, #adminPanel, .history-modal {display:flex;justify-content:center;align-items:center;height:100vh; position: fixed; width: 100%; top: 0; left: 0; z-index: 2000; background: rgba(27, 94, 32, 0.98);}
 .box{background:#fff;padding:25px;border-radius:12px;width:340px;box-shadow:0 10px 25px rgba(0,0,0,.3); color: black;}
 input,select,button{width:100%;padding:10px;margin-top:8px;border-radius:6px;border:1px solid #ccc; box-sizing: border-box;}
@@ -57,7 +57,7 @@ th,td{border:1px solid black; padding:4px; text-align:center; font-size:13px;}
 
 <div id="adminPanel" class="hidden">
   <div class="box" style="width:360px">
-    <h3>User Management</h3>
+    <h3>Admin Control</h3>
     <input id="newUser" placeholder="New User ID">
     <input id="newPass" placeholder="New Password">
     <select id="newRole"><option value="operator">Operator</option><option value="admin">Admin</option></select>
@@ -87,7 +87,7 @@ th,td{border:1px solid black; padding:4px; text-align:center; font-size:13px;}
         <div class="card no-print">
             <div class="grid-inputs">
                 <div><label>Tree No</label><input id="tree" value="1" oninput="resetPieceOnTreeChange()" class="nav-item"></div>
-                <div><label>Piece</label><input id="piece" value="1" readonly></div>
+                <div><label>Piece</label><input id="piece" value="1" readonly style="background:#f9f9f9"></div>
                 <div><label>Type</label>
                     <select id="type" onchange="toggleInputs()" class="nav-item">
                         <option value="log">Round Log</option>
@@ -121,7 +121,7 @@ th,td{border:1px solid black; padding:4px; text-align:center; font-size:13px;}
 </div>
 
 <script>
-// --- অরিজিনাল সিকিউরিটি লজিক ---
+// --- অরিজিনাল সিকিউরিটি ও ইউজার লজিক ---
 if(!localStorage.getItem("erpUsers")){
   localStorage.setItem("erpUsers",JSON.stringify({ admin:{password:"1234",role:"admin",fails:0,locked:false} }));
 }
@@ -153,6 +153,26 @@ function startApp(){
 }
 function logout(){ sessionStorage.clear(); location.reload(); }
 
+// --- নেভিগেশন ফিক্স (Enter Only for Moving) ---
+document.addEventListener('keydown', (e) => {
+    if (e.key === "Enter") {
+        const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => {
+            const parent = i.closest('div');
+            return parent && parent.style.display !== 'none';
+        });
+        const idx = inputs.indexOf(document.activeElement);
+        if (idx > -1) {
+            e.preventDefault();
+            if (document.activeElement.id === "v2") {
+                addItem();
+            } else {
+                inputs[idx + 1]?.focus();
+                if(inputs[idx+1]) inputs[idx+1].select();
+            }
+        }
+    }
+});
+
 // --- মেজারমেন্ট লজিক ---
 let items = JSON.parse(localStorage.getItem("bfidc_data")) || [];
 let editIndex = null;
@@ -173,7 +193,7 @@ function addItem(){
     let tree=document.getElementById("tree").value, type=document.getElementById("type").value,
         v1=parseFloat(document.getElementById("v1").value), v2=parseFloat(document.getElementById("v2").value),
         ve=parseFloat(document.getElementById("ve").value)||0;
-    if(!tree||!v1||!v2) return alert("Fill data!");
+    if(!tree||!v1||!v2) return alert("Please fill measurements!");
     let cft= type==="log"?((v1/4)**2*v2)/144:(v1*ve*v2)/144;
     let piece = editIndex !== null ? items[editIndex].piece : (items.filter(i=>i.tree==tree).length+1);
     let data = {tree, piece, type, v1, v2, ve, cft: +cft.toFixed(2)};
@@ -182,7 +202,7 @@ function addItem(){
     render();
     document.getElementById("v1").value=""; document.getElementById("v2").value=""; document.getElementById("ve").value="";
     document.getElementById("piece").value = items.filter(i=>i.tree == tree).length + 1;
-    document.getElementById("tree").focus();
+    document.getElementById("tree").focus(); document.getElementById("tree").select();
 }
 
 function render(){
@@ -199,26 +219,22 @@ function render(){
     document.getElementById("pagesArea").innerHTML = html;
 }
 
-// --- এক্সপোর্ট অপশনগুলো (XL & DOC) ---
+// --- এক্সপোর্ট ফাংশন ---
 function exportExcel(){
     let wb = XLSX.utils.book_new();
     let ws = XLSX.utils.json_to_sheet(items);
     XLSX.utils.book_append_sheet(wb, ws, "Measurements");
-    XLSX.writeFile(wb, "BFIDC_Report.xlsx");
+    XLSX.writeFile(wb, "BFIDC_Data.xlsx");
 }
 
 function exportDoc(){
     let content = document.getElementById('printContent').innerHTML;
-    let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export Doc</title></head><body>";
-    let footer = "</body></html>";
-    let sourceHTML = header + content + footer;
-    let blob = new Blob(['\ufeff', sourceHTML], { type: 'application/msword' });
+    let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>";
+    let sourceHTML = header + content + "</body></html>";
     let url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
-    let link = document.createElement("a");
-    link.href = url; link.download = 'BFIDC_Report.doc'; link.click();
+    let link = document.createElement("a"); link.href = url; link.download = 'BFIDC_Report.doc'; link.click();
 }
 
-// --- অন্যান্য ফাংশন ---
 function saveToFile(){
     let name=prompt("File Name:"); if(!name) return;
     let history = JSON.parse(localStorage.getItem("bfidc_history")) || [];
@@ -227,7 +243,7 @@ function saveToFile(){
 }
 function showHistory(){
     let h = JSON.parse(localStorage.getItem("bfidc_history")) || [];
-    historyList.innerHTML = h.map((x,i)=>`<div>${x.name} <button onclick="loadFromHistory(${i})">Load</button></div>`).join('');
+    historyList.innerHTML = h.map((x,i)=>`<div style="padding:5px; border-bottom:1px solid #eee">${x.name} <button onclick="loadFromHistory(${i})" style="width:auto; float:right">Load</button></div>`).join('');
     historyModal.classList.remove("hidden");
 }
 function loadFromHistory(idx){ items = JSON.parse(localStorage.getItem("bfidc_history"))[idx].data; render(); closeHistory(); }
