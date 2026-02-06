@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC Wood System - Save to Doc</title>
+    <title>BFIDC Wood System - Full Navigation Update</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
@@ -120,6 +120,32 @@
 
     function logout() { sessionStorage.clear(); location.reload(); }
 
+    // --- Arrow Key & Enter Navigation Logic ---
+    document.addEventListener('keydown', (e) => {
+        const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
+        const idx = inputs.indexOf(document.activeElement);
+        
+        if (idx > -1) {
+            if (e.key === "ArrowRight") { 
+                e.preventDefault(); 
+                inputs[idx + 1]?.focus(); 
+            }
+            else if (e.key === "ArrowLeft") { 
+                e.preventDefault(); 
+                inputs[idx - 1]?.focus(); 
+            }
+            else if (e.key === "Enter") {
+                e.preventDefault();
+                // যদি শেষ বক্সে থাকে তবে ডাটা যোগ করবে, নাহলে পরের বক্সে যাবে
+                if (document.activeElement.id === "v2") { 
+                    addItem(); 
+                } else { 
+                    inputs[idx + 1]?.focus(); 
+                }
+            }
+        }
+    });
+
     function toggleInputs() {
         let type = document.getElementById('type').value;
         let isWood = (type === 'wood');
@@ -144,7 +170,7 @@
         renderPages();
         document.getElementById('v1').value = ""; document.getElementById('v2').value = "";
         if(ve) document.getElementById('ve').value = "";
-        document.getElementById('v1').focus();
+        document.getElementById('v1').focus(); // আবার প্রথম মাপে ফোকাস করবে
     }
 
     function deleteItem(index) {
@@ -178,8 +204,19 @@
                 } table += `</table>`;
             }
 
-            let title = (currentType === 'log') ? "গোল কাঠের মেজারমেন্ট স্লিপ" : "সাইজ কাঠের মেজারমেন্ট স্লিপ";
-            let headerHTML = `<div style="text-align:center"><h2>বিএফআইডিসি, কাপ্তাই</h2><h3>${title}</h3></div>`;
+            let headerHTML = "";
+            if(currentType === 'log') {
+                headerHTML = `<div style="text-align:center">
+                    <h2 style="margin:5px 0;">বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2>
+                    <h3 style="margin:5px 0; border-bottom:1px solid black; display:inline-block; padding:0 20px;">গোল কাঠের মেজারমেন্ট স্লিপ</h3>
+                </div>`;
+            } else {
+                headerHTML = `<div style="text-align:center">
+                    <h2 style="margin:5px 0;">বিএফআইডিসি, কাপ্তাই</h2>
+                    <h3 style="margin:5px 0; border-bottom:1px solid black; display:inline-block; padding:0 20px;">সাইজ কাঠের মেজারমেন্ট স্লিপ</h3>
+                </div>`;
+            }
+
             pageDiv.innerHTML = headerHTML + table + `</div>`;
             if (p === pageCount - 1) {
                 pageDiv.innerHTML += `<div class="summary-box"><span>গাছ: ${trees.size}</span><span>পিস: ${filteredItems.length}</span><span>মোট: ${total.toFixed(2)} CFT</span></div>`;
@@ -188,33 +225,27 @@
         }
     }
 
-    // .doc ফাইলে সেভ করার ফাংশন
     function saveAndDownloadDoc() {
         if(items.length === 0) { alert("কোনো ডাটা নেই!"); return; }
-        
-        let fileName = prompt("ফাইলের নাম দিন (যেমন: Wood_List_Feb_06):", "Wood_Measurement_Report");
+        let fileName = prompt("ফাইলের নাম দিন:", "Wood_Report_" + new Date().toLocaleDateString());
         if(!fileName) return;
 
-        // হিস্ট্রিতে সেভ
         let history = JSON.parse(localStorage.getItem('woodHistory') || "[]");
         history.push({ date: new Date().toLocaleString('bn-BD'), type: document.getElementById('type').value, data: [...items] });
         localStorage.setItem('woodHistory', JSON.stringify(history));
 
-        // .doc ফাইল কন্টেন্ট তৈরি
         let content = document.getElementById('pages-area').innerHTML;
         let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>table{border-collapse:collapse; width:100%;} th, td{border:1px solid black; padding:5px; text-align:center; font-size:12px;}</style></head><body>";
-        let footer = "</body></html>";
-        let sourceHTML = header + content + footer;
+        let sourceHTML = header + content + "</body></html>";
         
         let blob = new Blob(['\ufeff', sourceHTML], { type: 'application/msword' });
         saveAs(blob, fileName + ".doc");
-        alert("ফাইলটি ডাউনলোড হয়েছে এবং হিস্ট্রিতে সেভ হয়েছে।");
     }
 
     function showHistory() {
         let history = JSON.parse(localStorage.getItem('woodHistory') || "[]");
         let content = document.getElementById('history-content');
-        content.innerHTML = history.reverse().map((h, i) => `<div style='border-bottom:1px solid #eee; padding:8px;'><span>${h.date} (${h.type})</span> <button onclick='loadHistory(${history.length-1-i})' style='background:#2e7d32; color:white; border:none; border-radius:4px; font-size:10px; padding:3px 6px;'>Load</button></div>`).join('');
+        content.innerHTML = history.reverse().map((h, i) => `<div style='border-bottom:1px solid #eee; padding:8px; display:flex; justify-content:space-between;'><span>${h.date}</span> <button onclick='loadHistory(${history.length-1-i})' style='background:#2e7d32; color:white; border:none; border-radius:4px; padding:3px 8px;'>Load</button></div>`).join('');
         document.getElementById('history-modal').style.display = 'flex';
     }
 
