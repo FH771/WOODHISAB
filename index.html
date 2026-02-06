@@ -1,45 +1,40 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC ERP - Two Column Pro</title>
+<title>Forestry ERP - Stable Version</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
-/* SutonnyMJ Support */
+/* SutonnyMJ for Print Header Only */
 @font-face { font-family: 'SutonnyMJ'; src: local('SutonnyMJ'), local('SutonnyMJ-Bold'); }
 
-@page{size:A4;margin:10mm}
-body{font-family: 'SutonnyMJ', Arial, sans-serif; background:#1b5e20; margin:0;}
+body{font-family: 'Segoe UI', Arial, sans-serif; background:#1b5e20; margin:0;}
 
-/* Login & Admin Styles (আপনার দেওয়া হুবহু ডিজাইন) */
+/* --- আপনার অরিজিনাল লগইন ও এডমিন বক্স স্টাইল --- */
 #login, #adminPanel, .history-modal {display:flex;justify-content:center;align-items:center;height:100vh; position: fixed; width: 100%; top: 0; left: 0; z-index: 2000; background: rgba(27, 94, 32, 0.98);}
 .box{background:#fff;padding:25px;border-radius:12px;width:340px;box-shadow:0 10px 25px rgba(0,0,0,.3); color: black;}
-input,select,button{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:1px solid #ccc; box-sizing: border-box;}
+input,select,button{width:100%;padding:10px;margin-top:8px;border-radius:6px;border:1px solid #ccc; box-sizing: border-box;}
 button{background:#2e7d32;color:#fff;border:none;font-weight:bold;cursor:pointer}
-.logBox{max-height:120px;overflow:auto;background:#fafafa;border:1px solid #ddd;padding:6px;font-size:11px; text-align: left;}
+.logBox{max-height:150px;overflow:auto;background:#fafafa;border:1px solid #ddd;padding:6px;font-size:12px; text-align: left;}
 
-/* App Layout */
-#app{display:none; background:#eef2f7; min-height: 100vh;}
+/* --- অ্যাপ লেআউট --- */
+#app{display:none; background:#f4f7f6; min-height: 100vh;}
 header{position:sticky;top:0;background:#2e7d32;color:white;padding:12px;display:flex;justify-content:space-between;align-items:center;z-index:999}
-.container{max-width:1200px;margin:auto;padding:10px}
-.card{background:white;padding:12px;border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.1);margin-bottom:10px; color: black;}
-.grid-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.container{max-width:1100px;margin:auto;padding:15px}
+.card{background:white;padding:15px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-bottom:15px; color: black;}
+.grid-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
 
-/* ২ কলাম রিপোর্ট লেআউট - সিরিয়াল অনুযায়ী */
-.page{ background:white; width:210mm; min-height:280mm; margin:10px auto; padding:8mm; border:1px solid #ddd; color: black; }
-.multi-column-container { 
-    column-count: 2; /* ডাটা বাম কলাম শেষ করে ডানে যাবে */
-    column-gap: 30px; 
-    column-rule: 1px solid #eee;
-}
+/* --- ২ কলাম রিপোর্ট ডিজাইন --- */
+.page{ background:white; width:210mm; min-height:280mm; margin:10px auto; padding:10mm; border:1px solid #ddd; color: black; }
+.report-header { text-align: center; margin-bottom: 20px; font-family: 'SutonnyMJ'; } 
+.multi-column-container { column-count: 2; column-gap: 30px; }
 table{width:100%; border-collapse:collapse; margin-bottom: 5px; break-inside: avoid;}
-th,td{border:1px solid black; padding:4px; text-align:center; font-size:14px}
-.summary{border:2px solid black; padding:10px; margin-top:10px; font-weight:bold; display:flex; justify-content:space-between}
+th,td{border:1px solid black; padding:4px; text-align:center; font-size:13px;}
+.summary{border:2px solid black; padding:10px; margin-top:15px; font-weight:bold; display:flex; justify-content:space-between}
 .hidden{display:none !important}
 
 @media print{
@@ -61,12 +56,19 @@ th,td{border:1px solid black; padding:4px; text-align:center; font-size:14px}
 </div>
 
 <div id="adminPanel" class="hidden">
-  <div class="box" style="width:380px">
+  <div class="box" style="width:360px">
     <h3>User Management</h3>
     <input id="newUser" placeholder="New User ID">
     <input id="newPass" placeholder="New Password">
     <select id="newRole"><option value="operator">Operator</option><option value="admin">Admin</option></select>
     <button onclick="createUser()">Create User</button>
+    <hr>
+    <input id="changeUser" placeholder="User ID">
+    <input id="changePass" placeholder="New Password">
+    <button onclick="changePassword()">Update Password</button>
+    <hr>
+    <input id="deleteUser" placeholder="Delete User ID">
+    <button onclick="deleteUserAccount()" style="background:#c62828">Delete User</button>
     <hr>
     <h4>Login History</h4>
     <div class="logBox" id="logs"></div>
@@ -75,45 +77,45 @@ th,td{border:1px solid black; padding:4px; text-align:center; font-size:14px}
 </div>
 
 <div id="historyModal" class="history-modal hidden">
-    <div class="box" style="width:90%; max-width:500px">
-        <h3>Saved Files (History)</h3>
-        <div id="historyList" style="max-height:300px; overflow:auto"></div>
+    <div class="box" style="width:90%; max-width:450px">
+        <h3>Saved Files</h3>
+        <div id="historyList"></div>
         <button onclick="closeHistory()" style="background:#666; margin-top:10px">Close</button>
     </div>
 </div>
 
 <div id="app">
     <header>
-        <span id="who"></span>
-        <span>BFIDC ERP PRO</span>
+        <div id="who"></div>
+        <div style="font-weight:bold">BFIDC ERP</div>
         <div>
-            <button onclick="showHistory()" style="background:#ff9800; width:auto; padding:5px 10px">History</button>
-            <button onclick="openAdmin()" id="adminBtn" style="background:#1565c0; width:auto; padding:5px 10px">Admin</button>
-            <button onclick="logout()" style="background:#c62828; width:auto; padding:5px 10px">Logout</button>
+            <button onclick="showHistory()" style="background:#f39c12; width:auto; padding:5px 12px">History</button>
+            <button onclick="openAdmin()" id="adminBtn" style="background:#1565c0; width:auto; padding:5px 12px">Admin</button>
+            <button onclick="logout()" style="background:#c62828; width:auto; padding:5px 12px">Logout</button>
         </div>
     </header>
 
     <div class="container">
         <div class="card no-print">
             <div class="grid-inputs">
-                <div><label style="font-size:11px">গাছ নং</label><input id="tree" value="1" oninput="resetPieceOnTreeChange()" class="nav-item"></div>
-                <div><label style="font-size:11px">পিস</label><input id="piece" value="1" readonly></div>
-                <div><label style="font-size:11px">ধরণ</label>
+                <div><label>Tree No</label><input id="tree" value="1" oninput="resetPieceOnTreeChange()" class="nav-item"></div>
+                <div><label>Piece</label><input id="piece" value="1" readonly></div>
+                <div><label>Type</label>
                     <select id="type" onchange="toggleInputs()" class="nav-item">
-                        <option value="log">গোল (Log)</option>
-                        <option value="wood">সাইজ (Wood)</option>
+                        <option value="log">Round Log</option>
+                        <option value="wood">Sawn Wood</option>
                     </select>
                 </div>
-                <div><label id="l1" style="font-size:11px">বেড় (ইঞ্চি)</label><input id="v1" class="nav-item"></div>
-                <div id="ve-box" style="display:none;"><label style="font-size:11px">পুরুত্ব (ইঞ্চি)</label><input id="ve" class="nav-item"></div>
-                <div><label style="font-size:11px">লম্বা (ফুট)</label><input id="v2" class="nav-item"></div>
+                <div><label id="l1">Girth (Inch)</label><input id="v1" class="nav-item"></div>
+                <div id="ve-box" style="display:none;"><label>Thickness (Inch)</label><input id="ve" class="nav-item"></div>
+                <div><label>Length (Foot)</label><input id="v2" class="nav-item"></div>
             </div>
             
-            <div class="grid-inputs" style="margin-top:10px">
-                <button onclick="addItem()" id="addBtn" style="background:#2e7d32">Add Data (+)</button>
-                <button onclick="saveToFile()" style="background:#ff9800">Save File</button>
-                <button onclick="window.print()" style="background:#000">Print Report</button>
-                <button onclick="clearAll()" style="background:#c62828">Clear All</button>
+            <div style="margin-top:15px; display:flex; gap:10px" class="no-print">
+                <button onclick="addItem()" id="addBtn" style="flex:2">Add Data (+)</button>
+                <button onclick="saveToFile()" style="flex:1; background:#f39c12">Save File</button>
+                <button onclick="window.print()" style="flex:1; background:#333">Print Report</button>
+                <button onclick="clearAll()" style="flex:1; background:#c62828">Clear All</button>
             </div>
         </div>
         <div id="pagesArea"></div>
@@ -121,7 +123,7 @@ th,td{border:1px solid black; padding:4px; text-align:center; font-size:14px}
 </div>
 
 <script>
-// --- আপনার অরিজিনাল সিকিউরিটি লজিক ---
+// --- USERS & LOGS (আপনার দেওয়া লজিক একদম হুবহু) ---
 if(!localStorage.getItem("erpUsers")){
   localStorage.setItem("erpUsers",JSON.stringify({ admin:{password:"1234",role:"admin",fails:0,locked:false} }));
 }
@@ -138,21 +140,43 @@ function login(){
   let pass=document.getElementById("pass").value.trim();
   let users=JSON.parse(localStorage.getItem("erpUsers"));
   if(!users[id]) return alert("User not found");
+  if(users[id].locked) return alert("Account locked!");
   if(users[id].password===pass){
+    users[id].fails=0; localStorage.setItem("erpUsers",JSON.stringify(users));
     sessionStorage.setItem("erpActive",id); logEvent(id+" logged in"); startApp();
-  } else { alert("Wrong password!"); }
+  } else {
+    users[id].fails++;
+    if(users[id].fails>=5) users[id].locked=true;
+    localStorage.setItem("erpUsers",JSON.stringify(users)); alert("Wrong password!");
+  }
 }
 
 function startApp(){
   let id=sessionStorage.getItem("erpActive"); if(!id) return;
   document.getElementById("login").classList.add("hidden");
   document.getElementById("app").style.display="block";
-  let role=JSON.parse(localStorage.getItem("erpUsers"))[id].role;
-  document.getElementById("who").innerText=`${id.toUpperCase()} (${role})`;
-  if(role!=="admin") document.getElementById("adminBtn").style.display="none";
+  let user = JSON.parse(localStorage.getItem("erpUsers"))[id];
+  document.getElementById("who").innerText=`User: ${id.toUpperCase()}`;
+  if(user.role!=="admin") document.getElementById("adminBtn").style.display="none";
   render();
 }
+
 function logout(){ sessionStorage.clear(); location.reload(); }
+
+// --- অ্যাডমিন প্যানেল লজিক (আপনার অরিজিনাল) ---
+function createUser(){
+  let u=newUser.value.trim(), p=newPass.value.trim(), r=newRole.value;
+  let users=JSON.parse(localStorage.getItem("erpUsers"));
+  users[u]={password:p,role:r,fails:0,locked:false};
+  localStorage.setItem("erpUsers",JSON.stringify(users)); logEvent("Created: "+u); alert("Done!");
+}
+
+function deleteUserAccount(){
+  let u=deleteUser.value.trim();
+  let users=JSON.parse(localStorage.getItem("erpUsers"));
+  if(u==="admin") return;
+  delete users[u]; localStorage.setItem("erpUsers",JSON.stringify(users)); alert("Deleted!");
+}
 
 // --- মেজারমেন্ট লজিক ---
 let items = JSON.parse(localStorage.getItem("bfidc_data")) || [];
@@ -161,14 +185,10 @@ let editIndex = null;
 document.addEventListener('keydown', (e) => {
     const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
     const idx = inputs.indexOf(document.activeElement);
-    if (idx > -1) {
-        if (e.key === "ArrowRight") { e.preventDefault(); inputs[idx + 1]?.focus(); }
-        else if (e.key === "ArrowLeft") { e.preventDefault(); inputs[idx - 1]?.focus(); }
-        else if (e.key === "Enter") {
-            e.preventDefault();
-            if (document.activeElement.id === "v2") addItem();
-            else inputs[idx + 1]?.focus();
-        }
+    if (idx > -1 && e.key === "Enter") {
+        e.preventDefault();
+        if (document.activeElement.id === "v2") addItem();
+        else inputs[idx + 1]?.focus();
     }
 });
 
@@ -180,7 +200,7 @@ function resetPieceOnTreeChange(){
 function toggleInputs(){
     const isWood = document.getElementById("type").value === "wood";
     document.getElementById("ve-box").style.display = isWood ? "block" : "none";
-    document.getElementById("l1").innerText = isWood ? "চওড়া (ইঞ্চি)" : "বেড় (ইঞ্চি)";
+    document.getElementById("l1").innerText = isWood ? "Width (Inch)" : "Girth (Inch)";
     render();
 }
 
@@ -188,7 +208,7 @@ function addItem(){
     let tree=document.getElementById("tree").value, type=document.getElementById("type").value,
         v1=parseFloat(document.getElementById("v1").value), v2=parseFloat(document.getElementById("v2").value),
         ve=parseFloat(document.getElementById("ve").value)||0;
-    if(!tree||!v1||!v2) return alert("মাপ দিন!");
+    if(!tree||!v1||!v2) return alert("Fill data!");
     let cft= type==="log"?((v1/4)**2*v2)/144:(v1*ve*v2)/144;
     let piece = editIndex !== null ? items[editIndex].piece : (items.filter(i=>i.tree==tree).length+1);
     let data = {tree, piece, type, v1, v2, ve, cft: +cft.toFixed(2)};
@@ -200,51 +220,50 @@ function addItem(){
     document.getElementById("tree").focus(); document.getElementById("tree").select();
 }
 
-// --- ২ কলাম লজিক (নিউজপেপার স্টাইল) ---
 function render(){
     let typeFilter = document.getElementById("type").value;
     let filtered = items.filter(i => i.type === typeFilter);
     let total=0; let treesSet = new Set();
     
     let headerHTML = typeFilter === 'log' ? 
-    `<div style="text-align:center"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>` : `<div style="height:40px"></div>`;
+    `<div class="report-header"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>` : `<div style="height:40px"></div>`;
 
-    let html = `<div class='page'>${headerHTML}<div class="multi-column-container"><table><tr><th>গাছ/পিস</th><th>পরিমাপ</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
+    let html = `<div class='page'>${headerHTML}<div class="multi-column-container"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
     
-    filtered.forEach((i, idx) => {
+    filtered.forEach((i) => {
         let size = i.type == "log" ? `${i.v1}"x${i.v2}'` : `${i.v1}"x${i.ve}"x${i.v2}'`;
         html += `<tr><td>${i.tree}/${i.piece}</td><td>${size}</td><td>${i.cft}</td><td class="no-print">
-            <button onclick="startEdit(${items.indexOf(i)})" style="background:#1565c0;padding:2px 5px">E</button>
+            <button onclick="startEdit(${items.indexOf(i)})" style="background:#3498db;padding:2px 5px; font-size:10px">Edit</button>
         </td></tr>`;
         total += i.cft; treesSet.add(i.tree);
     });
     
-    html += `</table></div><div class='summary'><span>গাছ: ${treesSet.size}</span><span>পিস: ${filtered.length}</span><span>মোট: ${total.toFixed(2)} সিএফটি</span></div></div>`;
+    html += `</table></div><div class='summary'><span>Total Tree: ${treesSet.size}</span><span>Total Piece: ${filtered.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`;
     document.getElementById("pagesArea").innerHTML = html;
 }
 
 function saveToFile(){
-    let name=prompt("ফাইল নাম দিন:"); if(!name) return;
+    let name=prompt("File Name:"); if(!name) return;
     let history = JSON.parse(localStorage.getItem("bfidc_history")) || [];
-    history.push({name, date: new Date().toLocaleString(), data: [...items]});
+    history.push({name, data: [...items]});
     localStorage.setItem("bfidc_history", JSON.stringify(history)); alert("Saved!");
 }
 
 function showHistory(){
     let history = JSON.parse(localStorage.getItem("bfidc_history")) || [];
-    let listHTML = history.map((h, i) => `<div style="border-bottom:1px solid #ddd; padding:8px; display:flex; justify-content:space-between">
-        <div>${h.name}</div><button onclick="loadFromHistory(${i})" style="background:green; padding:5px">Load</button></div>`).join('');
+    let listHTML = history.map((h, i) => `<div style="border-bottom:1px solid #ddd; padding:8px; display:flex; justify-content:space-between; align-items:center">
+        <div>${h.name}</div><button onclick="loadFromHistory(${i})" style="background:green; padding:4px 8px; width:auto">Load</button></div>`).join('');
     document.getElementById("historyList").innerHTML = listHTML || "No files";
     document.getElementById("historyModal").classList.remove("hidden");
 }
 
 function loadFromHistory(idx){
-    let history = JSON.parse(localStorage.getItem("bfidc_history"));
-    items = history[idx].data; localStorage.setItem("bfidc_data", JSON.stringify(items));
+    items = JSON.parse(localStorage.getItem("bfidc_history"))[idx].data;
+    localStorage.setItem("bfidc_data", JSON.stringify(items));
     render(); closeHistory();
 }
 function startEdit(idx){ let i=items[idx]; editIndex=idx; tree.value=i.tree; piece.value=i.piece; v1.value=i.v1; v2.value=i.v2; ve.value=i.ve; type.value=i.type; toggleInputs(); v1.focus(); }
-function clearAll(){ if(confirm("All?")){ items=[]; localStorage.removeItem("bfidc_data"); render(); } }
+function clearAll(){ if(confirm("Clear?")){ items=[]; localStorage.removeItem("bfidc_data"); render(); } }
 function openAdmin(){ document.getElementById("adminPanel").classList.remove("hidden"); loadLogs(); }
 function closeAdmin(){ document.getElementById("adminPanel").classList.add("hidden"); }
 function closeHistory(){ document.getElementById("historyModal").classList.add("hidden"); }
