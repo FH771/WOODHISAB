@@ -205,7 +205,7 @@
                     } else table += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="no-print">&nbsp;</td></tr>`;
                 } table += `</table>`;
             }
-            let title = (currentType === 'log') ? "গোল কাঠের মেজারমেন্ট স্লিপ" : "সাইজ কাঠের মেজারমেন্ট স্লিপ";
+            let title = (currentType === 'log') ? "গোল কাঠের মেজারমেন্ট স্লিপ";
             let headerHTML = `<div style="text-align:center"><h2>বিএফআইডিসি, ${currentType === 'log' ? '............................ রাবার বাগান হতে' : ''} কাপ্তাই</h2><h3 style="border-bottom:1px solid black; display:inline-block; padding:0 10px;">${title}</h3></div>`;
             pageDiv.innerHTML = headerHTML + table + `</div>`;
             if (p === pageCount - 1) pageDiv.innerHTML += `<div class="summary-box"><span>গাছ: ${trees.size}</span><span>পিস: ${filteredItems.length}</span><span>মোট: ${total.toFixed(2)} CFT</span></div>`;
