@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC ERP - Ultra Secure Pro</title>
+<title>BFIDC ERP - FINAL BOSS PRO</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 @font-face { font-family: 'SutonnyMJ'; src: local('SutonnyMJ'), local('SutonnyMJ-Bold'); }
@@ -29,6 +30,9 @@ header{position:sticky;top:0;background:#2e7d32;color:white;padding:12px;display
 .container{max-width:1100px;margin:auto;padding:15px}
 .card{background:white;padding:15px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1);margin-bottom:15px;color:black}
 .grid-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+
+.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:15px}
+.stat{background:#2e7d32;color:white;padding:12px;border-radius:8px;font-weight:bold;text-align:center}
 
 .page{background:white;width:210mm;min-height:280mm;margin:10px auto;padding:10mm;border:1px solid #ddd;color:black}
 .report-header{text-align:center;margin-bottom:20px;font-family:'SutonnyMJ'}
@@ -90,7 +94,9 @@ body{background:white}
 </header>
 
 <div class="container">
+<div class="dashboard" id="dashboard"></div>
 <div class="card no-print">
+<input placeholder="Search Tree..." id="search" oninput="render()">
 <div class="grid-inputs">
 <div><label>Tree No</label><input id="tree" value="1" oninput="resetPieceOnTreeChange()" class="nav-item"></div>
 <div><label>Piece</label><input id="piece" value="1" readonly style="background:#f9f9f9"></div>
@@ -108,7 +114,7 @@ body{background:white}
 <div style="margin-top:15px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px" class="no-print">
 <button onclick="addItem()" id="addBtn" style="grid-column:span 3;background:#2e7d32;padding:15px">Add Data (+)</button>
 <button onclick="exportExcel()" style="background:#1d6f42">Download XL</button>
-<button onclick="exportDoc()" style="background:#2b579a">Download DOC</button>
+<button onclick="exportPDF()" style="background:#6a1b9a">Download PDF</button>
 <button onclick="window.print()" style="background:#333">Print Report</button>
 <button onclick="saveToFile()" style="background:#f39c12">Save Data</button>
 <button onclick="clearAll()" style="background:#c62828">Clear All</button>
@@ -127,32 +133,48 @@ body{background:white}
 </div>
 
 <script>
-/* SUPER ADMIN */
+/* PASSWORD HASH */
+async function hash(text){
+const msgUint8 = new TextEncoder().encode(text);
+const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+return Array.from(new Uint8Array(hashBuffer)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+/* SUPER ADMIN INITIALIZE */
+(async()=>{
 if(!localStorage.getItem("erpUsers")){
 localStorage.setItem("erpUsers",JSON.stringify({
-superadmin:{password:"0000",role:"super"},
-admin:{password:"1234",role:"admin"}
+superadmin:{password:await hash("0000"),role:"super"},
+admin:{password:await hash("1234"),role:"admin"}
 }))}
+})();
+
 if(!localStorage.getItem("erpLogs"))localStorage.setItem("erpLogs","[]")
 
 function logEvent(text){
 let logs=JSON.parse(localStorage.getItem("erpLogs"))
 logs.unshift(new Date().toLocaleString()+" - "+text)
-localStorage.setItem("erpLogs",JSON.stringify(logs.slice(0,50)))
+localStorage.setItem("erpLogs",JSON.stringify(logs.slice(0,100)))
 }
 
-function login(){
+async function login(){
 let id=document.getElementById("id").value.trim(),pass=document.getElementById("pass").value.trim()
 let users=JSON.parse(localStorage.getItem("erpUsers"))
 if(!users[id])return alert("User not found")
-if(users[id].password===pass){
+if(users[id].password===await hash(pass)){
 sessionStorage.setItem("erpActive",id); logEvent(id+" logged in"); startApp()
 }else alert("Wrong password!")
 }
 
+/* AUTO LOGOUT */
+let timer;
+function resetTimer(){ clearTimeout(timer); timer=setTimeout(()=>{alert("Auto logout for security");logout()},600000); }
+document.onmousemove=resetTimer; document.onkeypress=resetTimer;
+
 function startApp(){
 let id=sessionStorage.getItem("erpActive")
 if(!id)return
+resetTimer()
 document.getElementById("login").classList.add("hidden"); document.getElementById("app").style.display="block"
 let role=JSON.parse(localStorage.getItem("erpUsers"))[id].role
 document.getElementById("who").innerText=`User: ${id.toUpperCase()} (${role})`
@@ -168,9 +190,8 @@ document.body.classList.toggle("dark")
 localStorage.setItem("darkMode",document.body.classList.contains("dark")?"on":"off")
 }
 
-/* --- KEY NAVIGATION LOGIC (TYPE DROPDOWN SKIPPED) --- */
+/* --- ARROW KEY & ENTER NAVIGATION (TYPE SKIPPED) --- */
 document.addEventListener('keydown', function(e) {
-    // শুধুমাত্র .nav-item ক্লাস থাকা বক্সগুলোতে নেভিগেট করবে (Type ড্রপডাউন স্কিপ করবে)
     const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => {
         const parent = i.closest('div');
         return parent && parent.style.display !== 'none';
@@ -206,74 +227,74 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-/* USERS & BACKUP */
-function createUser(){
-let u=newUser.value.trim(),p=newPass.value.trim(),r=newRole.value
-let users=JSON.parse(localStorage.getItem("erpUsers"))
-if(users[u])return alert("User exists"); users[u]={password:p,role:r};
-localStorage.setItem("erpUsers",JSON.stringify(users)); alert("Created")
-}
-function deleteUserAccount(){
-let u=deleteUser.value.trim(); let users=JSON.parse(localStorage.getItem("erpUsers"))
-if(u==="superadmin")return alert("Cannot delete Super Admin!"); delete users[u]
-localStorage.setItem("erpUsers",JSON.stringify(users)); alert("Deleted")
-}
-function downloadBackup(){
-let data=JSON.stringify(localStorage); let blob=new Blob([data],{type:"application/json"}); saveAs(blob,"BFIDC_Backup.json")
-}
-function restoreBackup(e){
-let reader=new FileReader(); reader.onload=function(){
-let data=JSON.parse(reader.result); for(let k in data)localStorage.setItem(k,data[k]); location.reload()
-}; reader.readAsText(e.target.files[0])
-}
-
 /* MEASUREMENT SYSTEM */
 let items=JSON.parse(localStorage.getItem("bfidc_data"))||[]; let editIndex=null
 function resetPieceOnTreeChange(){ piece.value=items.filter(i=>i.tree==tree.value).length+1 }
+
 function toggleInputs(){
 const isWood=document.getElementById("type").value==="wood"
-document.getElementById("ve-box").style.display=isWood?"block":"none"; render()
+document.getElementById("ve-box").style.display=isWood?"block":"none"
+document.getElementById("l1").innerText=isWood?"Width (Inch)":"Girth (Inch)"
+render()
 }
 
 function addItem(){
-let tV=document.getElementById("tree").value, typ=document.getElementById("type").value,
-    v1V=parseFloat(document.getElementById("v1").value), v2V=parseFloat(document.getElementById("v2").value),
-    veV=parseFloat(document.getElementById("ve").value)||0;
-if(!tV||!v1V||!v2V)return alert("Fill data!")
+let tV=tree.value, typ=type.value,
+    v1V=parseFloat(v1.value), v2V=parseFloat(v2.value),
+    veV=parseFloat(ve.value)||0;
+
+if(!v1V || !v2V)return alert("Invalid measurement!")
+
 let cft=typ==="log"?((v1V/4)**2*v2V)/144:(v1V*veV*v2V)/144
 let pNo=editIndex!==null?items[editIndex].piece:(items.filter(i=>i.tree==tV).length+1)
 let data={tree:tV,piece:pNo,type:typ,v1:v1V,v2:v2V,ve:veV,cft:+cft.toFixed(2)}
 if(editIndex!==null){items[editIndex]=data;editIndex=null}else items.push(data)
 localStorage.setItem("bfidc_data",JSON.stringify(items)); render()
-document.getElementById("v1").value="";document.getElementById("v2").value="";document.getElementById("ve").value=""
-document.getElementById("piece").value=items.filter(i=>i.tree==tV).length+1
+v1.value="";v2.value="";ve.value=""
+piece.value=items.filter(i=>i.tree==tV).length+1
 }
 
 function render(){
-let typF=document.getElementById("type").value; let fil=items.filter(i=>i.type===typF)
+let searchStr=document.getElementById("search").value?.toLowerCase()||""
+let typF=type.value; let fil=items.filter(i=>i.type===typF && i.tree.toString().includes(searchStr))
+
 let total=0,tSet=new Set()
-let hH=typF==='log'?`<div class="report-header"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>`:`<div style="height:40px"></div>`
-let html=`<div class='page' id='printContent'>${hH}<div class="multi-column-container"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`
+fil.forEach(i=>{total+=i.cft;tSet.add(i.tree)})
+
+dashboard.innerHTML=`
+<div class="stat">Trees<br>${tSet.size}</div>
+<div class="stat">Pieces<br>${fil.length}</div>
+<div class="stat">Total CFT<br>${total.toFixed(2)}</div>
+`
+
+let headerHTML=typF==='log'?`<div class="report-header"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>`:`<div style="height:40px"></div>`
+let html=`<div class='page' id='printContent'>${headerHTML}<div class="multi-column-container"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`
 fil.forEach(i=>{
 let sz=i.type=="log"?`${i.v1}"x${i.v2}'`:`${i.v1}"x${i.ve}"x${i.v2}'`
 html+=`<tr><td>${i.tree}/${i.piece}</td><td>${sz}</td><td>${i.cft}</td><td class="no-print"><button onclick="startEdit(${items.indexOf(i)})" style="background:#3498db;padding:2px 5px;font-size:10px">Edit</button></td></tr>`
-total+=i.cft;tSet.add(i.tree)
 })
 html+=`</table></div><div class='summary'><span>Total Tree: ${tSet.size}</span><span>Total Piece: ${fil.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`
-document.getElementById("pagesArea").innerHTML=html
+pagesArea.innerHTML=html
 }
 
-function startEdit(idx){let i=items[idx];editIndex=idx;document.getElementById("tree").value=i.tree;document.getElementById("piece").value=i.piece;document.getElementById("v1").value=i.v1;document.getElementById("v2").value=i.v2;document.getElementById("ve").value=i.ve;document.getElementById("type").value=i.type;toggleInputs();}
+function startEdit(idx){let i=items[idx];editIndex=idx;tree.value=i.tree;piece.value=i.piece;v1.value=i.v1;v2.value=i.v2;ve.value=i.ve;type.value=i.type;toggleInputs();}
+
+/* EXPORT & BACKUP */
 function exportExcel(){let wb=XLSX.utils.book_new();let ws=XLSX.utils.json_to_sheet(items);XLSX.utils.book_append_sheet(wb,ws,"Measurements");XLSX.writeFile(wb,"BFIDC_Data.xlsx")}
-function exportDoc(){let content=document.getElementById('printContent').innerHTML;let url='data:application/vnd.ms-word;charset=utf-8,'+encodeURIComponent("<html><body>"+content+"</body></html>");let link=document.createElement("a");link.href=url;link.download='BFIDC_Report.doc';link.click();}
+async function exportPDF(){const { jsPDF } = window.jspdf; let doc=new jsPDF(); doc.text(document.getElementById("printContent").innerText,10,10); doc.save("BFIDC_Report.pdf");}
+function downloadBackup(){let data=JSON.stringify(localStorage); let blob=new Blob([data],{type:"application/json"}); saveAs(blob,"BFIDC_Backup.json")}
+function restoreBackup(e){let reader=new FileReader(); reader.onload=function(){let data=JSON.parse(reader.result); for(let k in data)localStorage.setItem(k,data[k]); location.reload()}; reader.readAsText(e.target.files[0])}
 function saveToFile(){let name=prompt("File Name:");if(!name)return;let h=JSON.parse(localStorage.getItem("bfidc_history"))||[];h.push({name,data:[...items]});localStorage.setItem("bfidc_history",JSON.stringify(h));alert("Saved!")}
-function showHistory(){let h=JSON.parse(localStorage.getItem("bfidc_history"))||[];document.getElementById("historyList").innerHTML=h.map((x,i)=>`<div style="padding:5px;border-bottom:1px solid #eee">${x.name}<button onclick="loadFromHistory(${i})" style="width:auto;float:right">Load</button></div>`).join('');document.getElementById("historyModal").classList.remove("hidden")}
+function showHistory(){let h=JSON.parse(localStorage.getItem("bfidc_history"))||[];historyList.innerHTML=h.map((x,i)=>`<div style="padding:5px;border-bottom:1px solid #eee">${x.name}<button onclick="loadFromHistory(${i})" style="width:auto;float:right">Load</button></div>`).join('');historyModal.classList.remove("hidden")}
 function loadFromHistory(idx){items=JSON.parse(localStorage.getItem("bfidc_history"))[idx].data;render();closeHistory()}
 function clearAll(){if(confirm("Clear?")){items=[];localStorage.removeItem("bfidc_data");render()}}
-function openAdmin(){document.getElementById("adminPanel").classList.remove("hidden");loadLogs()}
-function closeAdmin(){document.getElementById("adminPanel").classList.add("hidden")}
-function closeHistory(){document.getElementById("historyModal").classList.add("hidden")}
+function openAdmin(){adminPanel.classList.remove("hidden");loadLogs()}
+function closeAdmin(){adminPanel.classList.add("hidden")}
+function closeHistory(){historyModal.classList.add("hidden")}
 function loadLogs(){logs.innerHTML=JSON.parse(localStorage.getItem("erpLogs")).join("<br>")}
+async function createUser(){let u=newUser.value.trim(),p=newPass.value.trim(),r=newRole.value;let users=JSON.parse(localStorage.getItem("erpUsers"));if(users[u])return alert("User exists");users[u]={password:await hash(p),role:r};localStorage.setItem("erpUsers",JSON.stringify(users));alert("Created")}
+function deleteUserAccount(){let u=deleteUser.value.trim();let users=JSON.parse(localStorage.getItem("erpUsers"));if(u==="superadmin")return alert("Cannot delete Super!");delete users[u];localStorage.setItem("erpUsers",JSON.stringify(users));alert("Deleted")}
+
 if(sessionStorage.getItem("erpActive"))startApp()
 </script>
 </body>
