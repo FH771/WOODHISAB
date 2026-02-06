@@ -3,96 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDC ULTRA ERP - STORAGE SYSTEM</title>
+<title>BFIDC ULTRA ERP - FIXED FONT</title>
 
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-@font-face { font-family: 'SutonnyMJ'; src: local('SutonnyMJ'), local('SutonnyMJ-Bold'); }
-body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;margin:0;color:white; -webkit-tap-highlight-color: transparent;}
-
-/* LOGIN SYSTEM */
-#loginLayer {position:fixed;inset:0;background:#020617;display:flex;align-items:center;justify-content:center;z-index:9999}
-.box{background:#111827;padding:25px;border-radius:14px;width:90%; max-width:320px; text-align:center}
-input,select,button{width:100%;padding:12px;margin-top:8px;border-radius:8px;border:none;box-sizing:border-box;background:#1e293b;color:white; font-size: 16px;}
-button{background:#22c55e;color:white;font-weight:bold;cursor:pointer;}
-
-/* APP AREA */
-#appArea{display:none;background:#f4f7f6;min-height:100vh;color:black}
-header{position:sticky;top:0;background:#020617;color:white;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:999;}
-.card{background:white;padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.1);margin:10px;color:black}
-
-/* STORAGE MODAL */
-#storageModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center; }
-.modal-content { background:white; color:black; padding:20px; border-radius:15px; width:90%; max-width:400px; max-height:80vh; overflow-y:auto; }
-.file-item { display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #ddd; }
-.file-item:last-child { border:none; }
-
-.grid-inputs{display:grid;grid-template-columns: repeat(2, 1fr); gap:10px}
-.full-width { grid-column: span 2; }
-
-.page { background: white; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 10mm; border: 1px solid #ddd; color: black; box-sizing: border-box; overflow: hidden; }
-.report-header { text-align: center; margin-bottom: 15px; font-family: 'SutonnyMJ'; color: black; }
-.report-header h3 { margin: 2px 0; font-size: 20px; font-weight: normal; }
-.multi-column { column-count: 2; column-gap: 30px; column-fill: auto; height: 230mm; }
-
-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; border: 2px solid #000; }
-th, td { border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 12px; }
-th { background: #f3f4f6; }
-
-.summary{border:2px solid black;padding:10px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between;font-size:14px}
-.hidden { display:none!important; }
-
-@media (max-width: 600px) {
-    header { flex-direction: column; gap: 8px; text-align: center; }
-    .page { width: 98%; margin: 5px auto; padding: 5mm; height: auto; min-height: auto; }
-    .multi-column { column-count: 1; height: auto; }
+/* মোবাইলের জন্য অনলাইন বাংলা ফন্ট */
+@font-face {
+    font-family: 'SutonnyMJ';
+    src: url('https://raw.githubusercontent.com/sahidul-islam/fonts/master/SutonnyMJ.ttf') format('truetype'),
+         local('SutonnyMJ');
 }
 
-@media print {
-    header, .no-print, #loginLayer, #storageModal {display:none!important}
-    body {background: white}
-    .page { margin: 0; border: none; width: 100%; padding: 10mm; }
-    @page { size: A4; margin: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f172a; margin: 0; color: white; -webkit-tap-highlight-color: transparent; }
+
+/* রিপোর্ট হেডার যা মোবাইলেও বাংলা দেখাবে */
+.report-header { 
+    text-align: center; 
+    margin-bottom: 15px; 
+    font-family: 'SutonnyMJ', 'Hind Siliguri', sans-serif; 
+    color: black; 
+    line-height: 1.2;
+}
+.report-header h3 { margin: 2px 0; font-size: 20px; font-weight: normal; }
+
+header { position: sticky; top: 0; background: #020617; color: white; padding: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 999; }
+.card { background: white; padding: 15px; border-radius: 12px; margin: 10px; color: black; }
+.grid-inputs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.full-width { grid-column: span 2; }
+
+.page { background: white; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 10mm; border: 1px solid #ddd; color: black; box-sizing: border-box; }
+.multi-column { column-count: 2; column-gap: 30px; height: 230mm; }
+
+table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
+th, td { border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 12px; }
+.hidden { display: none !important; }
+.drive-status { font-size: 11px; color: #4ade80; text-align: center; margin-top: 5px; font-weight: bold; }
+
+@media print { 
+    header, .no-print, #loginLayer { display: none !important; } 
+    .page { margin: 0; border: none; width: 100%; } 
+}
+@media (max-width: 600px) {
+    .page { width: 98%; padding: 5mm; height: auto; }
+    .multi-column { column-count: 1; height: auto; }
 }
 </style>
 </head>
 <body>
 
-<div id="loginLayer">
-  <div class="box">
-    <h2 style="color:white; margin-bottom: 20px;">BFIDC ERP LOGIN</h2>
-    <input id="uID" placeholder="User ID">
-    <input id="uPass" type="password" placeholder="Password">
-    <button onclick="handleLogin()">Login</button>
+<div id="loginLayer" style="position:fixed;inset:0;background:#020617;display:flex;align-items:center;justify-content:center;z-index:9999">
+  <div style="background:#111827;padding:25px;border-radius:14px;width:90%;max-width:320px;text-align:center">
+    <h2 style="color:white;margin-bottom:20px">BFIDC LOGIN</h2>
+    <input id="uID" placeholder="User ID" style="width:100%;padding:12px;margin-bottom:10px;border-radius:8px;border:none;">
+    <input id="uPass" type="password" placeholder="Password" style="width:100%;padding:12px;margin-bottom:15px;border-radius:8px;border:none;">
+    <button onclick="handleLogin()" style="width:100%;padding:12px;background:#22c55e;color:white;font-weight:bold;border:none;border-radius:8px;">Login</button>
   </div>
 </div>
 
-<div id="storageModal">
-    <div class="modal-content">
-        <h3 style="margin-top:0">Saved History</h3>
-        <div id="fileList"></div>
-        <button onclick="storageModal.style.display='none'" style="background:#64748b; margin-top:15px">Close</button>
-    </div>
-</div>
-
-<div id="appArea">
+<div id="appArea" class="hidden">
 <header>
-    <div id="who"></div>
-    <div style="font-weight:bold; font-size: 14px;">🔥 ULTRA BOSS ERP</div>
+    <div id="who" style="font-size: 11px;"></div>
+    <div style="font-weight:bold; font-size: 14px;">WOOD HISAB</div>
     <div style="display:flex;gap:5px">
-        <button onclick="saveToInternal()" style="background:#3b82f6;width:auto;padding:4px 8px; font-size: 11px;">💾 SAVE TO LIST</button>
-        <button onclick="showFileList()" style="background:#f59e0b;width:auto;padding:4px 8px; font-size: 11px;">📂 OPEN LIST</button>
-        <button onclick="logout()" style="background:#ef4444;width:auto;padding:4px 8px; font-size: 11px;">X</button>
+        <button id="auth_btn" onclick="handleAuthClick()" style="background:#1a73e8;color:white;border:none;padding:5px 8px;border-radius:4px;font-size:10px">☁️ LOGIN DRIVE</button>
+        <button id="sync_btn" onclick="saveToDrive()" class="hidden" style="background:#34a853;color:white;border:none;padding:5px 8px;border-radius:4px;font-size:10px">📤 SYNC</button>
+        <button id="load_btn" onclick="loadFromDrive()" class="hidden" style="background:#fbbc05;color:white;border:none;padding:5px 8px;border-radius:4px;font-size:10px">📥 LOAD</button>
+        <button onclick="logout()" style="background:#ef4444;color:white;border:none;padding:5px 8px;border-radius:4px;font-size:10px">X</button>
     </div>
 </header>
+<div id="sync_status" class="drive-status"></div>
 
 <div class="card no-print">
     <div class="grid-inputs">
         <div>Tree No<input id="tree" value="1" inputmode="numeric" oninput="updatePiece()"></div>
-        <div>Piece<input id="piece" readonly tabindex="-1" style="background:#e2e8f0; border: 1px solid #cbd5e1;"></div>
+        <div>Piece<input id="piece" readonly style="background:#e2e8f0"></div>
         <div class="full-width">Type
-            <select id="type" onchange="toggleInputs()" tabindex="-1">
+            <select id="type" onchange="toggleInputs()">
                 <option value="log">Round Log</option>
                 <option value="wood">Sawn Wood</option>
             </select>
@@ -101,13 +91,11 @@ th { background: #f3f4f6; }
         <div id="thickBox" class="hidden">Thickness<input id="ve" inputmode="decimal"></div>
         <div>Length (Foot)<input id="v2" inputmode="decimal"></div>
     </div>
-    
-    <button onclick="addItem()" id="addBtn" style="margin-top:15px; background:#22c55e; padding: 15px; font-size: 18px; color: white; border-bottom: 4px solid #16a34a;">SAVE DATA (✔)</button>
-    
+    <button onclick="addItem()" id="addBtn" style="width:100%;margin-top:15px;background:#22c55e;color:white;padding:15px;font-size:18px;border:none;border-radius:10px;font-weight:bold">SAVE DATA (✔)</button>
     <div class="grid-inputs" style="margin-top:10px">
-        <button onclick="exportExcel()" style="background:#16a34a; font-size: 12px;">Excel</button>
-        <button onclick="window.print()" style="background:#475569; font-size: 12px;">Print</button>
-        <button onclick="clearAll()" class="full-width" style="background:#dc2626; font-size: 12px; margin-top: 5px;">Clear Current Work</button>
+        <button onclick="exportExcel()" style="background:#16a34a;color:white;border:none;padding:8px;border-radius:5px">Excel</button>
+        <button onclick="window.print()" style="background:#475569;color:white;border:none;padding:8px;border-radius:5px">Print</button>
+        <button onclick="clearAll()" class="full-width" style="background:#dc2626;color:white;border:none;padding:8px;border-radius:5px">New Work</button>
     </div>
 </div>
 
@@ -115,160 +103,82 @@ th { background: #f3f4f6; }
 </div>
 
 <script>
-let items = JSON.parse(localStorage.getItem("bfidc_data")) || [];
-let editIdx = null;
+const CLIENT_ID = '234418632833-gv6d3hqpnfjeodsi21t2g6afkh81o95i.apps.googleusercontent.com'; 
+const API_KEY = 'AIzaSyDvmF9t7WvsUvZLs5tFjGVfxTaQxsOKRJs'; 
+const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 
-function handleLogin() {
-    let id = uID.value.trim().toLowerCase(), ps = uPass.value.trim();
-    let users = JSON.parse(localStorage.getItem("bfidc_users")) || {"admin": "0000"};
-    if(users[id] && users[id] === ps) { sessionStorage.setItem("active", id); start(); } else alert("Invalid Login!");
+let tokenClient, items = JSON.parse(localStorage.getItem("bfidc_data")) || [], editIdx = null;
+
+function gapiLoaded() { gapi.load('client', async () => { await gapi.client.init({apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS}); }); }
+function gsiLoaded() { tokenClient = google.accounts.oauth2.initTokenClient({client_id: CLIENT_ID, scope: SCOPES, callback: ''}); }
+
+function handleAuthClick() {
+    tokenClient.callback = async (resp) => {
+        auth_btn.classList.add('hidden'); sync_btn.classList.remove('hidden'); load_btn.classList.remove('hidden');
+        sync_status.innerText = "☁️ Drive Connected";
+    };
+    tokenClient.requestAccessToken({prompt: 'consent'});
 }
 
-function start() {
-    loginLayer.style.display = "none";
-    appArea.style.display = "block";
-    let user = sessionStorage.getItem("active");
-    who.innerText = user.toUpperCase();
-    updatePiece(); render();
-    document.getElementById("tree").focus();
+async function saveToDrive() {
+    sync_status.innerText = "Syncing...";
+    const res = await gapi.client.drive.files.list({ q: "name = 'wood_data.json' and trashed = false" });
+    const files = res.result.files;
+    const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
+    let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=media';
+    let method = 'POST';
+    if (files.length > 0) { url = `https://www.googleapis.com/upload/drive/v3/files/${files[0].id}?uploadType=media`; method = 'PATCH'; }
+    await fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }, body: blob });
+    sync_status.innerText = "✅ Cloud Sync Successful!";
 }
 
+async function loadFromDrive() {
+    sync_status.innerText = "Loading...";
+    const res = await gapi.client.drive.files.list({ q: "name = 'wood_data.json' and trashed = false" });
+    const files = res.result.files;
+    if (files.length > 0) {
+        const file = await gapi.client.drive.files.get({ fileId: files[0].id, alt: 'media' });
+        items = file.result; localStorage.setItem("bfidc_data", JSON.stringify(items));
+        render(); updatePiece(); sync_status.innerText = "📥 Data Loaded!";
+    } else alert("No data!");
+}
+
+function handleLogin() { if(uID.value.toLowerCase()==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("Wrong!"); }
+function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); who.innerText = "USER: ADMIN"; updatePiece(); render(); }
 function logout() { sessionStorage.clear(); location.reload(); }
-
-/* NAV LOGIC */
-document.addEventListener('keydown', function(e) {
-    const active = document.activeElement.id;
-    const isWood = document.getElementById("type").value === 'wood';
-
-    if (e.key === "ArrowDown" || e.key === "ArrowRight" || (e.key === "Enter" && active !== "v2")) {
-        e.preventDefault();
-        if (active === "tree") document.getElementById("v1").focus();
-        else if (active === "v1" && isWood) document.getElementById("ve").focus();
-        else if (active === "v1" && !isWood) document.getElementById("v2").focus();
-        else if (active === "ve") document.getElementById("v2").focus();
-        if(document.activeElement.tagName === "INPUT") document.activeElement.select();
-    } 
-    else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
-        e.preventDefault();
-        if (active === "v2" && isWood) document.getElementById("ve").focus();
-        else if (active === "v2" && !isWood) document.getElementById("v1").focus();
-        else if (active === "ve") document.getElementById("v1").focus();
-        else if (active === "v1") document.getElementById("tree").focus();
-        if(document.activeElement.tagName === "INPUT") document.activeElement.select();
-    }
-
-    if (e.key === "Enter" && active === "v2") {
-        e.preventDefault();
-        addItem();
-        document.getElementById("tree").focus();
-        document.getElementById("tree").select();
-    }
-});
-
-function toggleInputs() {
-    let isWood = type.value === 'wood';
-    thickBox.classList.toggle("hidden", !isWood);
-    labelV1.innerText = isWood ? "Width (Inch)" : "Girth (Inch)";
-    render();
-}
-
-function updatePiece() {
-    let tNo = tree.value;
-    piece.value = items.filter(i => i.tree == tNo).length + 1;
-}
+function toggleInputs() { let isW = type.value==='wood'; thickBox.classList.toggle("hidden", !isW); labelV1.innerText = isW ? "Width (Inch)" : "Girth (Inch)"; render(); }
+function updatePiece() { piece.value = items.filter(i => i.tree == tree.value).length + 1; }
 
 function addItem() {
     let t = tree.value, ty = type.value, v1v = parseFloat(v1.value), v2v = parseFloat(v2.value), vev = parseFloat(ve.value) || 0;
     if(!v1v || !v2v) return;
-    let cft = ty === 'log' ? ((v1v/4)**2 * v2v)/144 : (v1v * vev * v2v)/144;
-    let pNo = editIdx !== null ? items[editIdx].piece : (items.filter(i => i.tree == t).length + 1);
-    let data = {tree: t, piece: pNo, type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)};
-    if(editIdx !== null) { items[editIdx] = data; editIdx = null; addBtn.innerText = "SAVE DATA (✔)"; }
-    else { items.push(data); }
+    let cft = ty==='log' ? ((v1v/4)**2 * v2v)/144 : (v1v * vev * v2v)/144;
+    let data = {tree: t, piece: editIdx!==null ? items[editIdx].piece : (items.filter(i=>i.tree==t).length+1), type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)};
+    if(editIdx!==null) { items[editIdx] = data; editIdx = null; addBtn.innerText = "SAVE DATA (✔)"; } else items.push(data);
     localStorage.setItem("bfidc_data", JSON.stringify(items));
-    v1.value = ""; v2.value = ""; ve.value = "";
-    updatePiece(); render();
+    v1.value=""; v2.value=""; ve.value=""; updatePiece(); render();
 }
 
 function render() {
-    let ty = type.value;
-    let filtered = items.filter(i => i.type === ty);
-    let total = 0, treeSet = new Set();
-    filtered.forEach(i => { total += i.cft; treeSet.add(i.tree); });
-    let headerText = ty === 'log' ? `<div class="report-header"><h3>weGdAvBwWwm, .....................&nbsp; ivevi evMvb n‡Z weGdAvBwWwm, Gjwcwm</h3><h3>‡c«i‡Yi Rb¨ KZ©bK…Z RxebPµ nviv‡bv ivevi Kv‡Vi mvBR wj÷|</h3></div>` : `<div style="height:10px"></div>`;
-    let html = `<div class="page">${headerText}<div class="multi-column"><table><tr><th>Tr/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
-    filtered.forEach((item) => {
-        let size = item.type === 'log' ? `${item.v1}"x${item.v2}'` : `${item.v1}"x${item.ve}"x${item.v2}'`;
-        html += `<tr><td>${item.tree}/${item.piece}</td><td>${size}</td><td>${item.cft}</td><td class="no-print"><button onclick="startEdit(${items.indexOf(item)})" style="padding:2px; font-size:10px; background:#3b82f6; width:100%;">Edit</button></td></tr>`;
+    let ty = type.value, filtered = items.filter(i => i.type === ty), total = filtered.reduce((s, i) => s + i.cft, 0);
+    let header = ty === 'log' ? `<div class="report-header"><h3>weGdAvBwWwm, .....................&nbsp; ivevi evMvb n‡Z weGdAvBwWwm, Gjwcwm</h3><h3>‡c«i‡Yi Rb¨ KZ©bK…Z RxebPµ nviv‡bv ivevi Kv‡Vi mvBR wj÷|</h3></div>` : `<div style="height:10px"></div>`;
+    let html = `<div class="page">${header}<div class="multi-column"><table><tr><th>Tr/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
+    filtered.forEach(i => {
+        let sz = i.type==='log' ? `${i.v1}"x${i.v2}'` : `${i.v1}"x${i.ve}"x${i.v2}'`;
+        html += `<tr><td>${i.tree}/${i.piece}</td><td>${sz}</td><td>${i.cft}</td><td class="no-print"><button onclick="startEdit(${items.indexOf(i)})">Edit</button></td></tr>`;
     });
-    html += `</table></div><div class="summary"><span>Trees: ${treeSet.size}</span><span>Pcs: ${filtered.length}</span><span>Total: ${total.toFixed(2)}</span></div></div>`;
+    html += `</table></div><div style="margin-top:10px;font-weight:bold;border-top:2px solid black;padding-top:5px">Total: ${total.toFixed(2)} CFT</div></div>`;
     document.getElementById("printArea").innerHTML = html;
 }
 
-function startEdit(idx) {
-    let i = items[idx]; editIdx = idx;
-    tree.value = i.tree; type.value = i.type; v1.value = i.v1; v2.value = i.v2; ve.value = i.ve;
-    addBtn.innerText = "UPDATE DATA (✔)"; toggleInputs();
-    window.scrollTo(0,0);
-}
-
-/* INTERNAL STORAGE SYSTEM */
-function saveToInternal() {
-    if(items.length === 0) return alert("No data to save!");
-    let name = prompt("Enter Name (e.g. Garden_01):");
-    if(!name) return;
-    
-    let db = JSON.parse(localStorage.getItem("bfidc_db")) || {};
-    db[name] = { date: new Date().toLocaleString(), data: items };
-    localStorage.setItem("bfidc_db", JSON.stringify(db));
-    alert("Saved to Internal History!");
-}
-
-function showFileList() {
-    let db = JSON.parse(localStorage.getItem("bfidc_db")) || {};
-    let html = "";
-    for(let name in db) {
-        html += `<div class="file-item">
-            <div><strong>${name}</strong><br><small>${db[name].date}</small></div>
-            <div style="display:flex; gap:5px">
-                <button onclick="loadFromInternal('${name}')" style="background:#22c55e; width:auto; padding:5px 10px; font-size:12px">Open</button>
-                <button onclick="deleteFromInternal('${name}')" style="background:#ef4444; width:auto; padding:5px 10px; font-size:12px">Del</button>
-            </div>
-        </div>`;
-    }
-    if(html === "") html = "<p>No saved files found.</p>";
-    document.getElementById("fileList").innerHTML = html;
-    document.getElementById("storageModal").style.display = "flex";
-}
-
-function loadFromInternal(name) {
-    let db = JSON.parse(localStorage.getItem("bfidc_db"));
-    if(confirm(`Open "${name}" and replace current work?`)) {
-        items = db[name].data;
-        localStorage.setItem("bfidc_data", JSON.stringify(items));
-        render(); updatePiece();
-        storageModal.style.display = "none";
-    }
-}
-
-function deleteFromInternal(name) {
-    if(confirm(`Delete "${name}" permanently?`)) {
-        let db = JSON.parse(localStorage.getItem("bfidc_db"));
-        delete db[name];
-        localStorage.setItem("bfidc_db", JSON.stringify(db));
-        showFileList();
-    }
-}
-
-function exportExcel() {
-    let wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(items), "Data");
-    XLSX.writeFile(wb, "Report.xlsx");
-}
-
-function clearAll() { if(confirm("Clear current work?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
+function startEdit(idx) { let i=items[idx]; editIdx=idx; tree.value=i.tree; type.value=i.type; v1.value=i.v1; v2.value=i.v2; ve.value=i.ve; addBtn.innerText="UPDATE (✔)"; toggleInputs(); window.scrollTo(0,0); }
+function exportExcel() { let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(items), "Data"); XLSX.writeFile(wb, "Wood_Report.xlsx"); }
+function clearAll() { if(confirm("Clear all data?")) { items=[]; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
 
 if(sessionStorage.getItem("active")) start();
 </script>
+<script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+<script async defer src="https://accounts.google.com/gsi/client" onload="gsiLoaded()"></script>
 </body>
 </html>
