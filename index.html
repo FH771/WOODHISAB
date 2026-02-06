@@ -3,74 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC ULTRA PRO ERP</title>
+<title>BFIDC ULTRA ERP - MULTI USER SYSTEM</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 @font-face { font-family: 'SutonnyMJ'; src: local('SutonnyMJ'), local('SutonnyMJ-Bold'); }
-body{font-family:'Segoe UI',Arial;background:#0f172a;margin:0;transition:.3s;color:white}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;margin:0;color:white}
 
-/* LOGIN BOX (From New Code) */
-#login{position:fixed;inset:0;background:#020617;display:flex;align-items:center;justify-content:center;z-index:3000}
-.box{background:#111827;padding:25px;border-radius:14px;width:320px;box-shadow:0 10px 25px rgba(0,0,0,.5)}
-input,select,button{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:none;box-sizing:border-box;background:#1e293b;color:white}
-button{background:#22c55e;font-weight:bold;cursor:pointer}
+/* UI ELEMENTS */
+header{background:#020617;padding:12px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1000}
+.card{background:white;margin:15px;padding:15px;border-radius:12px;color:black;box-shadow:0 4px 6px rgba(0,0,0,0.3)}
+input,select,button{padding:12px;border-radius:8px;border:1px solid #cbd5e1;margin-top:8px;width:100%;box-sizing:border-box}
+button{background:#22c55e;color:white;font-weight:bold;cursor:pointer;border:none}
+button:hover{opacity:.9}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
 
-/* APP AREA */
-#app{display:none;background:#f4f7f6;min-height:100vh;color:black}
-header{position:sticky;top:0;background:#020617;color:white;padding:12px;display:flex;justify-content:space-between;align-items:center;z-index:999}
-.container{max-width:1100px;margin:auto;padding:15px}
-.card{background:white;padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.1);margin-bottom:15px;color:black}
-.grid-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.statGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:15px}
-.stat{background:#22c55e;color:white;padding:15px;border-radius:10px;text-align:center;font-weight:bold}
-
-/* A4 PRINT & COLUMN FLOW (Pothom Sari Ses Kore 2nd Sari) */
-.page {
-    background: white;
-    width: 210mm; 
-    min-height: 297mm;
-    margin: 10px auto;
-    padding: 15mm; 
-    border: 1px solid #ddd;
-    color: black;
-    box-sizing: border-box;
-}
-.report-header{text-align:center;margin-bottom:20px;font-family:'SutonnyMJ'; line-height: 1.3;}
-
-.multi-column-container {
-    column-count: 2;
-    column-gap: 40px;
-    column-fill: auto; 
-    height: 215mm; 
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 5px;
-    border: 2px solid #000;
-}
-th, td {
-    border: 1.5px solid #000;
-    padding: 6px 4px;
-    text-align: center;
-    font-size: 15px;
-}
-th { background: #f3f4f6; }
-.btn-edit { background: #3b82f6; color: white; font-size: 11px; padding: 2px 6px; width: auto; border-radius: 4px; }
-
-.summary{border:2px solid black;padding:12px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between;font-size:16px}
+/* LOGIN & MODALS */
+#login, .modal{position:fixed;inset:0;background:rgba(2,6,23,0.98);display:flex;align-items:center;justify-content:center;z-index:2000}
+.box{background:#1e293b;padding:25px;border-radius:14px;width:90%;max-width:340px;color:white}
 .hidden{display:none!important}
 
+/* ADMIN PANEL STYLING */
+#adminPanel { position:fixed; top:60px; right:15px; background:#1e293b; padding:15px; border-radius:10px; border:1px solid #22c55e; z-index:1500; width:250px; }
+
+/* A4 & COLUMN FLOW */
+.page { background: white; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 10mm; color: black; box-sizing: border-box; }
+.report-header{text-align:center; font-family:'SutonnyMJ'; margin-bottom:15px; line-height:1.2}
+.multi-column { column-count: 2; column-gap: 30px; column-fill: auto; height: 235mm; }
+table{width:100%;border-collapse:collapse;border:2px solid black}
+th,td{border:1.2px solid black;padding:5px;text-align:center;font-size:14px}
+.summary{display:flex;justify-content:space-between;border:2px solid black;padding:10px;margin-top:10px;font-weight:bold}
+
 @media print {
-    header, .no-print, #login, #saveStatus, .btn-edit, .history-modal {display:none!important}
-    body {background: white}
-    .page { margin: 0; border: none; width: 100%; padding: 10mm; }
-    @page { size: A4; margin: 0; }
+    header, .no-print, #adminPanel, #saveStatus, .btn-edit, #adminToggle {display:none!important}
+    body{background:white}
+    .page{margin:0;width:100%;border:none}
 }
 </style>
 </head>
@@ -78,173 +46,212 @@ th { background: #f3f4f6; }
 
 <div id="login">
   <div class="box">
-    <h2 style="text-align:center; color:white">ULTRA BOSS LOGIN</h2>
-    <input id="idInput" placeholder="User ID">
-    <input id="passInput" type="password" placeholder="Password">
-    <button onclick="login()">Login</button>
+    <h2 style="text-align:center">BFIDC ERP LOGIN</h2>
+    <input id="uID" placeholder="User ID">
+    <input id="uPass" type="password" placeholder="Password">
+    <button onclick="handleLogin()">Login</button>
+    <p style="font-size:11px; text-align:center; color:#94a3b8; margin-top:10px">Default: admin | 0000</p>
   </div>
 </div>
 
-<div id="app">
+<div id="app" class="hidden">
 <header>
-<div id="who"></div>
-<div style="font-weight:bold">🔥 BFIDC ULTRA PRO</div>
-<div>
-<button onclick="showHistory()" style="background:#f59e0b;width:auto;padding:5px 12px">History</button>
-<button onclick="backup()" style="background:#3b82f6;width:auto;padding:5px 12px">Backup</button>
-<button onclick="logout()" style="background:#ef4444;width:auto;padding:5px 12px">Logout</button>
-</div>
+    <div id="whoInfo"></div>
+    <div style="font-weight:bold">🔥 ULTRA BOSS ERP</div>
+    <div style="display:flex; gap:10px">
+        <button id="adminToggle" class="hidden" onclick="toggleAdminPanel()" style="background:#f59e0b; width:auto">⚙️ Users</button>
+        <button onclick="backup()" style="background:#3b82f6; width:auto">Backup</button>
+        <button onclick="logout()" style="background:#ef4444; width:auto">Logout</button>
+    </div>
 </header>
 
+<div id="adminPanel" class="hidden">
+    <h4 style="margin:0 0 10px 0; color:#22c55e">Manage Users</h4>
+    <input id="newID" placeholder="User ID" style="font-size:12px">
+    <input id="newPass" type="password" placeholder="Password" style="font-size:12px">
+    <button onclick="addUser()" style="font-size:12px; margin-top:5px">Add / Reset</button>
+    <hr style="border:0.5px solid #334155; margin:10px 0">
+    <div id="userList" style="font-size:11px; max-height:100px; overflow:auto"></div>
+</div>
+
 <div class="container">
-<div class="statGrid" id="stats"></div>
+    <div class="card no-print">
+        <div class="grid">
+            <div><label>Tree No</label><input id="tree" value="1" class="nav-item"></div>
+            <div><label>Type</label>
+                <select id="type" onchange="toggleInputs()">
+                    <option value="log">Round Log</option>
+                    <option value="wood">Sawn Wood</option>
+                </select>
+            </div>
+            <div><label id="lbl1">Girth (Inch)</label><input id="v1" class="nav-item"></div>
+            <div id="ve-box" class="hidden"><label>Thickness</label><input id="ve" class="nav-item"></div>
+            <div><label>Length (Foot)</label><input id="v2" class="nav-item"></div>
+        </div>
+        <button id="addBtn" onclick="addItem()" style="margin-top:15px">ADD DATA (+)</button>
+        
+        <div class="grid" style="margin-top:10px">
+            <button onclick="exportExcel()" style="background:#16a34a">Excel</button>
+            <button onclick="window.print()" style="background:#475569">Print A4</button>
+            <button onclick="setFileName()" style="background:#f59e0b">Set Name</button>
+            <button onclick="clearAll()" style="background:#dc2626">Clear All</button>
+        </div>
+        <p id="saveStatus" style="text-align:right;color:#16a34a;font-weight:bold;margin:5px 0 0 0;font-size:12px"></p>
+    </div>
 
-<div class="card no-print">
-<div class="grid-inputs">
-<div><label>Tree No</label><input id="tree" value="1" oninput="resetPiece()" class="nav-item"></div>
-<div><label>Piece</label><input id="piece" readonly style="background:#e2e8f0"></div>
-<div><label>Type</label>
-<select id="type" onchange="toggleInputs()">
-<option value="log">Round Log</option>
-<option value="wood">Sawn Wood</option>
-</select>
-</div>
-<div><label id="l1">Girth (Inch)</label><input id="v1" class="nav-item"></div>
-<div id="ve-box" style="display:none;"><label>Thickness (Inch)</label><input id="ve" class="nav-item"></div>
-<div><label>Length (Foot)</label><input id="v2" class="nav-item"></div>
-</div>
+    <input id="search" placeholder="Search tree no..." oninput="render()" class="card no-print" style="width:calc(100% - 30px)">
 
-<button onclick="addItem()" id="addBtn" style="margin-top:15px;padding:15px; background:#22c55e">ADD DATA (+)</button>
-
-<div style="margin-top:15px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-<button onclick="exportExcel()" style="background:#16a34a">Excel</button>
-<button onclick="window.print()" style="background:#475569">Print A4</button>
-<button onclick="setFileName()" style="background:#f59e0b">Set Name</button>
-<button onclick="clearAll()" style="background:#dc2626">Clear All</button>
-</div>
-<p id="saveStatus" style="font-size:12px; color:#16a34a; text-align:right; margin-top:5px; font-weight:bold;"></p>
-</div>
-
-<input id="search" placeholder="Search tree no..." oninput="render()" class="card no-print" style="width:calc(100% - 30px)">
-
-<div id="pagesArea"></div>
-</div>
-</div>
-
-<div id="historyModal" class="history-modal hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:4000">
-<div class="box" style="width:90%;max-width:400px">
-<h3 style="color:white">Saved Files</h3>
-<div id="historyList" style="max-height:300px;overflow:auto"></div>
-<button onclick="closeHistory()" style="background:#475569;margin-top:10px">Close</button>
+    <div id="printArea"></div>
 </div>
 </div>
 
 <script>
-/* ===== ULTRA SECURITY (SHA-256) ===== */
+/* ===== MULTI-USER & SECURITY ENGINE ===== */
 async function hash(t){ const e=new TextEncoder().encode(t); const b=await crypto.subtle.digest('SHA-256',e); return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''); }
-(async()=>{ if(!localStorage.getItem("users")){ localStorage.setItem("users",JSON.stringify({ superadmin:{password:await hash("0000"),role:"super"} })); } })();
 
-async function login(){ 
-    let id=idInput.value.trim(), p=await hash(passInput.value.trim()); 
-    let users=JSON.parse(localStorage.getItem("users")); 
-    if(users[id] && users[id].password===p){ sessionStorage.setItem("active",id); start(); } 
-    else alert("Wrong Login!"); 
-}
-function logout(){sessionStorage.clear();location.reload()}
-function start(){ document.getElementById("login").classList.add("hidden"); document.getElementById("app").style.display="block"; who.innerText="User: "+sessionStorage.getItem("active").toUpperCase(); render(); }
-
-/* ===== NAVIGATION ===== */
-document.addEventListener('keydown', function(e) {
-    const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.closest('div').style.display !== 'none');
-    const idx = inputs.indexOf(document.activeElement);
-    if (idx > -1) {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            if (document.activeElement.id === "v2") { addItem(); document.getElementById("tree").focus(); document.getElementById("tree").select(); }
-            else { inputs[idx + 1]?.focus(); inputs[idx + 1]?.select(); }
-        } else if (["ArrowRight", "ArrowDown"].includes(e.key)) {
-            if(document.activeElement.selectionEnd === document.activeElement.value.length || e.key === "ArrowDown"){ e.preventDefault(); inputs[idx + 1]?.focus(); inputs[idx + 1]?.select(); }
-        } else if (["ArrowLeft", "ArrowUp"].includes(e.key)) {
-            if(document.activeElement.selectionStart === 0 || e.key === "ArrowUp"){ e.preventDefault(); inputs[idx - 1]?.focus(); inputs[idx - 1]?.select(); }
-        }
+// Initialize default admin if not exists
+async function initUsers(){
+    if(!localStorage.getItem("users")){
+        let h = await hash("0000"); // Default pass 0000
+        localStorage.setItem("users", JSON.stringify({ "admin": h }));
     }
-});
+}
+initUsers();
 
-/* ===== ENGINE & AUTO SAVE ===== */
-let items=JSON.parse(localStorage.getItem("bfidc_ultra_pro"))||[];
-let editIndex=null;
-let currentFileName = localStorage.getItem("bfidc_current_file") || "AutoSave_1";
+async function handleLogin(){
+    let id = uID.value.trim().toLowerCase();
+    let pass = await hash(uPass.value.trim());
+    let users = JSON.parse(localStorage.getItem("users"));
+    
+    if(users[id] && users[id] === pass){
+        sessionStorage.setItem("activeUser", id);
+        startApp();
+    } else { alert("Invalid Credentials!"); }
+}
 
-function resetPiece(){ piece.value=items.filter(i=>i.tree==tree.value).length+1 }
-function toggleInputs(){ const isWood=document.getElementById("type").value==="wood"; document.getElementById("ve-box").style.display=isWood?"block":"none"; document.getElementById("l1").innerText=isWood?"Width (Inch)":"Girth (Inch)"; render(); }
-function setFileName(){ let n = prompt("File Name:", currentFileName); if(n){ currentFileName = n; localStorage.setItem("bfidc_current_file", n); autoSave(); } }
+function startApp(){
+    login.classList.add("hidden");
+    app.classList.remove("hidden");
+    let user = sessionStorage.getItem("activeUser");
+    whoInfo.innerText = "User: " + user.toUpperCase();
+    
+    // Show Admin Button only for 'admin'
+    if(user === 'admin') {
+        adminToggle.classList.remove("hidden");
+        updateUserList();
+    }
+    render();
+}
 
-function autoSave(){
-    let history = JSON.parse(localStorage.getItem("bfidc_history")) || [];
-    let idx = history.findIndex(h => h.name.toLowerCase() === currentFileName.toLowerCase());
-    if(idx !== -1) history[idx].data = [...items];
-    else history.push({name: currentFileName, data: [...items]});
-    localStorage.setItem("bfidc_history", JSON.stringify(history));
-    localStorage.setItem("bfidc_ultra_pro", JSON.stringify(items));
-    document.getElementById("saveStatus").innerText = "✔ Saved: " + currentFileName;
+function logout(){ sessionStorage.clear(); location.reload(); }
+
+// Admin Panel Functions
+function toggleAdminPanel(){ adminPanel.classList.toggle("hidden"); }
+
+async function addUser(){
+    let id = newID.value.trim().toLowerCase();
+    let pass = newPass.value.trim();
+    if(!id || !pass) return alert("Fill ID and Pass");
+    
+    let users = JSON.parse(localStorage.getItem("users"));
+    users[id] = await hash(pass);
+    localStorage.setItem("users", JSON.stringify(users));
+    
+    alert("User "+id+" created/updated!");
+    newID.value = ""; newPass.value = "";
+    updateUserList();
+}
+
+function updateUserList(){
+    let users = JSON.parse(localStorage.getItem("users"));
+    userList.innerHTML = Object.keys(users).map(u => `• ${u.toUpperCase()}`).join('<br>');
+}
+
+/* ===== CORE ERP ENGINE ===== */
+let items = JSON.parse(localStorage.getItem("bfidc_data")) || [];
+let editIdx = null;
+let fileName = localStorage.getItem("bfidc_fname") || "Current_Stock";
+
+function toggleInputs(){
+    let isLog = type.value === 'log';
+    ve_box.classList.toggle("hidden", isLog);
+    lbl1.innerText = isLog ? "Girth (Inch)" : "Width (Inch)";
+    render();
+}
+
+function setFileName(){ let n = prompt("Enter File Name:", fileName); if(n){ fileName=n; localStorage.setItem("bfidc_fname", n); save(); } }
+
+function save(){
+    localStorage.setItem("bfidc_data", JSON.stringify(items));
+    saveStatus.innerText = "✔ Auto-Saved: " + fileName;
 }
 
 function addItem(){
-    let tV=tree.value, typ=type.value, v1V=parseFloat(v1.value), v2V=parseFloat(v2.value), veV=parseFloat(ve.value)||0;
-    if(!v1V || !v2V)return alert("Empty Input!");
-    let cft=typ==="log"?((v1V/4)**2*v2V)/144:(v1V*veV*v2V)/144;
-    let pNo = editIndex !== null ? items[editIndex].piece : (items.filter(i=>i.tree==tV).length+1);
-    let data = {tree:tV, piece:pNo, type:typ, v1:v1V, v2:v2V, ve:veV, cft:+cft.toFixed(2)};
-    if(editIndex !== null){ items[editIndex] = data; editIndex = null; document.getElementById("addBtn").innerText = "ADD DATA (+)"; }
-    else { items.push(data); }
-    render(); autoSave();
-    v1.value="";v2.value="";ve.value=""; resetPiece();
+    let t=tree.value, ty=type.value, v1v=parseFloat(v1.value), v2v=parseFloat(v2.value), vev=parseFloat(ve.value)||0;
+    if(!v1v || !v2v) return alert("Data missing!");
+    
+    let cft = ty==='log' ? ((v1v/4)**2*v2v)/144 : (v1v*vev*v2v)/144;
+    let piece = editIdx!==null ? items[editIdx].piece : (items.filter(i=>i.tree==t).length + 1);
+    
+    let obj = {tree:t, piece:piece, type:ty, v1:v1v, v2:v2v, ve:vev, cft:+cft.toFixed(2)};
+    
+    if(editIdx!==null){ items[editIdx]=obj; editIdx=null; addBtn.innerText="ADD DATA (+)"; }
+    else items.push(obj);
+    
+    save(); render();
+    v1.value=""; v2.value=""; ve.value="";
+    v1.focus();
 }
 
 function startEdit(idx){
-    let i = items[idx]; editIndex = idx;
-    tree.value = i.tree; piece.value = i.piece; v1.value = i.v1; v2.value = i.v2; ve.value = i.ve; type.value = i.type;
-    document.getElementById("addBtn").innerText = "UPDATE (✔)";
-    toggleInputs(); window.scrollTo(0,0);
+    let i = items[idx]; editIdx = idx;
+    tree.value=i.tree; type.value=i.type; v1.value=i.v1; v2.value=i.v2; ve.value=i.ve;
+    addBtn.innerText="UPDATE DATA (✔)"; toggleInputs();
 }
 
 function render(){
-    let s=search.value?.toLowerCase()||"";
-    let typF=type.value;
-    let filtered=items.filter(i=>i.type===typF && i.tree.toString().includes(s));
-    let total=0, tSet=new Set();
-    filtered.forEach(i=>{total+=i.cft; tSet.add(i.tree)});
-    stats.innerHTML=`<div class="stat">Trees: ${tSet.size}</div><div class="stat">Pieces: ${filtered.length}</div><div class="stat">Total: ${total.toFixed(2)} CFT</div>`;
+    let s = search.value.toLowerCase();
+    let filtered = items.filter(i => i.type === type.value && i.tree.toString().includes(s));
     
-    // Header Logic
-    let headerText = "";
-    if(typF === 'log') {
-        headerText = `<div class="report-header">
-            <h3>weGdAvBwWwm, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ivevi evMvb n‡Z weGdAvBwWwm, Gjwcwm, KvßvB</h3>
-            <h3>‡c«i‡Yi Rb¨ KZ©bK…Z RxebPµ nviv‡bv ivevi Kv‡Vi mvBR wj÷|</h3>
-        </div>`;
-    } else { headerText = `<div style="height:30px"></div>`; }
+    let total=0, trees=new Set();
+    filtered.forEach(i=>{ total+=i.cft; trees.add(i.tree); });
 
-    let html=`<div class='page' id='printContent'>${headerText}<div class="multi-column-container"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
-    filtered.forEach(i=>{
-        let actualIdx = items.indexOf(i);
-        let sz=i.type=="log"?`${i.v1}"x${i.v2}'`:`${i.v1}"x${i.ve}"x${i.v2}'`;
-        html+=`<tr><td>${i.tree}/${i.piece}</td><td>${sz}</td><td>${i.cft}</td><td class="no-print"><button class="btn-edit" onclick="startEdit(${actualIdx})">Edit</button></td></tr>`;
+    let header = type.value==='log' ? `
+        <div class="report-header">
+            <h3>weGdAvBwWwm, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ivevi evMvb n‡Z weGdAvBwWwm, Gjwcwm, KvßvB</h3>
+            <h3>‡c«i‡Yi Rb¨ KZ©bK…Z RxebPµ nviv‡bv ivevi Kv‡Vi mvBR wj÷|</h3>
+        </div>` : `<div style="height:30px"></div>`;
+
+    let html = `<div class="page">${header}<div class="multi-column"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
+    
+    filtered.forEach((i) => {
+        let size = i.type==='log' ? `${i.v1}"x${i.v2}'` : `${i.v1}"x${i.ve}"x${i.v2}'`;
+        html += `<tr><td>${i.tree}/${i.piece}</td><td>${size}</td><td>${i.cft}</td><td class="no-print"><button style="padding:2px 5px;font-size:10px;width:auto;background:#3b82f6" onclick="startEdit(${items.indexOf(i)})">Edit</button></td></tr>`;
     });
-    html+=`</table></div><div class='summary'><span>Trees: ${tSet.size}</span><span>Pieces: ${filtered.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`;
-    document.getElementById("pagesArea").innerHTML=html;
+
+    html += `</table></div><div class="summary"><span>Trees: ${trees.size}</span><span>Pieces: ${filtered.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`;
+    printArea.innerHTML = html;
 }
 
-/* ===== BACKUP & EXPORT ===== */
-function exportExcel(){let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(items),"Data"); XLSX.writeFile(wb,currentFileName+".xlsx")}
-function backup(){let b=new Blob([JSON.stringify(localStorage)],{type:"application/json"}); let a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="ULTRA_PRO_BACKUP.json"; a.click();}
-function showHistory(){let h=JSON.parse(localStorage.getItem("bfidc_history"))||[]; historyList.innerHTML=h.map((x,i)=>`<div style="padding:10px;border-bottom:1px solid #334155;color:white"><b>${x.name}</b><button onclick="loadFromHistory(${i})" style="width:auto;float:right;padding:2px 8px; background:#22c55e">Load</button></div>`).join(''); historyModal.classList.remove("hidden")}
-function loadFromHistory(idx){ let h=JSON.parse(localStorage.getItem("bfidc_history"))[idx]; items=h.data; currentFileName=h.name; localStorage.setItem("bfidc_ultra_pro",JSON.stringify(items)); localStorage.setItem("bfidc_current_file",h.name); render(); closeHistory(); }
-function clearAll(){if(confirm("Delete All Data?")){items=[]; localStorage.removeItem("bfidc_ultra_pro"); render();}}
-function closeHistory(){historyModal.classList.add("hidden")}
+/* KEYBOARD NAVIGATION */
+document.addEventListener('keydown', e => {
+    let nav = Array.from(document.querySelectorAll('.nav-item')).filter(i=>!i.parentElement.classList.contains('hidden'));
+    let idx = nav.indexOf(document.activeElement);
+    if(e.key === 'Enter' && idx > -1){
+        e.preventDefault();
+        if(document.activeElement.id === 'v2') addItem();
+        else nav[idx+1]?.focus();
+    }
+});
 
-if(sessionStorage.getItem("active"))start();
-resetPiece();
+function backup(){
+    let b = new Blob([JSON.stringify(localStorage)], {type:"application/json"});
+    let a = document.createElement("a"); a.href=URL.createObjectURL(b); a.download="ULTRA_PRO_BACKUP.json"; a.click();
+}
+
+function clearAll(){ if(confirm("Clear everything?")){ items=[]; save(); render(); } }
+
+if(sessionStorage.getItem("activeUser")) startApp();
 </script>
 </body>
 </html>
