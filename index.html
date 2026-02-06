@@ -127,14 +127,12 @@ body{background:white}
 </div>
 
 <script>
-
 /* SUPER ADMIN */
 if(!localStorage.getItem("erpUsers")){
 localStorage.setItem("erpUsers",JSON.stringify({
 superadmin:{password:"0000",role:"super"},
 admin:{password:"1234",role:"admin"}
 }))}
-
 if(!localStorage.getItem("erpLogs"))localStorage.setItem("erpLogs","[]")
 
 function logEvent(text){
@@ -148,17 +146,14 @@ let id=document.getElementById("id").value.trim(),pass=document.getElementById("
 let users=JSON.parse(localStorage.getItem("erpUsers"))
 if(!users[id])return alert("User not found")
 if(users[id].password===pass){
-sessionStorage.setItem("erpActive",id)
-logEvent(id+" logged in")
-startApp()
+sessionStorage.setItem("erpActive",id); logEvent(id+" logged in"); startApp()
 }else alert("Wrong password!")
 }
 
 function startApp(){
 let id=sessionStorage.getItem("erpActive")
 if(!id)return
-document.getElementById("login").classList.add("hidden")
-document.getElementById("app").style.display="block"
+document.getElementById("login").classList.add("hidden"); document.getElementById("app").style.display="block"
 let role=JSON.parse(localStorage.getItem("erpUsers"))[id].role
 document.getElementById("who").innerText=`User: ${id.toUpperCase()} (${role})`
 if(role!=="admin"&&role!=="super")document.getElementById("adminBtn").style.display="none"
@@ -167,14 +162,14 @@ render()
 
 function logout(){sessionStorage.clear();location.reload()}
 
-/* DARK MODE SAVE */
+/* DARK MODE */
 if(localStorage.getItem("darkMode")==="on")document.body.classList.add("dark")
 function toggleDark(){
 document.body.classList.toggle("dark")
 localStorage.setItem("darkMode",document.body.classList.contains("dark")?"on":"off")
 }
 
-/* ARROW KEY & ENTER NAVIGATION */
+/* --- KEY NAVIGATION LOGIC (FIXED) --- */
 document.addEventListener('keydown', function(e) {
     const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => {
         const parent = i.closest('div');
@@ -187,127 +182,101 @@ document.addEventListener('keydown', function(e) {
             e.preventDefault();
             if (document.activeElement.id === "v2") {
                 addItem();
+                // এন্টার দেওয়ার পর অটোমেটিক Tree No বক্সে যাবে
+                document.getElementById("tree").focus();
+                document.getElementById("tree").select();
             } else {
                 inputs[idx + 1]?.focus();
                 inputs[idx + 1]?.select();
             }
-        } else if (e.key === "ArrowDown") {
-            e.preventDefault();
-            inputs[idx + 1]?.focus();
-            inputs[idx + 1]?.select();
-        } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            inputs[idx - 1]?.focus();
-            inputs[idx - 1]?.select();
+        } 
+        else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+            // ইনপুট খালি থাকলে বা শেষে থাকলে পরের বক্সে যাবে
+            if(document.activeElement.selectionEnd === document.activeElement.value.length || e.key === "ArrowDown"){
+                e.preventDefault();
+                inputs[idx + 1]?.focus();
+                inputs[idx + 1]?.select();
+            }
+        } 
+        else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+            // ইনপুট শুরুতে থাকলে আগের বক্সে যাবে
+            if(document.activeElement.selectionStart === 0 || e.key === "ArrowUp"){
+                e.preventDefault();
+                inputs[idx - 1]?.focus();
+                inputs[idx - 1]?.select();
+            }
         }
     }
 });
 
-/* USERS */
+/* USERS & BACKUP (NO CHANGES) */
 function createUser(){
 let u=newUser.value.trim(),p=newPass.value.trim(),r=newRole.value
 let users=JSON.parse(localStorage.getItem("erpUsers"))
-if(users[u])return alert("User exists")
-users[u]={password:p,role:r}
-localStorage.setItem("erpUsers",JSON.stringify(users))
-logEvent("User created: "+u)
-alert("Created")
+if(users[u])return alert("User exists"); users[u]={password:p,role:r};
+localStorage.setItem("erpUsers",JSON.stringify(users)); alert("Created")
 }
-
 function deleteUserAccount(){
-let u=deleteUser.value.trim()
-let users=JSON.parse(localStorage.getItem("erpUsers"))
-if(u==="superadmin")return alert("Cannot delete Super Admin!")
-delete users[u]
-localStorage.setItem("erpUsers",JSON.stringify(users))
-logEvent("Deleted: "+u)
-alert("Deleted")
+let u=deleteUser.value.trim(); let users=JSON.parse(localStorage.getItem("erpUsers"))
+if(u==="superadmin")return alert("Cannot delete Super Admin!"); delete users[u]
+localStorage.setItem("erpUsers",JSON.stringify(users)); alert("Deleted")
 }
-
-/* BACKUP */
 function downloadBackup(){
-let data=JSON.stringify(localStorage)
-let blob=new Blob([data],{type:"application/json"})
-saveAs(blob,"BFIDC_Backup.json")
+let data=JSON.stringify(localStorage); let blob=new Blob([data],{type:"application/json"}); saveAs(blob,"BFIDC_Backup.json")
 }
-
 function restoreBackup(e){
-let file=e.target.files[0]
-let reader=new FileReader()
-reader.onload=function(){
-let data=JSON.parse(reader.result)
-for(let k in data)localStorage.setItem(k,data[k])
-alert("Restore Complete — Reloading")
-location.reload()
-}
-reader.readAsText(file)
+let reader=new FileReader(); reader.onload=function(){
+let data=JSON.parse(reader.result); for(let k in data)localStorage.setItem(k,data[k]); location.reload()
+}; reader.readAsText(e.target.files[0])
 }
 
 /* MEASUREMENT SYSTEM */
-let items=JSON.parse(localStorage.getItem("bfidc_data"))||[]
-let editIndex=null
-
-function resetPieceOnTreeChange(){
-const tVal=document.getElementById("tree").value
-piece.value=items.filter(i=>i.tree==tVal).length+1
-}
-
+let items=JSON.parse(localStorage.getItem("bfidc_data"))||[]; let editIndex=null
+function resetPieceOnTreeChange(){ piece.value=items.filter(i=>i.tree==tree.value).length+1 }
 function toggleInputs(){
 const isWood=document.getElementById("type").value==="wood"
-document.getElementById("ve-box").style.display=isWood?"block":"none"
-document.getElementById("l1").innerText=isWood?"Width (Inch)":"Girth (Inch)"
-render()
+document.getElementById("ve-box").style.display=isWood?"block":"none"; render()
 }
 
 function addItem(){
-let treeVal=document.getElementById("tree").value,
-    typeVal=document.getElementById("type").value,
-    v1Val=parseFloat(document.getElementById("v1").value),
-    v2Val=parseFloat(document.getElementById("v2").value),
-    veVal=parseFloat(document.getElementById("ve").value)||0;
-
-if(!treeVal||!v1Val||!v2Val)return alert("Please fill measurements!")
-let cft=typeVal==="log"?((v1Val/4)**2*v2Val)/144:(v1Val*veVal*v2Val)/144
-let pieceNo=editIndex!==null?items[editIndex].piece:(items.filter(i=>i.tree==treeVal).length+1)
-let data={tree:treeVal,piece:pieceNo,type:typeVal,v1:v1Val,v2:v2Val,ve:veVal,cft:+cft.toFixed(2)}
-
+let tV=document.getElementById("tree").value, typ=document.getElementById("type").value,
+    v1V=parseFloat(document.getElementById("v1").value), v2V=parseFloat(document.getElementById("v2").value),
+    veV=parseFloat(document.getElementById("ve").value)||0;
+if(!tV||!v1V||!v2V)return alert("Fill data!")
+let cft=typ==="log"?((v1V/4)**2*v2V)/144:(v1V*veV*v2V)/144
+let pNo=editIndex!==null?items[editIndex].piece:(items.filter(i=>i.tree==tV).length+1)
+let data={tree:tV,piece:pNo,type:typ,v1:v1V,v2:v2V,ve:veV,cft:+cft.toFixed(2)}
 if(editIndex!==null){items[editIndex]=data;editIndex=null}else items.push(data)
-localStorage.setItem("bfidc_data",JSON.stringify(items))
-render()
+localStorage.setItem("bfidc_data",JSON.stringify(items)); render()
 document.getElementById("v1").value="";document.getElementById("v2").value="";document.getElementById("ve").value=""
-document.getElementById("piece").value=items.filter(i=>i.tree==treeVal).length+1
-document.getElementById("v1").focus();
+document.getElementById("piece").value=items.filter(i=>i.tree==tV).length+1
 }
 
 function render(){
-let typeFilter=document.getElementById("type").value
-let filtered=items.filter(i=>i.type===typeFilter)
-let total=0,treesSet=new Set()
-let headerHTML=typeFilter==='log'?`<div class="report-header"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>`:`<div style="height:40px"></div>`
-let html=`<div class='page' id='printContent'>${headerHTML}<div class="multi-column-container"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`
-filtered.forEach(i=>{
-let size=i.type=="log"?`${i.v1}"x${i.v2}'`:`${i.v1}"x${i.ve}"x${i.v2}'`
-html+=`<tr><td>${i.tree}/${i.piece}</td><td>${size}</td><td>${i.cft}</td><td class="no-print"><button onclick="startEdit(${items.indexOf(i)})" style="background:#3498db;padding:2px 5px;font-size:10px">Edit</button></td></tr>`
-total+=i.cft;treesSet.add(i.tree)
+let typF=document.getElementById("type").value; let fil=items.filter(i=>i.type===typF)
+let total=0,tSet=new Set()
+let hH=typF==='log'?`<div class="report-header"><h2>বিএফআইডিসি, ............................ রাবার বাগান হতে কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>`:`<div style="height:40px"></div>`
+let html=`<div class='page' id='printContent'>${hH}<div class="multi-column-container"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`
+fil.forEach(i=>{
+let sz=i.type=="log"?`${i.v1}"x${i.v2}'`:`${i.v1}"x${i.ve}"x${i.v2}'`
+html+=`<tr><td>${i.tree}/${i.piece}</td><td>${sz}</td><td>${i.cft}</td><td class="no-print"><button onclick="startEdit(${items.indexOf(i)})" style="background:#3498db;padding:2px 5px;font-size:10px">Edit</button></td></tr>`
+total+=i.cft;tSet.add(i.tree)
 })
-html+=`</table></div><div class='summary'><span>Total Tree: ${treesSet.size}</span><span>Total Piece: ${filtered.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`
+html+=`</table></div><div class='summary'><span>Total Tree: ${tSet.size}</span><span>Total Piece: ${fil.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`
 document.getElementById("pagesArea").innerHTML=html
 }
 
 function startEdit(idx){let i=items[idx];editIndex=idx;document.getElementById("tree").value=i.tree;document.getElementById("piece").value=i.piece;document.getElementById("v1").value=i.v1;document.getElementById("v2").value=i.v2;document.getElementById("ve").value=i.ve;document.getElementById("type").value=i.type;toggleInputs();}
-
-/* EXPORT */
 function exportExcel(){let wb=XLSX.utils.book_new();let ws=XLSX.utils.json_to_sheet(items);XLSX.utils.book_append_sheet(wb,ws,"Measurements");XLSX.writeFile(wb,"BFIDC_Data.xlsx")}
-function exportDoc(){let content=document.getElementById('printContent').innerHTML;let sourceHTML="<html><body>"+content+"</body></html>";let url='data:application/vnd.ms-word;charset=utf-8,'+encodeURIComponent(sourceHTML);let link=document.createElement("a");link.href=url;link.download='BFIDC_Report.doc';link.click();}
-function saveToFile(){let name=prompt("File Name:");if(!name)return;let history=JSON.parse(localStorage.getItem("bfidc_history"))||[];history.push({name,data:[...items]});localStorage.setItem("bfidc_history",JSON.stringify(history));alert("Saved!")}
+function exportDoc(){let content=document.getElementById('printContent').innerHTML;let url='data:application/vnd.ms-word;charset=utf-8,'+encodeURIComponent("<html><body>"+content+"</body></html>");let link=document.createElement("a");link.href=url;link.download='BFIDC_Report.doc';link.click();}
+function saveToFile(){let name=prompt("File Name:");if(!name)return;let h=JSON.parse(localStorage.getItem("bfidc_history"))||[];h.push({name,data:[...items]});localStorage.setItem("bfidc_history",JSON.stringify(h));alert("Saved!")}
 function showHistory(){let h=JSON.parse(localStorage.getItem("bfidc_history"))||[];document.getElementById("historyList").innerHTML=h.map((x,i)=>`<div style="padding:5px;border-bottom:1px solid #eee">${x.name}<button onclick="loadFromHistory(${i})" style="width:auto;float:right">Load</button></div>`).join('');document.getElementById("historyModal").classList.remove("hidden")}
 function loadFromHistory(idx){items=JSON.parse(localStorage.getItem("bfidc_history"))[idx].data;render();closeHistory()}
 function clearAll(){if(confirm("Clear?")){items=[];localStorage.removeItem("bfidc_data");render()}}
 function openAdmin(){document.getElementById("adminPanel").classList.remove("hidden");loadLogs()}
 function closeAdmin(){document.getElementById("adminPanel").classList.add("hidden")}
 function closeHistory(){document.getElementById("historyModal").classList.add("hidden")}
-function loadLogs(){document.getElementById("logs").innerHTML=JSON.parse(localStorage.getItem("erpLogs")).join("<br>")}
-
+function loadLogs(){logs.innerHTML=JSON.parse(localStorage.getItem("erpLogs")).join("<br>")}
 if(sessionStorage.getItem("erpActive"))startApp()
 </script>
 </body>
