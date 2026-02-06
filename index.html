@@ -41,7 +41,7 @@ header{position:sticky;top:0;background:#020617;color:white;padding:12px;display
     color: black;
     box-sizing: border-box;
 }
-.report-header{text-align:center;margin-bottom:20px;font-family:'SutonnyMJ'}
+.report-header{text-align:center;margin-bottom:20px;font-family:'SutonnyMJ'; line-height: 1.2;}
 .multi-column-container{column-count:2;column-gap:40px}
 table {
     width: 100%;
@@ -135,13 +135,12 @@ th { background: #f3f4f6; }
 </div>
 
 <script>
-/* ===== ULTRA SECURITY (FROM BOSS CODE) ===== */
+/* ===== SECURITY & NAVIGATION ===== */
 async function hash(t){
     const e=new TextEncoder().encode(t);
     const b=await crypto.subtle.digest('SHA-256',e);
     return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
 }
-
 (async()=>{
     if(!localStorage.getItem("users")){
         localStorage.setItem("users",JSON.stringify({
@@ -157,9 +156,7 @@ async function login(){
     if(users[id] && users[id].password===p){ sessionStorage.setItem("active",id); start(); }
     else alert("Access Denied");
 }
-
 function logout(){sessionStorage.clear();location.reload()}
-
 function start(){
     document.getElementById("login").classList.add("hidden");
     document.getElementById("app").style.display="block";
@@ -167,7 +164,6 @@ function start(){
     render();
 }
 
-/* ===== ARROW KEY NAVIGATION ===== */
 document.addEventListener('keydown', function(e) {
     const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.closest('div').style.display !== 'none');
     const idx = inputs.indexOf(document.activeElement);
@@ -184,7 +180,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-/* ===== DATA ENGINE & AUTO SAVE ===== */
+/* ===== CORE ENGINE ===== */
 let items=JSON.parse(localStorage.getItem("bfidc_ultra"))||[];
 let editIndex=null;
 let currentFileName = localStorage.getItem("bfidc_current_file") || "AutoSave_Default";
@@ -199,7 +195,7 @@ function toggleInputs(){
 }
 
 function setFileName(){
-    let n = prompt("File Name for Auto-Save:", currentFileName);
+    let n = prompt("File Name:", currentFileName);
     if(n){ currentFileName = n; localStorage.setItem("bfidc_current_file", n); autoSave(); }
 }
 
@@ -216,14 +212,11 @@ function autoSave(){
 function addItem(){
     let tV=tree.value, typ=type.value, v1V=parseFloat(v1.value), v2V=parseFloat(v2.value), veV=parseFloat(ve.value)||0;
     if(!v1V || !v2V)return alert("Missing Data!");
-    
     let cft=typ==="log"?((v1V/4)**2*v2V)/144:(v1V*veV*v2V)/144;
     let pNo = editIndex !== null ? items[editIndex].piece : (items.filter(i=>i.tree==tV).length+1);
     let data = {tree:tV, piece:pNo, type:typ, v1:v1V, v2:v2V, ve:veV, cft:+cft.toFixed(2)};
-    
     if(editIndex !== null){ items[editIndex] = data; editIndex = null; document.getElementById("addBtn").innerText = "ADD DATA (+)"; }
     else { items.push(data); }
-    
     render(); autoSave();
     v1.value="";v2.value="";ve.value=""; resetPiece();
 }
@@ -239,31 +232,38 @@ function render(){
     let s=search.value?.toLowerCase()||"";
     let typF=type.value;
     let filtered=items.filter(i=>i.type===typF && i.tree.toString().includes(s));
-    
     let total=0, tSet=new Set();
     filtered.forEach(i=>{total+=i.cft; tSet.add(i.tree)});
-    
     stats.innerHTML=`<div class="stat">Trees: ${tSet.size}</div><div class="stat">Pieces: ${filtered.length}</div><div class="stat">Total: ${total.toFixed(2)} CFT</div>`;
     
-    let hHTML=typF==='log'?`<div class="report-header"><h2>বিএফআইডিসি, ............................ কাপ্তাই</h2><h3>গোল কাঠের মেজারমেন্ট স্লিপ</h3></div>`:`<div style="height:40px"></div>`;
-    let html=`<div class='page' id='printContent'>${hHTML}<div class="multi-column-container"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
-    
+    // --- Special Header Logic ---
+    let headerText = "";
+    if(typF === 'log') {
+        headerText = `
+        <div class="report-header">
+            <h3>weGdAvBwWwm, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ivevi evMvb n‡Z weGdAvBwWwm, Gjwcwm, KvßvB</h3>
+            <h3>‡c«i‡Yi Rb¨ KZ©bK…Z RxebPµ nviv‡bv ivevi Kv‡Vi mvBR wj÷|</h3>
+        </div>`;
+    } else {
+        headerText = `<div style="height:40px"></div>`; // No header for wood
+    }
+
+    let html=`<div class='page' id='printContent'>${headerText}<div class="multi-column-container"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
     filtered.forEach(i=>{
         let actualIdx = items.indexOf(i);
         let sz=i.type=="log"?`${i.v1}"x${i.v2}'`:`${i.v1}"x${i.ve}"x${i.v2}'`;
         html+=`<tr><td>${i.tree}/${i.piece}</td><td>${sz}</td><td>${i.cft}</td><td class="no-print"><button class="btn-edit" onclick="startEdit(${actualIdx})">Edit</button></td></tr>`;
     });
-    
     html+=`</table></div><div class='summary'><span>Trees: ${tSet.size}</span><span>Pieces: ${filtered.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`;
     document.getElementById("pagesArea").innerHTML=html;
 }
 
-/* ===== EXPORTS & BACKUP ===== */
+/* ===== EXPORTS ===== */
 function exportExcel(){let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(items),"Data"); XLSX.writeFile(wb,currentFileName+".xlsx")}
 function backup(){let b=new Blob([JSON.stringify(localStorage)],{type:"application/json"}); let a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="ULTRA_BACKUP.json"; a.click();}
 function showHistory(){let h=JSON.parse(localStorage.getItem("bfidc_history"))||[]; historyList.innerHTML=h.map((x,i)=>`<div style="padding:10px;border-bottom:1px solid #334155;color:white"><b>${x.name}</b><button onclick="loadFromHistory(${i})" style="width:auto;float:right;padding:2px 8px">Load</button></div>`).join(''); historyModal.classList.remove("hidden")}
 function loadFromHistory(idx){ let h=JSON.parse(localStorage.getItem("bfidc_history"))[idx]; items=h.data; currentFileName=h.name; localStorage.setItem("bfidc_ultra",JSON.stringify(items)); localStorage.setItem("bfidc_current_file",h.name); render(); closeHistory(); }
-function clearAll(){if(confirm("Delete All?")){items=[]; localStorage.removeItem("bfidc_ultra"); render();}}
+function clearAll(){if(confirm("Delete All Data?")){items=[]; localStorage.removeItem("bfidc_ultra"); render();}}
 function closeHistory(){historyModal.classList.add("hidden")}
 
 if(sessionStorage.getItem("active"))start();
