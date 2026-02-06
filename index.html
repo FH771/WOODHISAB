@@ -95,7 +95,7 @@ body{background:white}
 <div><label>Tree No</label><input id="tree" value="1" oninput="resetPieceOnTreeChange()" class="nav-item"></div>
 <div><label>Piece</label><input id="piece" value="1" readonly style="background:#f9f9f9"></div>
 <div><label>Type</label>
-<select id="type" onchange="toggleInputs()" class="nav-item">
+<select id="type" onchange="toggleInputs()">
 <option value="log">Round Log</option>
 <option value="wood">Sawn Wood</option>
 </select>
@@ -159,7 +159,6 @@ document.getElementById("who").innerText=`User: ${id.toUpperCase()} (${role})`
 if(role!=="admin"&&role!=="super")document.getElementById("adminBtn").style.display="none"
 render()
 }
-
 function logout(){sessionStorage.clear();location.reload()}
 
 /* DARK MODE */
@@ -169,8 +168,9 @@ document.body.classList.toggle("dark")
 localStorage.setItem("darkMode",document.body.classList.contains("dark")?"on":"off")
 }
 
-/* --- KEY NAVIGATION LOGIC (FIXED) --- */
+/* --- KEY NAVIGATION LOGIC (TYPE DROPDOWN SKIPPED) --- */
 document.addEventListener('keydown', function(e) {
+    // শুধুমাত্র .nav-item ক্লাস থাকা বক্সগুলোতে নেভিগেট করবে (Type ড্রপডাউন স্কিপ করবে)
     const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => {
         const parent = i.closest('div');
         return parent && parent.style.display !== 'none';
@@ -182,7 +182,6 @@ document.addEventListener('keydown', function(e) {
             e.preventDefault();
             if (document.activeElement.id === "v2") {
                 addItem();
-                // এন্টার দেওয়ার পর অটোমেটিক Tree No বক্সে যাবে
                 document.getElementById("tree").focus();
                 document.getElementById("tree").select();
             } else {
@@ -191,7 +190,6 @@ document.addEventListener('keydown', function(e) {
             }
         } 
         else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-            // ইনপুট খালি থাকলে বা শেষে থাকলে পরের বক্সে যাবে
             if(document.activeElement.selectionEnd === document.activeElement.value.length || e.key === "ArrowDown"){
                 e.preventDefault();
                 inputs[idx + 1]?.focus();
@@ -199,7 +197,6 @@ document.addEventListener('keydown', function(e) {
             }
         } 
         else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-            // ইনপুট শুরুতে থাকলে আগের বক্সে যাবে
             if(document.activeElement.selectionStart === 0 || e.key === "ArrowUp"){
                 e.preventDefault();
                 inputs[idx - 1]?.focus();
@@ -209,7 +206,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-/* USERS & BACKUP (NO CHANGES) */
+/* USERS & BACKUP */
 function createUser(){
 let u=newUser.value.trim(),p=newPass.value.trim(),r=newRole.value
 let users=JSON.parse(localStorage.getItem("erpUsers"))
