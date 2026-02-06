@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDC ERP - ARROW KEY FIXED</title>
+<title>BFIDC ERP - FAST NAVIGATION</title>
 
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://accounts.google.com/gsi/client"></script>
@@ -12,17 +12,17 @@
 <style>
 @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
 body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white; -webkit-tap-highlight-color: transparent;}
-header{position:sticky; top:0; background:#020617; padding:10px; display:flex; justify-content:space-between; align-items:center; z-index:999; box-shadow:0 2px 8px rgba(0,0,0,0.5);}
+header{position:sticky; top:0; background:#020617; padding:10px; display:flex; justify-content:space-between; align-items:center; z-index:999;}
 .card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
 .grid-inputs{display:grid; grid-template-columns: repeat(2, 1fr); gap:8px}
 input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; }
 input:focus { border-color:#22c55e; outline:none; background:#f0fdf4; }
 
 .report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; color: black; }
-.report-header h3 { margin: 2px 0; font-size: 21px; font-weight: normal; }
+.report-header h3 { margin: 2px 0; font-size: 20px; font-weight: normal; }
 .page { background: white; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 10mm; color: black; box-sizing: border-box; display: flex; flex-direction: column; }
 .multi-column { column-count: 2; column-gap: 30px; flex-grow: 1; }
-table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin-bottom: 10px; }
+table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
 th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; }
 .summary-container { margin-top: auto; padding-top: 20px; }
 .summary-table { width: 50%; border: 2px solid #000; }
@@ -77,15 +77,21 @@ th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13
 </div>
 
 <script>
-// --- অ্যারো কী নেভিগেশন মেইন লজিক ---
+// --- স্মার্ট নেভিগেশন লজিক ---
 function move(e, next) {
     if (e.key === "Enter" || e.key === "ArrowDown") {
         e.preventDefault();
-        // যদি গোল কাঠ হয় তবে v1 থেকে সরাসরি v2 তে যাবে
-        if (next === 'v2' && type.value === 'wood' && e.target.id === 'v1') {
+        // গাছ নং থেকে সরাসরি বেড়ে (v1) যাবে
+        if (e.target.id === 'tree') {
+            document.getElementById('v1').focus();
+        } 
+        // গোল কাঠ হলে v1 থেকে সরাসরি v2 তে যাবে (পুরুত্ব স্কিপ করবে)
+        else if (next === 'v2' && type.value === 'wood' && e.target.id === 'v1') {
             document.getElementById('ve').focus();
-        } else if (next === 'save') {
-            addItem(); // v2 তে এন্টার দিলে অটো সেভ হবে
+        } 
+        // লম্বা (v2) বক্সে এন্টার দিলে সেভ হবে
+        else if (next === 'save') {
+            addItem();
         } else {
             document.getElementById(next).focus();
         }
@@ -97,7 +103,7 @@ function move(e, next) {
     }
 }
 
-// --- বাকি সব লজিক আগের মতোই ---
+// --- অ্যাপ লজিক ---
 const CLIENT_ID = '234418632833-gv6d3hqpnfjeodsi21t2g6afkh81o95i.apps.googleusercontent.com'; 
 const API_KEY = 'AIzaSyDvmF9t7WvsUvZLs5tFjGVfxTaQxsOKRJs'; 
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
@@ -110,6 +116,7 @@ function handleAuthClick() {
     tokenClient.callback = async (resp) => { auth_btn.classList.add('hidden'); sync_btn.classList.remove('hidden'); load_btn.classList.remove('hidden'); sync_status.innerText = "☁️ Connected"; };
     tokenClient.requestAccessToken({prompt: 'consent'});
 }
+
 async function saveToDrive() {
     sync_status.innerText = "Saving...";
     const res = await gapi.client.drive.files.list({ q: "name = 'wood_data.json' and trashed = false" });
@@ -119,6 +126,7 @@ async function saveToDrive() {
     await fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }, body: blob });
     sync_status.innerText = "✅ Saved!";
 }
+
 async function loadFromDrive() {
     const res = await gapi.client.drive.files.list({ q: "name = 'wood_data.json' and trashed = false" });
     if (res.result.files.length > 0) {
@@ -141,7 +149,9 @@ function addItem() {
     if(editIdx!==null) { items[editIdx] = data; editIdx = null; addBtn.innerText = "সেভ করুন (ENTER)"; } else items.push(data);
     localStorage.setItem("bfidc_data", JSON.stringify(items));
     v1.value=""; v2.value=""; ve.value=""; updatePiece(); render();
-    document.getElementById('v1').focus(); // সেভ হওয়ার পর কার্সার v1 এ ফিরে আসবে
+    
+    // সেভ হওয়ার পর কার্সার আবার 'গাছ নং' বক্সে যাবে আপনার চাহিদা অনুযায়ী
+    document.getElementById('tree').focus(); 
 }
 
 function deleteItem(idx) { if(confirm("Delete?")) { items.splice(idx, 1); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); } }
