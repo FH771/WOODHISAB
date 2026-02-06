@@ -3,45 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC Wood System - Edit & Navigation Pro</title>
+    <title>BFIDC Wood System - Pro Fix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         @page { size: A4; margin: 10mm; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1b5e20; margin: 0; padding: 0; }
-        
         #login-screen, #history-modal { display: flex; justify-content: center; align-items: center; height: 100vh; position: fixed; width: 100%; top: 0; left: 0; z-index: 1000; background: rgba(27, 94, 32, 0.95); padding: 15px; box-sizing: border-box; }
         .box { background: white; padding: 25px; border-radius: 15px; text-align: center; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .box input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         .box button { background: #2e7d32; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 8px; font-size: 16px; }
-
         #main-wrapper { display: none; background: #f0f2f5; min-height: 100vh; padding: 10px; }
         .no-print { background: white; padding: 15px; max-width: 980px; margin: 0 auto 10px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        
         .input-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 15px; }
         @media (max-width: 768px) { .input-grid { grid-template-columns: repeat(2, 1fr); } }
-
         .input-grid label { font-size: 11px; font-weight: bold; display: block; margin-bottom: 4px; }
         .input-grid input, .input-grid select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
-
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-group button { flex: 1; min-width: 80px; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; font-size: 13px; }
-        
         .page { background: white; width: 210mm; min-height: 297mm; padding: 10mm 12mm; margin: 10px auto; display: flex; flex-direction: column; box-shadow: 0 0 10px rgba(0,0,0,0.1); border: 1px solid #ddd; overflow: hidden; position: relative;}
         .table-container { display: flex; border: 1.5px solid black; flex-grow: 1; }
         .sub-table { width: 50%; border-collapse: collapse; }
         .sub-table th, .sub-table td { border: 1px solid black; padding: 4px; text-align: center; font-size: 11px; height: 26px; }
-        
         .del-btn { color: red; cursor: pointer; border: none; background: none; font-size: 12px; padding: 0 5px; }
         .edit-btn { color: #1565c0; cursor: pointer; border: none; background: none; font-size: 12px; padding: 0 5px; }
         .summary-box { margin-top: 10px; border: 2.5px solid black; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; font-size: 15px; }
-
-        @media print { 
-            .no-print, .del-btn, .edit-btn, #login-screen, #history-modal { display: none !important; } 
-            .page { margin: 0; border: none; width: 210mm; display: flex !important; box-shadow: none; } 
-            .table-container { flex-direction: row !important; }
-            .sub-table { width: 50% !important; }
-        }
+        @media print { .no-print, .del-btn, .edit-btn, #login-screen, #history-modal { display: none !important; } .page { margin: 0; border: none; width: 210mm; display: flex !important; box-shadow: none; } .table-container { flex-direction: row !important; } .sub-table { width: 50% !important; } }
     </style>
 </head>
 <body>
@@ -69,7 +56,6 @@
             <span>ইউজার: <strong id="active-user"></strong></span>
             <button onclick="logout()" style="background:#333; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Logout</button>
         </div>
-
         <div class="input-grid">
             <div><label>গাছ নং</label><input type="number" id="tNo" value="1" oninput="resetPieceNo()" class="nav-item"></div>
             <div><label>পিস নং</label><input type="number" id="pNo" value="1" class="nav-item"></div>
@@ -83,7 +69,6 @@
             <div id="ve-box" style="display:none;"><label>পুরুত্ব (ইঞ্চি)</label><input type="number" id="ve" class="nav-item"></div>
             <div><label>লম্বা (ফুট)</label><input type="number" id="v2" class="nav-item"></div>
         </div>
-        
         <div class="btn-group">
             <button onclick="addItem()" id="addBtn" style="background:#2e7d32; flex: 1.5;">যোগ করুন (+)</button>
             <button onclick="saveAndDownloadDoc()" style="background:#ff9800;">Save & Doc</button>
@@ -98,8 +83,8 @@
 <script>
     let items = [];
     let editIndex = null;
-    let masterUser = localStorage.getItem('masterUser') || "admin";
-    let masterPass = localStorage.getItem('masterPass') || "1234";
+    let masterUser = "admin";
+    let masterPass = "1234";
 
     function attemptLogin() {
         const id = document.getElementById('loginId').value.trim();
@@ -122,7 +107,6 @@
 
     function logout() { sessionStorage.clear(); location.reload(); }
 
-    // Arrow Navigation
     document.addEventListener('keydown', (e) => {
         const inputs = Array.from(document.querySelectorAll('.nav-item')).filter(i => i.parentElement.style.display !== 'none');
         const idx = inputs.indexOf(document.activeElement);
@@ -170,7 +154,10 @@
         renderPages();
         document.getElementById('v1').value = ""; document.getElementById('v2').value = "";
         if(ve) document.getElementById('ve').value = "";
-        document.getElementById('v1').focus();
+        
+        // এন্টার দেওয়ার পর গাছ নং (tNo) বক্সে ফোকাস হবে
+        document.getElementById('tNo').focus();
+        document.getElementById('tNo').select(); 
     }
 
     function startEdit(index) {
@@ -182,7 +169,6 @@
         document.getElementById('v1').value = itm.v1;
         document.getElementById('v2').value = itm.v2;
         if(itm.type === 'wood') document.getElementById('ve').value = itm.ve;
-        
         toggleInputs();
         document.getElementById('addBtn').innerText = "আপডেট করুন (✔)";
         document.getElementById('addBtn').style.background = "#1565c0";
@@ -214,40 +200,25 @@
                         let itm = filteredItems[idx];
                         let realIdx = items.indexOf(itm);
                         let m = itm.type === 'log' ? `${itm.v1}"x${itm.v2}'` : `${itm.v1}"x${itm.ve}"x${itm.v2}'`;
-                        table += `<tr>
-                            <td>${itm.tNo}/${itm.pNo}</td>
-                            <td>${m}</td>
-                            <td>${itm.cft}</td>
-                            <td class="no-print">
-                                <button class="edit-btn" onclick="startEdit(${realIdx})"><i class="fas fa-edit"></i></button>
-                                <button class="del-btn" onclick="deleteItem(${realIdx})"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>`;
+                        table += `<tr><td>${itm.tNo}/${itm.pNo}</td><td>${m}</td><td>${itm.cft}</td><td class="no-print"><button class="edit-btn" onclick="startEdit(${realIdx})"><i class="fas fa-edit"></i></button><button class="del-btn" onclick="deleteItem(${realIdx})"><i class="fas fa-trash"></i></button></td></tr>`;
                         total += itm.cft; trees.add(itm.tNo);
                     } else table += `<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="no-print">&nbsp;</td></tr>`;
                 } table += `</table>`;
             }
-
             let title = (currentType === 'log') ? "গোল কাঠের মেজারমেন্ট স্লিপ" : "সাইজ কাঠের মেজারমেন্ট স্লিপ";
-            let headerHTML = `<div style="text-align:center">
-                <h2>বিএফআইডিসি, ${currentType === 'log' ? '............................ রাবার বাগান হতে' : ''} কাপ্তাই</h2>
-                <h3 style="border-bottom:1px solid black; display:inline-block; padding:0 10px;">${title}</h3>
-            </div>`;
+            let headerHTML = `<div style="text-align:center"><h2>বিএফআইডিসি, ${currentType === 'log' ? '............................ রাবার বাগান হতে' : ''} কাপ্তাই</h2><h3 style="border-bottom:1px solid black; display:inline-block; padding:0 10px;">${title}</h3></div>`;
             pageDiv.innerHTML = headerHTML + table + `</div>`;
-            if (p === pageCount - 1) {
-                pageDiv.innerHTML += `<div class="summary-box"><span>গাছ: ${trees.size}</span><span>পিস: ${filteredItems.length}</span><span>মোট: ${total.toFixed(2)} CFT</span></div>`;
-            }
+            if (p === pageCount - 1) pageDiv.innerHTML += `<div class="summary-box"><span>গাছ: ${trees.size}</span><span>পিস: ${filteredItems.length}</span><span>মোট: ${total.toFixed(2)} CFT</span></div>`;
             area.appendChild(pageDiv);
         }
     }
 
     function saveAndDownloadDoc() {
         if(items.length === 0) return;
-        let fileName = prompt("ফাইলের নাম:", "Wood_Report");
+        let fileName = prompt("ফাইলের নাম দিন:", "Wood_Report_" + new Date().toLocaleDateString());
         if(!fileName) return;
-
         let content = document.getElementById('pages-area').innerHTML;
-        let sourceHTML = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>table{border-collapse:collapse; width:100%;} th, td{border:1px solid black; padding:5px; text-align:center;}</style></head><body>" + content + "</body></html>";
+        let sourceHTML = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>table{border-collapse:collapse; width:100%;} th, td{border:1px solid black; padding:5px; text-align:center; font-size:12px;}</style></head><body>" + content + "</body></html>";
         let blob = new Blob(['\ufeff', sourceHTML], { type: 'application/msword' });
         saveAs(blob, fileName + ".doc");
     }
@@ -255,7 +226,7 @@
     function showHistory() {
         let history = JSON.parse(localStorage.getItem('woodHistory') || "[]");
         let content = document.getElementById('history-content');
-        content.innerHTML = history.reverse().map((h, i) => `<div style='border-bottom:1px solid #eee; padding:8px; display:flex; justify-content:space-between;'><span>${h.date}</span> <button onclick='loadHistory(${history.length-1-i})' style='background:#2e7d32; color:white; border:none; border-radius:4px; padding:3px 8px;'>Load</button></div>`).join('');
+        content.innerHTML = history.length === 0 ? "খালি" : history.reverse().map((h, i) => `<div style='border-bottom:1px solid #eee; padding:8px; display:flex; justify-content:space-between;'><span>${h.date}</span> <button onclick='loadHistory(${history.length-1-i})' style='background:#2e7d32; color:white; border:none; border-radius:4px; padding:3px 8px;'>Load</button></div>`).join('');
         document.getElementById('history-modal').style.display = 'flex';
     }
 
@@ -265,7 +236,6 @@
         document.getElementById('type').value = history[idx].type;
         toggleInputs(); renderPages(); closeHistory();
     }
-
     function closeHistory() { document.getElementById('history-modal').style.display = 'none'; }
     function finishWork() { if(confirm("সব ক্লিয়ার করবেন?")) { items=[]; renderPages(); } }
 </script>
