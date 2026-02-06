@@ -15,8 +15,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;margin:0;transit
 #loginLayer {position:fixed;inset:0;background:#020617;display:flex;align-items:center;justify-content:center;z-index:9999}
 .box{background:#111827;padding:25px;border-radius:14px;width:320px;box-shadow:0 10px 25px rgba(0,0,0,.5);text-align:center}
 input,select,button{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:none;box-sizing:border-box;background:#1e293b;color:white}
-button{background:#22c55e;color:white;font-weight:bold;cursor:pointer;transition: 0.2s;}
-button:hover{opacity: 0.8;}
+button{background:#22c55e;color:white;font-weight:bold;cursor:pointer}
 
 /* APP AREA */
 #appArea{display:none;background:#f4f7f6;min-height:100vh;color:black}
@@ -25,11 +24,7 @@ header{position:sticky;top:0;background:#020617;color:white;padding:12px;display
 .grid-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
 
 /* A4 PRINT & COLUMN FLOW */
-.page {
-    background: white; width: 210mm; min-height: 297mm;
-    margin: 10px auto; padding: 15mm; border: 1px solid #ddd;
-    color: black; box-sizing: border-box; overflow: hidden;
-}
+.page { background: white; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 15mm; border: 1px solid #ddd; color: black; box-sizing: border-box; }
 .report-header{text-align:center;margin-bottom:20px;font-family:'SutonnyMJ'; line-height: 1.3;}
 .multi-column { column-count: 2; column-gap: 40px; column-fill: auto; height: 215mm; }
 
@@ -40,14 +35,8 @@ th { background: #f3f4f6; }
 .summary{border:2px solid black;padding:12px;margin-top:10px;font-weight:bold;display:flex;justify-content:space-between;font-size:16px}
 .hidden{display:none!important}
 
-/* Mobile Responsive */
-@media (max-width: 600px) {
-    .page { width: 100%; height: auto; padding: 5mm; }
-    .multi-column { column-count: 1; height: auto; }
-}
-
 @media print {
-    header, .no-print, #loginLayer, #adminPanel, .btn-edit, .save-status {display:none!important}
+    header, .no-print, #loginLayer, #adminPanel, .btn-edit {display:none!important}
     body {background: white}
     .page { margin: 0; border: none; width: 100%; padding: 10mm; }
     @page { size: A4; margin: 0; }
@@ -58,7 +47,7 @@ th { background: #f3f4f6; }
 
 <div id="loginLayer">
   <div class="box">
-    <h2 style="color:white; margin-bottom: 20px;">BFIDC ERP LOGIN</h2>
+    <h2 style="color:white">BFIDC ERP LOGIN</h2>
     <input id="uID" placeholder="User ID">
     <input id="uPass" type="password" placeholder="Password">
     <button onclick="handleLogin()">Login</button>
@@ -68,8 +57,8 @@ th { background: #f3f4f6; }
 
 <div id="appArea">
 <header>
-    <div id="who" style="font-size: 14px; border-bottom: 1px solid #22c55e;"></div>
-    <div style="font-weight:bold; letter-spacing: 1px;">🔥 ULTRA BOSS ERP</div>
+    <div id="who"></div>
+    <div style="font-weight:bold">🔥 ULTRA BOSS ERP</div>
     <div style="display:flex;gap:10px">
         <button id="adminBtn" class="hidden" onclick="toggleAdmin()" style="background:#f59e0b;width:auto;padding:5px 12px">⚙️ Users</button>
         <button onclick="backup()" style="background:#3b82f6;width:auto;padding:5px 12px">Backup</button>
@@ -78,19 +67,18 @@ th { background: #f3f4f6; }
 </header>
 
 <div id="adminPanel" class="card no-print hidden">
-    <h4 style="margin-top:0">User Management (Admin Only)</h4>
+    <h4>User Management</h4>
     <div class="grid-inputs">
-        <input id="newU" placeholder="New User ID">
+        <input id="newU" placeholder="New ID">
         <input id="newP" placeholder="New Password">
-        <button onclick="addUser()" style="background: #22c55e;">Save / Reset User</button>
+        <button onclick="addUser()">Save/Reset User</button>
     </div>
-    <div id="userListDisplay" style="margin-top:10px; font-size: 12px; color: #64748b;"></div>
 </div>
 
 <div class="card no-print">
     <div class="grid-inputs">
         <div>Tree No<input id="tree" value="1" oninput="updatePiece()" class="nav-item"></div>
-        <div>Piece<input id="piece" readonly style="background:#e2e8f0; font-weight: bold; color: #1e293b;"></div>
+        <div>Piece<input id="piece" readonly style="background:#e2e8f0"></div>
         <div>Type
             <select id="type" onchange="toggleInputs()" class="nav-item">
                 <option value="log">Round Log</option>
@@ -98,77 +86,58 @@ th { background: #f3f4f6; }
             </select>
         </div>
         <div><span id="labelV1">Girth (Inch)</span><input id="v1" class="nav-item"></div>
-        <div id="thickBox" class="hidden">Thickness (Inch)<input id="ve" class="nav-item"></div>
+        <div id="thickBox" class="hidden">Thickness<input id="ve" class="nav-item"></div>
         <div>Length (Foot)<input id="v2" class="nav-item"></div>
     </div>
-    <button onclick="addItem()" id="addBtn" style="margin-top:15px; background:#22c55e; height: 50px; font-size: 18px;">ADD DATA (+)</button>
+    <button onclick="addItem()" id="addBtn" style="margin-top:15px; background:#22c55e">ADD DATA (+)</button>
     
     <div class="grid-inputs" style="margin-top:10px">
         <button onclick="exportExcel()" style="background:#16a34a">Excel Export</button>
         <button onclick="window.print()" style="background:#475569">Print A4 Report</button>
-        <button onclick="setFileName()" style="background:#8b5cf6">Set File Name</button>
         <button onclick="clearAll()" style="background:#dc2626">Clear All Data</button>
     </div>
-    <div id="status" class="save-status" style="text-align: right; font-size: 12px; color: #16a34a; margin-top: 5px; font-weight: bold;"></div>
 </div>
 
 <div id="printArea"></div>
 </div>
 
 <script>
-/* --- CONFIG & STORAGE --- */
-let items = JSON.parse(localStorage.getItem("bfidc_data")) || [];
-let editIdx = null;
-let fileName = localStorage.getItem("bfidc_fname") || "BFIDC_Report";
-
-/* --- SECURITY & LOGIN --- */
+/* SECURITY & LOGIN */
 function handleLogin() {
     let id = uID.value.trim().toLowerCase();
     let ps = uPass.value.trim();
     let users = JSON.parse(localStorage.getItem("bfidc_users")) || {"admin": "0000"};
-    
-    if(users[id] && users[id] === ps) {
-        sessionStorage.setItem("active", id);
-        start();
-    } else alert("আইডি বা পাসওয়ার্ড ভুল!");
+    if(users[id] && users[id] === ps) { sessionStorage.setItem("active", id); start(); } else alert("Invalid Login!");
 }
 
 function start() {
     loginLayer.style.display = "none";
     appArea.style.display = "block";
     let user = sessionStorage.getItem("active");
-    who.innerText = "Logged in as: " + user.toUpperCase();
-    if(user === 'admin') {
-        adminBtn.classList.remove("hidden");
-        updateUserList();
-    }
-    updatePiece();
-    render();
+    who.innerText = "User: " + user.toUpperCase();
+    if(user === 'admin') adminBtn.classList.remove("hidden");
+    updatePiece(); render();
 }
 
 function logout() { sessionStorage.clear(); location.reload(); }
 function toggleAdmin() { adminPanel.classList.toggle("hidden"); }
 
 function addUser() {
-    let id = newU.value.trim().toLowerCase();
-    let ps = newP.value.trim();
-    if(!id || !ps) return alert("সবগুলো ঘর পূরণ করুন");
+    let id = newU.value.trim().toLowerCase(), ps = newP.value.trim();
+    if(!id || !ps) return alert("Fill all fields");
     let users = JSON.parse(localStorage.getItem("bfidc_users")) || {"admin": "0000"};
     users[id] = ps;
     localStorage.setItem("bfidc_users", JSON.stringify(users));
-    alert("ইউজার " + id + " সফলভাবে যোগ/রিসেট হয়েছে!");
-    newU.value = ""; newP.value = "";
-    updateUserList();
+    alert("User Updated!");
 }
 
-function updateUserList() {
-    let users = JSON.parse(localStorage.getItem("bfidc_users")) || {"admin": "0000"};
-    userListDisplay.innerText = "Registered Users: " + Object.keys(users).join(", ");
-}
-
-/* --- KEYBOARD NAVIGATION (UP, DOWN, LEFT, RIGHT, ENTER) --- */
+/* KEYBOARD ARROW NAVIGATION - FIXED FOR ROUND LOG */
 document.addEventListener('keydown', function(e) {
-    const navItems = Array.from(document.querySelectorAll('.nav-item')).filter(i => !i.parentElement.classList.contains('hidden'));
+    // শুধুমাত্র বর্তমানে দৃশ্যমান (Hidden নয়) ইনপুটগুলো খুঁজে বের করবে
+    const navItems = Array.from(document.querySelectorAll('.nav-item, #v1, #ve, #v2')).filter(i => {
+        return i.offsetParent !== null; // offsetParent null হওয়া মানে সেটি হিডেন
+    });
+    
     let idx = navItems.indexOf(document.activeElement);
 
     if (e.key === "Enter") {
@@ -193,7 +162,10 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-/* --- CORE BUSINESS LOGIC --- */
+/* CORE LOGIC */
+let items = JSON.parse(localStorage.getItem("bfidc_data")) || [];
+let editIdx = null;
+
 function toggleInputs() {
     let isWood = type.value === 'wood';
     thickBox.classList.toggle("hidden", !isWood);
@@ -206,39 +178,17 @@ function updatePiece() {
     piece.value = items.filter(i => i.tree == tNo).length + 1;
 }
 
-function setFileName() {
-    let n = prompt("ফাইল বা রিপোর্টের নাম দিন:", fileName);
-    if(n) {
-        fileName = n;
-        localStorage.setItem("bfidc_fname", n);
-        render();
-    }
-}
-
 function addItem() {
     let t = tree.value, ty = type.value, v1v = parseFloat(v1.value), v2v = parseFloat(v2.value), vev = parseFloat(ve.value) || 0;
     if(!v1v || !v2v) return;
-
-    // Formula: Round Log = (G/4)^2 * L / 144 | Sawn Wood = W * T * L / 144
     let cft = ty === 'log' ? ((v1v/4)**2 * v2v)/144 : (v1v * vev * v2v)/144;
     let pNo = editIdx !== null ? items[editIdx].piece : (items.filter(i => i.tree == t).length + 1);
-
     let data = {tree: t, piece: pNo, type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)};
-
-    if(editIdx !== null) {
-        items[editIdx] = data;
-        editIdx = null;
-        addBtn.innerText = "ADD DATA (+)";
-        addBtn.style.background = "#22c55e";
-    } else {
-        items.push(data);
-    }
-
+    if(editIdx !== null) { items[editIdx] = data; editIdx = null; addBtn.innerText = "ADD DATA (+)"; }
+    else { items.push(data); }
     localStorage.setItem("bfidc_data", JSON.stringify(items));
     v1.value = ""; v2.value = ""; ve.value = "";
-    status.innerText = "✔ Saved at " + new Date().toLocaleTimeString();
-    updatePiece();
-    render();
+    updatePiece(); render();
 }
 
 function render() {
@@ -246,63 +196,39 @@ function render() {
     let filtered = items.filter(i => i.type === ty);
     let total = 0, treeSet = new Set();
     filtered.forEach(i => { total += i.cft; treeSet.add(i.tree); });
-
-    let bHeader = ty === 'log' ? `
+    let header = ty === 'log' ? `
         <div class="report-header">
             <h3>weGdAvBwWwm, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ivevi evMvb n‡Z weGdAvBwWwm, Gjwcwm, KvßvB</h3>
             <h3>‡c«i‡Yi Rb¨ KZ©bK…Z RxebPµ nviv‡bv ivevi Kv‡Vi mvBR wj÷|</h3>
-        </div>` : `<div style="text-align:center; margin-bottom:10px;"><h3>SAWN WOOD REPORT - ${fileName}</h3></div>`;
-
-    let html = `<div class="page">${bHeader}<div class="multi-column"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">Action</th></tr>`;
-    
+        </div>` : `<div style="height:30px"></div>`;
+    let html = `<div class="page">${header}<div class="multi-column"><table><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
     filtered.forEach((item) => {
         let size = item.type === 'log' ? `${item.v1}"x${item.v2}'` : `${item.v1}"x${item.ve}"x${item.v2}'`;
-        html += `<tr>
-            <td>${item.tree}/${item.piece}</td>
-            <td>${size}</td>
-            <td>${item.cft}</td>
-            <td class="no-print">
-                <button onclick="startEdit(${items.indexOf(item)})" style="padding:2px 8px; font-size:10px; width:auto; background:#3b82f6">Edit</button>
-            </td>
-        </tr>`;
+        html += `<tr><td>${item.tree}/${item.piece}</td><td>${size}</td><td>${item.cft}</td><td class="no-print"><button onclick="startEdit(${items.indexOf(item)})" style="padding:2px 5px;font-size:10px;width:auto;background:#3b82f6">Edit</button></td></tr>`;
     });
-
-    html += `</table></div><div class="summary"><span>Trees: ${treeSet.size}</span><span>Total Pieces: ${filtered.length}</span><span>Total CFT: ${total.toFixed(2)}</span></div></div>`;
+    html += `</table></div><div class="summary"><span>Trees: ${treeSet.size}</span><span>Pieces: ${filtered.length}</span><span>Total: ${total.toFixed(2)} CFT</span></div></div>`;
     document.getElementById("printArea").innerHTML = html;
 }
 
 function startEdit(idx) {
     let i = items[idx]; editIdx = idx;
     tree.value = i.tree; type.value = i.type; v1.value = i.v1; v2.value = i.v2; ve.value = i.ve;
-    addBtn.innerText = "UPDATE DATA (✔)";
-    addBtn.style.background = "#3b82f6";
-    toggleInputs();
-    v1.focus();
+    addBtn.innerText = "UPDATE DATA (✔)"; toggleInputs();
 }
 
 function exportExcel() {
     let wb = XLSX.utils.book_new();
-    let ws = XLSX.utils.json_to_sheet(items);
-    XLSX.utils.book_append_sheet(wb, ws, "BFIDC_Data");
-    XLSX.writeFile(wb, fileName + ".xlsx");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(items), "Data");
+    XLSX.writeFile(wb, "BFIDC_Report.xlsx");
 }
 
 function backup() {
-    let blob = new Blob([JSON.stringify(localStorage)], {type:"application/json"});
-    let a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-    a.download = "BFIDC_ERP_BACKUP_" + new Date().toLocaleDateString() + ".json"; a.click();
+    let b = new Blob([JSON.stringify(localStorage)], {type:"application/json"});
+    let a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "ULTRA_ERP_BACKUP.json"; a.click();
 }
 
-function clearAll() { 
-    if(confirm("সাবধান! সব ডাটা চিরস্থায়ীভাবে মুছে যাবে। আপনি কি নিশ্চিত?")) { 
-        items = []; 
-        localStorage.removeItem("bfidc_data"); 
-        render(); 
-        updatePiece(); 
-    } 
-}
+function clearAll() { if(confirm("Clear all data?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
 
-// Auto-check Login
 if(sessionStorage.getItem("active")) start();
 </script>
 </body>
