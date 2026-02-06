@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDC ULTRA PRO ERP - FINAL</title>
+<title>BFIDC ULTRA ERP - ARROW FIXED</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -131,14 +131,14 @@ function addUser() {
     alert("User Updated!");
 }
 
-/* KEYBOARD ARROW NAVIGATION - FIXED FOR ROUND LOG */
+/* KEYBOARD NAVIGATION - IMPROVED NAVIGATION */
 document.addEventListener('keydown', function(e) {
-    // শুধুমাত্র বর্তমানে দৃশ্যমান (Hidden নয়) ইনপুটগুলো খুঁজে বের করবে
-    const navItems = Array.from(document.querySelectorAll('.nav-item, #v1, #ve, #v2')).filter(i => {
-        return i.offsetParent !== null; // offsetParent null হওয়া মানে সেটি হিডেন
+    // শুধুমাত্র বর্তমানে দৃশ্যমান (যা হিডেন নয়) ইনপুটগুলোকে সিলেক্ট করবে
+    const visibleInputs = Array.from(document.querySelectorAll('.nav-item, #v1, #ve, #v2')).filter(i => {
+        return i.offsetParent !== null; 
     });
     
-    let idx = navItems.indexOf(document.activeElement);
+    let idx = visibleInputs.indexOf(document.activeElement);
 
     if (e.key === "Enter") {
         e.preventDefault();
@@ -146,19 +146,21 @@ document.addEventListener('keydown', function(e) {
             addItem(); 
             document.getElementById("v1").focus(); 
         } else {
-            navItems[idx + 1]?.focus();
-            navItems[idx + 1]?.select();
+            visibleInputs[idx + 1]?.focus();
+            visibleInputs[idx + 1]?.select();
         }
-    } else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        navItems[idx + 1]?.focus();
-    } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        navItems[idx - 1]?.focus();
-    } else if (e.key === "ArrowRight" && (document.activeElement.selectionEnd === document.activeElement.value.length || document.activeElement.tagName === 'SELECT')) {
-        navItems[idx + 1]?.focus();
-    } else if (e.key === "ArrowLeft" && (document.activeElement.selectionStart === 0 || document.activeElement.tagName === 'SELECT')) {
-        navItems[idx - 1]?.focus();
+    } else if (e.key === "ArrowDown" || (e.key === "ArrowRight" && document.activeElement.selectionEnd === document.activeElement.value.length)) {
+        if(idx < visibleInputs.length - 1) {
+            e.preventDefault();
+            visibleInputs[idx + 1].focus();
+            visibleInputs[idx + 1].select();
+        }
+    } else if (e.key === "ArrowUp" || (e.key === "ArrowLeft" && document.activeElement.selectionStart === 0)) {
+        if(idx > 0) {
+            e.preventDefault();
+            visibleInputs[idx - 1].focus();
+            visibleInputs[idx - 1].select();
+        }
     }
 });
 
