@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDC ERP - PC AUTO FIX</title>
+<title>BFIDC FINAL ERP</title>
 
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://accounts.google.com/gsi/client"></script>
@@ -12,25 +12,35 @@
 <style>
 @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
 body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white; -webkit-tap-highlight-color: transparent;}
-header{position:sticky; top:0; background:#020617; padding:10px; display:flex; justify-content:space-between; align-items:center; z-index:999;}
+header{position:sticky; top:0; background:#020617; padding:10px; display:flex; justify-content:space-between; align-items:center; z-index:999; box-shadow:0 2px 10px rgba(0,0,0,0.5);}
 .card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
 .grid-inputs{display:grid; grid-template-columns: repeat(2, 1fr); gap:8px}
 input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; }
 input:focus { border-color:#22c55e; outline:none; background:#f0fdf4; }
 
+/* রিপোর্ট ডিজাইন */
 .report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; color: black; }
-.report-header h3 { margin: 2px 0; font-size: 20px; font-weight: normal; }
+.report-header h3 { margin: 2px 0; font-size: 20px; font-weight: normal; line-height: 1.4; }
 .page { background: white; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 10mm; color: black; box-sizing: border-box; display: flex; flex-direction: column; }
 .multi-column { column-count: 2; column-gap: 30px; flex-grow: 1; }
-table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
+table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin-bottom: 10px; }
 th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; }
+th { background: #f3f4f6; }
+
+/* হিসাব টেবিল */
 .summary-container { margin-top: auto; padding-top: 20px; }
-.summary-table { width: 50%; border: 2px solid #000; }
-.summary-table td { font-weight: bold; font-size: 15px; padding: 8px; text-align: left; }
-.btn-del { background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; }
-.btn-edit { background:#f59e0b; color:white; border:none; padding:4px 8px; border-radius:4px; margin-right:4px; }
+.summary-table { width: 55%; border: 2px solid #000; }
+.summary-table td { font-weight: bold; font-size: 15px; padding: 8px; text-align: left; font-family: 'Kalpurush', sans-serif; }
+
+.btn-del { background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; }
+.btn-edit { background:#f59e0b; color:white; border:none; padding:4px 8px; border-radius:4px; margin-right:4px; cursor:pointer; }
 .hidden { display:none!important; }
-@media print { header, .no-print, #loginLayer {display:none!important} .page { margin: 0; border: none; width: 100%; page-break-after: always; } }
+
+@media print { 
+    header, .no-print, #loginLayer {display:none!important} 
+    body { background: white; }
+    .page { margin: 0; border: none; width: 100%; page-break-after: always; } 
+}
 </style>
 </head>
 <body>
@@ -40,17 +50,17 @@ th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13
     <h2 style="color:white; margin-bottom:20px">BFIDC LOGIN</h2>
     <input id="uID" placeholder="User ID" style="margin-bottom:10px;">
     <input id="uPass" type="password" placeholder="Password" style="margin-bottom:15px;">
-    <button onclick="handleLogin()" style="width:100%; padding:12px; background:#22c55e; color:white; font-weight:bold; border:none; border-radius:8px;">Login</button>
+    <button onclick="handleLogin()" style="width:100%; padding:12px; background:#22c55e; color:white; font-weight:bold; border:none; border-radius:8px; cursor:pointer">Login</button>
   </div>
 </div>
 
 <div id="appArea" class="hidden">
 <header>
-    <div id="who" style="font-size: 11px;"></div>
+    <div id="who" style="font-size: 11px; color:#94a3b8"></div>
     <div style="display:flex; gap:5px">
-        <button id="auth_btn" onclick="handleAuthClick()" style="background:#1a73e8; color:white; border:none; padding:5px 8px; border-radius:4px; font-size:10px">☁️ DRIVE LOGIN</button>
-        <button id="sync_btn" onclick="saveToDrive()" class="hidden" style="background:#34a853; color:white; border:none; padding:5px 8px; border-radius:4px; font-size:10px">📤 SYNC</button>
-        <button onclick="logout()" style="background:#ef4444; color:white; border:none; padding:5px 8px; border-radius:4px; font-size:10px">X</button>
+        <button id="auth_btn" onclick="handleAuthClick()" style="background:#1a73e8; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px">☁️ DRIVE LOGIN</button>
+        <button id="sync_btn" onclick="saveToDrive()" class="hidden" style="background:#34a853; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px">📤 SYNC DRIVE</button>
+        <button onclick="logout()" style="background:#ef4444; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px">LOGOUT</button>
     </div>
 </header>
 <div id="sync_status" style="font-size: 11px; color: #4ade80; text-align: center; margin-top: 5px; font-weight: bold;"></div>
@@ -69,28 +79,26 @@ th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13
         <div id="thickBox" class="hidden">পুরুত্ব (ইঞ্চি)<input id="ve" inputmode="decimal" onkeydown="move(event, 'v2')"></div>
         <div>লম্বা (ফুট)<input id="v2" inputmode="decimal" onkeydown="move(event, 'save')"></div>
     </div>
-    <button onclick="addItem()" id="addBtn" style="width:100%; margin-top:12px; background:#22c55e; color:white; padding:15px; font-size:18px; border:none; border-radius:8px; font-weight:bold">সেভ করুন (ENTER)</button>
+    <button onclick="addItem()" id="addBtn" style="width:100%; margin-top:12px; background:#22c55e; color:white; padding:15px; font-size:18px; border:none; border-radius:8px; font-weight:bold; cursor:pointer">সেভ করুন (ENTER)</button>
+    
+    <div class="grid-inputs" style="margin-top:10px">
+        <button onclick="exportExcel()" style="background:#16a34a; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer">SAVE EXCEL</button>
+        <button onclick="window.print()" style="background:#475569; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer">PRINT PDF</button>
+    </div>
 </div>
 
 <div id="printArea"></div>
 </div>
 
 <script>
-// --- নেভিগেশন (Right Arrow & Enter) ---
+// --- নেভিগেশন সেটিংস ---
 function move(e, next) {
-    if (e.key === "Enter") {
-        e.preventDefault();
-        addItem();
-    }
+    if (e.key === "Enter") { e.preventDefault(); addItem(); }
     if (e.key === "ArrowRight") {
         e.preventDefault();
-        if (e.target.id === 'tree') {
-            document.getElementById('v1').focus();
-        } else if (next === 'v2' && type.value === 'wood' && e.target.id === 'v1') {
-            document.getElementById('ve').focus();
-        } else if (next !== 'save') {
-            document.getElementById(next).focus();
-        }
+        if (e.target.id === 'tree') document.getElementById('v1').focus();
+        else if (next === 'v2' && type.value === 'wood' && e.target.id === 'v1') document.getElementById('ve').focus();
+        else if (next !== 'save') document.getElementById(next).focus();
     }
     if (e.key === "ArrowUp") {
         e.preventDefault();
@@ -99,7 +107,7 @@ function move(e, next) {
     }
 }
 
-// --- অ্যাপ লজিক ---
+// --- ড্রাইভ কনফিগ ---
 const CLIENT_ID = '234418632833-gv6d3hqpnfjeodsi21t2g6afkh81o95i.apps.googleusercontent.com'; 
 const API_KEY = 'AIzaSyDvmF9t7WvsUvZLs5tFjGVfxTaQxsOKRJs'; 
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
@@ -108,69 +116,71 @@ let tokenClient, items = JSON.parse(localStorage.getItem("bfidc_data")) || [], e
 
 function gapiLoaded() { gapi.load('client', async () => { await gapi.client.init({apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS}); }); }
 function gsiLoaded() { tokenClient = google.accounts.oauth2.initTokenClient({client_id: CLIENT_ID, scope: SCOPES, callback: (resp) => {
-    if(resp.access_token) { auth_btn.classList.add('hidden'); sync_btn.classList.remove('hidden'); sync_status.innerText = "☁️ Connected"; }
+    if(resp.access_token) { auth_btn.classList.add('hidden'); sync_btn.classList.remove('hidden'); sync_status.innerText = "☁️ Connected to Drive"; }
 }}); }
 function handleAuthClick() { tokenClient.requestAccessToken({prompt: 'consent'}); }
 
 async function saveToDrive() {
     sync_status.innerText = "Saving...";
-    const res = await gapi.client.drive.files.list({ q: "name = 'wood_data.json' and trashed = false" });
-    const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
-    let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=media', method = (res.result.files.length > 0) ? 'PATCH' : 'POST';
-    if(method === 'PATCH') url = `https://www.googleapis.com/upload/drive/v3/files/${res.result.files[0].id}?uploadType=media`;
-    await fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }, body: blob });
-    sync_status.innerText = "✅ Saved!";
+    try {
+        const res = await gapi.client.drive.files.list({ q: "name = 'wood_data.json' and trashed = false" });
+        const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
+        let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=media', method = (res.result.files.length > 0) ? 'PATCH' : 'POST';
+        if(method === 'PATCH') url = `https://www.googleapis.com/upload/drive/v3/files/${res.result.files[0].id}?uploadType=media`;
+        await fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }, body: blob });
+        sync_status.innerText = "✅ Successfully Saved to Drive!";
+    } catch(e) { sync_status.innerText = "❌ Sync Error!"; }
 }
 
-function handleLogin() { if(uID.value.toLowerCase()==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("Wrong!"); }
-function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); who.innerText = "USER: ADMIN"; updatePiece(); render(); }
+// --- মূল অ্যাপ ফাংশন ---
+function handleLogin() { if(uID.value.toLowerCase()==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("Wrong Password!"); }
+function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); who.innerText = "ADMIN MODE"; updatePiece(); render(); }
 function logout() { sessionStorage.clear(); location.reload(); }
 function toggleInputs() { let isW = type.value==='wood'; thickBox.classList.toggle("hidden", !isW); labelV1.innerText = isW ? "চওড়া" : "বেড়"; render(); }
-
-// পিস নম্বর ক্যালকুলেশন ফিক্স
-function updatePiece() { 
-    let tVal = tree.value;
-    let tyVal = type.value;
-    // একই গাছ এবং একই টাইপ (গোল/সাইজ) অনুযায়ী পিস গুনে ১ যোগ করবে
-    let count = items.filter(i => i.tree == tVal && i.type == tyVal).length;
-    piece.value = count + 1; 
-}
+function updatePiece() { let count = items.filter(i => i.tree == tree.value && i.type == type.value).length; piece.value = count + 1; }
 
 function addItem() {
     let t = tree.value, ty = type.value, v1v = parseFloat(v1.value), v2v = parseFloat(v2.value), vev = parseFloat(ve.value) || 0;
     if(!v1v || !v2v) return;
     let cft = ty==='log' ? ((v1v/4)**2 * v2v)/144 : (v1v * vev * v2v)/144;
-    
-    // সেভ করার সময় পিস নম্বরটি ডাটাবেস থেকে কনফার্ম করা হচ্ছে
     let pc = editIdx!==null ? items[editIdx].piece : (items.filter(i=>i.tree==t && i.type==ty).length + 1);
-    
     let data = {tree: t, piece: pc, type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)};
     if(editIdx!==null) { items[editIdx] = data; editIdx = null; addBtn.innerText = "সেভ করুন (ENTER)"; } else items.push(data);
-    
     localStorage.setItem("bfidc_data", JSON.stringify(items));
-    v1.value=""; v2.value=""; ve.value=""; 
-    render(); 
-    updatePiece(); // সেভ হওয়ার পর পিস অটো বাড়বে
+    v1.value=""; v2.value=""; ve.value=""; render(); updatePiece();
     document.getElementById('tree').focus(); 
 }
 
-function deleteItem(idx) { if(confirm("Delete?")) { items.splice(idx, 1); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); } }
+function deleteItem(idx) { if(confirm("Delete this entry?")) { items.splice(idx, 1); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); } }
 function startEdit(idx) {
     let i=items[idx]; editIdx=idx; tree.value=i.tree; type.value=i.type; v1.value=i.v1; v2.value=i.v2; ve.value=i.ve;
-    addBtn.innerText="আপডেট করুন"; toggleInputs(); updatePiece(); window.scrollTo(0,0);
+    addBtn.innerText="Update Entry"; toggleInputs(); updatePiece(); window.scrollTo(0,0);
 }
 
 function render() {
     let ty = type.value, filtered = items.filter(i => i.type === ty);
     let totalCft = filtered.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(filtered.map(i => i.tree)).size, totalPieces = filtered.length;
-    let headerText = ty === 'log' ? `<h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3><h3>প্রেরণের জন্য কর্তনকৃত রাবার কাঠের সাইজ লিস্ট।</h3>` : `<h3>সাইজ কাঠের রিপোর্ট</h3>`;
-    let html = `<div class="page"><div class="report-header">${headerText}</div><div class="multi-column"><table><tr><th>গাছ/পিস</th><th>সাইজ</th><th>সিএফটি</th><th class="no-print">⚙</th></tr>`;
+    let headerHtml = `<h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, ..................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3><h3>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3>`;
+    let html = `<div class="page"><div class="report-header">${headerHtml}</div><div class="multi-column"><table><tr><th>গাছ/পিস</th><th>সাইজ</th><th>সিএফটি</th><th class="no-print">⚙</th></tr>`;
     items.forEach((i, idx) => { if(i.type === ty) {
         let sz = i.type==='log' ? `${i.v1}"x${i.v2}'` : `${i.v1}"x${i.ve}"x${i.v2}'`;
         html += `<tr><td>${i.tree}/${i.piece}</td><td>${sz}</td><td>${i.cft}</td><td class="no-print"><button class="btn-edit" onclick="startEdit(${idx})">E</button><button class="btn-del" onclick="deleteItem(${idx})">D</button></td></tr>`;
     }});
     html += `</table></div><div class="summary-container"><table class="summary-table"><tr><td>মোট গাছ:</td><td>${totalTrees} টি</td></tr><tr><td>মোট পিস:</td><td>${totalPieces} টি</td></tr><tr><td>মোট সিএফটি:</td><td>${totalCft.toFixed(2)}</td></tr></table></div></div>`;
     document.getElementById("printArea").innerHTML = html;
+}
+
+function exportExcel() {
+    let ty = type.value;
+    let filtered = items.filter(i => i.type === ty).map(i => ({
+        "গাছ/পিস": `${i.tree}/${i.piece}`,
+        "সাইজ": i.type==='log' ? `${i.v1}"x${i.v2}'` : `${i.v1}"x${i.ve}"x${i.v2}'`,
+        "সিএফটি": i.cft
+    }));
+    const ws = XLSX.utils.json_to_sheet(filtered);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Wood Data");
+    XLSX.writeFile(wb, `BFIDC_Report_${ty}.xlsx`);
 }
 
 if(sessionStorage.getItem("active")) start();
