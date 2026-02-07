@@ -22,7 +22,10 @@
         .btn-del { background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; }
         .hidden { display:none!important; }
         @media print { header, .no-print, #loginLayer {display:none!important} body { background: white; } .page { margin: 0; border: none; width: 100%; } }
+        /* PDF তৈরির সময় ডিলেট বাটন লুকানোর জন্য */
+        .pdf-mode .no-print { display: none !important; }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -63,7 +66,11 @@
             <div>লম্বা (ফুট)<input id="v2" inputmode="decimal" onkeydown="move(event, 'save')"></div>
         </div>
         <button onclick="addItem()" id="addBtn" style="width:100%; margin-top:12px; background:#22c55e; color:white; padding:15px; font-size:18px; border:none; border-radius:8px; font-weight:bold; cursor:pointer">সেভ করুন (ENTER)</button>
-        <button onclick="window.print()" style="width:100%; margin-top:8px; background:#475569; color:white; padding:10px; border:none; border-radius:8px; font-weight:bold; cursor:pointer">PRINT REPORT</button>
+        
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button onclick="downloadPDF()" style="flex: 1; background:#ef4444; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold; cursor:pointer">📄 SAVE PDF</button>
+            <button onclick="window.print()" style="flex: 1; background:#475569; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold; cursor:pointer">🖨️ PRINT</button>
+        </div>
     </div>
     <div id="printArea"></div>
 </div>
@@ -82,21 +89,45 @@
         tokenClient = google.accounts.oauth2.initTokenClient({
             client_id: CLIENT_ID, 
             scope: SCOPES, 
-            enable_serial_consent: true, // এটি গুগল ড্রাইভের বক্সটি দেখাতে বাধ্য করবে
             callback: (resp) => {
                 if(resp.access_token) { 
                     document.getElementById('auth_btn').classList.add('hidden'); 
                     document.getElementById('sync_btn').classList.remove('hidden'); 
                     document.getElementById('load_btn').classList.remove('hidden'); 
                     document.getElementById('sync_status').innerText = "☁️ ড্রাইভ কানেক্ট হয়েছে"; 
-                    document.getElementById('sync_status').style.color = "#4ade80";
                 }
             }
         }); 
     }
     
-    // লগইন করার সময় এটি গুগলকে বলবে যেন সব অপশন দেখায়
     function handleAuthClick() { tokenClient.requestAccessToken({prompt: 'consent'}); }
+
+    // PDF ডাউনলোড ফাংশন
+    async function downloadPDF() {
+        if (!items.length) { alert("পিডিএফ করার মতো ডাটা নেই!"); return; }
+        const element = document.getElementById('printArea');
+        const status = document.getElementById('sync_status');
+        
+        status.innerText = "⏳ PDF তৈরি হচ্ছে...";
+        element.classList.add('pdf-mode'); // ডিলেট বাটন হাইড করতে
+
+        const opt = {
+            margin: 0,
+            filename: (currentFileName ? currentFileName.replace('.json', '') : 'Wood_Report') + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        try {
+            await html2pdf().set(opt).from(element).save();
+            status.innerText = "✅ PDF ডাউনলোড সফল!";
+        } catch (e) {
+            alert("পিডিএফ তৈরি করতে সমস্যা হয়েছে।");
+        } finally {
+            element.classList.remove('pdf-mode');
+        }
+    }
 
     async function saveToDrive() {
         if (!items.length) { alert("সেভ করার মতো ডাটা নেই!"); return; }
@@ -117,10 +148,8 @@
                 await gapi.client.drive.files.create({ resource: { name: currentFileName, mimeType: 'application/json' }, media: { mimeType: 'application/json', body: fileData } });
             }
             status.innerText = "✅ " + currentFileName + " সেভ হয়েছে!";
-            status.style.color = "#4ade80";
         } catch(e) { 
             status.innerText = "❌ ড্রাইভ পারমিশন এরর! বক্সে টিক দিন।";
-            status.style.color = "#ef4444";
         }
     }
 
