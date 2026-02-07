@@ -11,8 +11,6 @@
         .card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
         .grid-inputs{display:grid; grid-template-columns: repeat(2, 1fr); gap:8px}
         input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; }
-        
-        /* রিপোর্ট ও প্রিন্ট স্টাইল */
         .page { background: white; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 10mm; color: black; box-sizing: border-box; display: flex; flex-direction: column; page-break-after: always; }
         .report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; }
         .report-header h3 { margin: 2px 0; font-size: 19px; font-weight: normal; line-height: 1.4; }
@@ -21,8 +19,6 @@
         table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
         th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; }
         th { background: #f3f4f6; }
-        .summary-container { margin-top: 10px; border-top: 2px solid #000; font-family: 'Kalpurush', sans-serif; }
-        
         .btn-del { background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; }
         .hidden { display:none!important; }
         @media print { header, .no-print, #loginLayer {display:none!important} body { background: white; } .page { margin: 0; border: none; width: 100%; } }
@@ -41,11 +37,11 @@
 
 <div id="appArea" class="hidden">
     <header>
-        <div id="who" style="font-size: 11px; color: #4ade80; font-weight: bold;">ADMIN</div>
+        <div id="who" style="font-size: 11px; color: #4ade80; font-weight: bold;">ADMIN MODE</div>
         <div style="display:flex; gap:6px">
-            <button id="auth_btn" onclick="handleAuthClick()" style="background:#ef4444; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">🔑 DRIVE LOGIN</button>
-            <button id="sync_btn" onclick="saveToDrive()" class="hidden" style="background:#34a853; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">📤 SAVE</button>
-            <button id="load_btn" onclick="loadFromDrive()" class="hidden" style="background:#f59e0b; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">📥 OPEN</button>
+            <button id="auth_btn" onclick="handleAuthClick()" style="background:#ef4444; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">🔑 DRIVE LOGIN</button>
+            <button id="sync_btn" onclick="saveToDrive()" class="hidden" style="background:#34a853; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">📤 SAVE</button>
+            <button id="load_btn" onclick="loadFromDrive()" class="hidden" style="background:#f59e0b; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">📥 OPEN</button>
             <button onclick="logout()" style="background:#64748b; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; cursor:pointer">X</button>
         </div>
     </header>
@@ -72,52 +68,60 @@
     <div id="printArea"></div>
 </div>
 
-<script src="https://apis.google.com/js/api.js"></script>
-<script src="https://accounts.google.com/gsi/client"></script>
-
 <script>
     const CLIENT_ID = '234418632833-gv6d3hqpnfjeodsi21t2g6afkh81o95i.apps.googleusercontent.com'; 
     const API_KEY = 'AIzaSyDvmF9t7WvsUvZLs5tFjGVfxTaQxsOKRJs'; 
-    const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/discovery/v3/rest"];
+    const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
     const SCOPES = 'https://www.googleapis.com/auth/drive.file';
     
     let tokenClient, items = JSON.parse(localStorage.getItem("bfidc_data")) || [], currentFileName = "";
 
     function gapiLoaded() { gapi.load('client', async () => { await gapi.client.init({apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS}); }); }
+    
     function gsiLoaded() { 
         tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: CLIENT_ID, scope: SCOPES, 
+            client_id: CLIENT_ID, 
+            scope: SCOPES, 
+            enable_serial_consent: true, // এটি গুগল ড্রাইভের বক্সটি দেখাতে বাধ্য করবে
             callback: (resp) => {
                 if(resp.access_token) { 
                     document.getElementById('auth_btn').classList.add('hidden'); 
                     document.getElementById('sync_btn').classList.remove('hidden'); 
                     document.getElementById('load_btn').classList.remove('hidden'); 
-                    document.getElementById('sync_status').innerText = "☁️ Connected to Drive"; 
+                    document.getElementById('sync_status').innerText = "☁️ ড্রাইভ কানেক্ট হয়েছে"; 
+                    document.getElementById('sync_status').style.color = "#4ade80";
                 }
             }
         }); 
     }
+    
+    // লগইন করার সময় এটি গুগলকে বলবে যেন সব অপশন দেখায়
     function handleAuthClick() { tokenClient.requestAccessToken({prompt: 'consent'}); }
 
-    // --- ড্রাইভ অপারেশনস ---
     async function saveToDrive() {
+        if (!items.length) { alert("সেভ করার মতো ডাটা নেই!"); return; }
         if (!currentFileName) {
             let n = prompt("ফাইলের নাম দিন:", "Wood_Report");
             if (!n) return;
             currentFileName = n + ".json";
         }
-        document.getElementById('sync_status').innerText = "⏳ Saving...";
+        const status = document.getElementById('sync_status');
+        status.innerText = "⏳ ড্রাইভে সেভ হচ্ছে...";
         try {
-            const listRes = await gapi.client.drive.files.list({ q: `name = '${currentFileName}' and trashed = false` });
             const fileData = JSON.stringify(items);
-            if (listRes.result.files.length > 0) {
+            const listRes = await gapi.client.drive.files.list({ q: `name = '${currentFileName}' and trashed = false` });
+            if (listRes.result.files && listRes.result.files.length > 0) {
                 const fileId = listRes.result.files[0].id;
                 await gapi.client.request({ path: `/upload/drive/v3/files/${fileId}`, method: 'PATCH', params: { uploadType: 'media' }, body: fileData });
             } else {
                 await gapi.client.drive.files.create({ resource: { name: currentFileName, mimeType: 'application/json' }, media: { mimeType: 'application/json', body: fileData } });
             }
-            document.getElementById('sync_status').innerText = "✅ " + currentFileName + " Saved!";
-        } catch(e) { document.getElementById('sync_status').innerText = "❌ Drive Error!"; }
+            status.innerText = "✅ " + currentFileName + " সেভ হয়েছে!";
+            status.style.color = "#4ade80";
+        } catch(e) { 
+            status.innerText = "❌ ড্রাইভ পারমিশন এরর! বক্সে টিক দিন।";
+            status.style.color = "#ef4444";
+        }
     }
 
     async function loadFromDrive() {
@@ -132,12 +136,11 @@
                 items = response.result;
                 currentFileName = fileName;
                 localStorage.setItem("bfidc_data", JSON.stringify(items));
-                render(); alert("✅ " + fileName + " Loaded!");
+                render(); alert("✅ " + fileName + " লোড হয়েছে!");
             } else alert("❌ ফাইল পাওয়া যায়নি!");
         } catch(e) { alert("❌ লোড ফেইল!"); }
     }
 
-    // --- কোর লজিক ---
     function handleLogin() {
         let id = document.getElementById('uID').value.toLowerCase().trim();
         let pass = document.getElementById('uPass').value.trim();
@@ -198,6 +201,7 @@
     }
     if(sessionStorage.getItem("active")) start();
 </script>
+
 <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
 <script async defer src="https://accounts.google.com/gsi/client" onload="gsiLoaded()"></script>
 </body>
