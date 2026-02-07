@@ -22,7 +22,7 @@
         .btn-del { background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; }
         .hidden { display:none!important; }
         @media print { header, .no-print, #loginLayer {display:none!important} body { background: white; } .page { margin: 0; border: none; width: 100%; } }
-        /* PDF তৈরির সময় ডিলেট বাটন লুকানোর জন্য */
+        /* PDF তৈরির সময় অপ্রয়োজনীয় বাটন হাইড করার জন্য */
         .pdf-mode .no-print { display: none !important; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -109,7 +109,7 @@
         const status = document.getElementById('sync_status');
         
         status.innerText = "⏳ PDF তৈরি হচ্ছে...";
-        element.classList.add('pdf-mode'); // ডিলেট বাটন হাইড করতে
+        element.classList.add('pdf-mode'); 
 
         const opt = {
             margin: 0,
