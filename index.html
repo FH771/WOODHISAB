@@ -22,7 +22,6 @@
         .btn-del { background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; }
         .hidden { display:none!important; }
         @media print { header, .no-print, #loginLayer {display:none!important} body { background: white; } .page { margin: 0; border: none; width: 100%; } }
-        /* PDF তৈরির সময় অপ্রয়োজনীয় বাটন হাইড করার জন্য */
         .pdf-mode .no-print { display: none !important; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -102,15 +101,12 @@
     
     function handleAuthClick() { tokenClient.requestAccessToken({prompt: 'consent'}); }
 
-    // PDF ডাউনলোড ফাংশন
     async function downloadPDF() {
         if (!items.length) { alert("পিডিএফ করার মতো ডাটা নেই!"); return; }
         const element = document.getElementById('printArea');
         const status = document.getElementById('sync_status');
-        
         status.innerText = "⏳ PDF তৈরি হচ্ছে...";
         element.classList.add('pdf-mode'); 
-
         const opt = {
             margin: 0,
             filename: (currentFileName ? currentFileName.replace('.json', '') : 'Wood_Report') + '.pdf',
@@ -118,7 +114,6 @@
             html2canvas: { scale: 2, useCORS: true },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
-
         try {
             await html2pdf().set(opt).from(element).save();
             status.innerText = "✅ PDF ডাউনলোড সফল!";
@@ -149,7 +144,7 @@
             }
             status.innerText = "✅ " + currentFileName + " সেভ হয়েছে!";
         } catch(e) { 
-            status.innerText = "❌ ড্রাইভ পারমিশন এরর! বক্সে টিক দিন।";
+            status.innerText = "❌ ড্রাইভ পারমিশন এরর!";
         }
     }
 
@@ -202,15 +197,22 @@
 
     function deleteItem(idx) { if(confirm("মুছে ফেলবেন?")) { items.splice(idx, 1); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); } }
 
+    // ডাটা কলাম অনুযায়ী সাজানোর জন্য এই ফাংশন আপডেট করা হয়েছে
     function render() {
         let ty = document.getElementById('type').value, filtered = items.filter(i => i.type === ty);
         let totalCft = filtered.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(filtered.map(i => i.tree)).size;
         const ITEMS_PER_PAGE = 76; 
+        const HALF = ITEMS_PER_PAGE / 2; // ৩৮টি বামে, ৩৮টি ডানে
         let pagesHtml = "";
+        
         for (let p = 0; p < Math.ceil(filtered.length / ITEMS_PER_PAGE) || p === 0; p++) {
             let pageData = filtered.slice(p * ITEMS_PER_PAGE, (p + 1) * ITEMS_PER_PAGE);
-            let mid = Math.ceil(pageData.length / 2);
-            let left = pageData.slice(0, mid), right = pageData.slice(mid);
+            
+            // সিরিয়ালি সাজানোর জন্য পরিবর্তন:
+            // ১ থেকে ৩৮ পর্যন্ত বামে যাবে, ৩৯ থেকে ৭৬ পর্যন্ত ডানে যাবে
+            let left = pageData.slice(0, HALF); 
+            let right = pageData.slice(HALF); 
+
             let tableH = `<tr><th>গাছ/পিস</th><th>সাইজ</th><th>সিএফটি</th><th class="no-print">⚙</th></tr>`;
             pagesHtml += `<div class="page">
                 <div class="report-header">
