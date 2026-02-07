@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDC ERP - FINAL VERSION</title>
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://accounts.google.com/gsi/client"></script>
+    <title>BFIDC FINAL ERP</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
         body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white; -webkit-tap-highlight-color: transparent;}
@@ -13,8 +11,6 @@
         .card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
         .grid-inputs{display:grid; grid-template-columns: repeat(2, 1fr); gap:8px}
         input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; }
-        
-        /* প্রিন্ট ও রিপোর্ট স্টাইল */
         .page { background: white; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 10mm; color: black; box-sizing: border-box; display: flex; flex-direction: column; page-break-after: always; }
         .report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; }
         .report-header h3 { margin: 2px 0; font-size: 19px; font-weight: normal; line-height: 1.4; }
@@ -24,14 +20,9 @@
         th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; }
         th { background: #f3f4f6; }
         .summary-container { margin-top: 10px; border-top: 2px solid #000; font-family: 'Kalpurush', sans-serif; }
-        
         .btn-del { background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; }
         .hidden { display:none!important; }
-        @media print { 
-            header, .no-print, #loginLayer {display:none!important} 
-            body { background: white; }
-            .page { margin: 0; border: none; width: 100%; } 
-        }
+        @media print { header, .no-print, #loginLayer {display:none!important} body { background: white; } .page { margin: 0; border: none; width: 100%; } }
     </style>
 </head>
 <body>
@@ -77,8 +68,10 @@
     <div id="printArea"></div>
 </div>
 
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
+
 <script>
-    // আপনার ক্লাউড ক্রেডেনশিয়ালস
     const CLIENT_ID = '234418632833-gv6d3hqpnfjeodsi21t2g6afkh81o95i.apps.googleusercontent.com'; 
     const API_KEY = 'AIzaSyDvmF9t7WvsUvZLs5tFjGVfxTaQxsOKRJs'; 
     const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
@@ -87,47 +80,68 @@
     let tokenClient, items = JSON.parse(localStorage.getItem("bfidc_data")) || [], currentFileName = "";
 
     function gapiLoaded() { gapi.load('client', async () => { await gapi.client.init({apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS}); }); }
-    function gsiLoaded() { tokenClient = google.accounts.oauth2.initTokenClient({client_id: CLIENT_ID, scope: SCOPES, callback: (resp) => {
-        if(resp.access_token) { auth_btn.classList.add('hidden'); sync_btn.classList.remove('hidden'); load_btn.classList.remove('hidden'); sync_status.innerText = "☁️ Drive Connected"; }
-    }}); }
+    function gsiLoaded() { 
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: CLIENT_ID, 
+            scope: SCOPES, 
+            callback: (resp) => {
+                if(resp.access_token) { 
+                    auth_btn.classList.add('hidden'); 
+                    sync_btn.classList.remove('hidden'); 
+                    load_btn.classList.remove('hidden'); 
+                    sync_status.innerText = "☁️ Connected"; 
+                }
+            }
+        }); 
+    }
+    
     function handleAuthClick() { tokenClient.requestAccessToken({prompt: 'consent'}); }
 
-    // --- দ্রুত ড্রাইভ সেভ ও লোড ---
+    // --- ড্রাইভ সেভ (সরাসরি GAPI লাইব্রেরি দিয়ে) ---
     async function saveToDrive() {
         if (!currentFileName) {
-            let n = prompt("ফাইলের নাম দিন (যেমন: Report_1):", "Wood_Report");
+            let n = prompt("ফাইলের নাম দিন:", "Wood_Report");
             if (!n) return;
             currentFileName = n + ".json";
         }
-        sync_status.innerText = "⏳ Saving to Drive...";
+        sync_status.innerText = "⏳ Saving...";
         try {
-            const res = await gapi.client.drive.files.list({ q: `name = '${currentFileName}' and trashed = false` });
-            const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
-            let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=media', method = (res.result.files.length > 0) ? 'PATCH' : 'POST';
+            const listRes = await gapi.client.drive.files.list({ q: `name = '${currentFileName}' and trashed = false` });
+            const fileData = JSON.stringify(items);
             
-            if(method === 'POST') {
-                const metadata = { name: currentFileName, mimeType: 'application/json' };
-                const form = new FormData();
-                form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-                form.append('file', blob);
-                await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', { method: 'POST', headers: { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }, body: form });
+            if (listRes.result.files.length > 0) {
+                // ফাইল আপডেট (Existing File)
+                const fileId = listRes.result.files[0].id;
+                await gapi.client.request({
+                    path: `/upload/drive/v3/files/${fileId}`,
+                    method: 'PATCH',
+                    params: { uploadType: 'media' },
+                    body: fileData
+                });
             } else {
-                url = `https://www.googleapis.com/upload/drive/v3/files/${res.result.files[0].id}?uploadType=media`;
-                await fetch(url, { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }, body: blob });
+                // নতুন ফাইল তৈরি (New File)
+                await gapi.client.drive.files.create({
+                    resource: { name: currentFileName, mimeType: 'application/json' },
+                    media: { mimeType: 'application/json', body: fileData }
+                });
             }
             sync_status.innerText = "✅ " + currentFileName + " Saved!";
-        } catch(e) { sync_status.innerText = "❌ Drive Error!"; currentFileName = ""; }
+        } catch(e) { 
+            sync_status.innerText = "❌ Drive Error! লগইন বাটন আবার চাপুন।";
+            console.error(e);
+        }
     }
 
     async function loadFromDrive() {
-        let n = prompt("লোড করতে ফাইলের নাম লিখুন:", "Wood_Report");
+        let n = prompt("ফাইলের নাম লিখুন:", "Wood_Report");
         if(!n) return;
         let fileName = n + ".json";
         try {
             const res = await gapi.client.drive.files.list({ q: `name = '${fileName}' and trashed = false` });
             if(res.result.files.length > 0) {
-                const response = await fetch(`https://www.googleapis.com/drive/v3/files/${res.result.files[0].id}?alt=media`, { headers: { 'Authorization': 'Bearer ' + gapi.client.getToken().access_token } });
-                items = await response.json();
+                const fileId = res.result.files[0].id;
+                const response = await gapi.client.drive.files.get({ fileId: fileId, alt: 'media' });
+                items = response.result;
                 currentFileName = fileName;
                 localStorage.setItem("bfidc_data", JSON.stringify(items));
                 render(); alert("✅ " + fileName + " Loaded!");
@@ -159,8 +173,8 @@
         items.push({tree: t, piece: items.filter(i=>i.tree==t && i.type==ty).length + 1, type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)});
         localStorage.setItem("bfidc_data", JSON.stringify(items));
         v1.value=""; v2.value=""; ve.value=""; render(); updatePiece(); tree.focus();
-        sync_status.innerText = "⚡ লোকাল সেভ হয়েছে";
-        setTimeout(() => { if(sync_status.innerText==="⚡ লোকাল সেভ হয়েছে") sync_status.innerText=""; }, 1500);
+        sync_status.innerText = "⚡ Saved Locally";
+        setTimeout(() => { if(sync_status.innerText==="⚡ Saved Locally") sync_status.innerText=""; }, 1500);
     }
 
     function deleteItem(idx) { if(confirm("Delete?")) { items.splice(idx, 1); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); } }
@@ -168,7 +182,7 @@
     function render() {
         let ty = type.value, filtered = items.filter(i => i.type === ty);
         let totalCft = filtered.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(filtered.map(i => i.tree)).size;
-        const ITEMS_PER_PAGE = 80; 
+        const ITEMS_PER_PAGE = 76; 
         let pagesHtml = "";
         
         for (let p = 0; p < Math.ceil(filtered.length / ITEMS_PER_PAGE) || p === 0; p++) {
