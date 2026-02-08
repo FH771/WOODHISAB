@@ -14,7 +14,7 @@
         
         .page { background: white; width: 210mm; min-height: 296mm; margin: 0 auto; padding: 10mm 12mm; color: black; box-sizing: border-box; display: flex; flex-direction: column; position: relative; page-break-after: always; }
         .report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; }
-        .report-header h3 { margin: 1px 0; font-size: 16px; font-weight: bold; line-height: 1.3; }
+        .report-header h3 { margin: 1px 0; font-size: 16px; font-weight: bold; line-height: 1.4; }
         
         .content-wrapper { display: flex; gap: 15px; align-items: flex-start; flex: 1; }
         .col { flex: 1; }
@@ -145,14 +145,13 @@
         let totalCft = filteredItems.reduce((s, i) => s + i.cft, 0);
         let totalTrees = new Set(filteredItems.map(i => i.tree)).size;
         
-        // ফাহাদ ব্রো-র জন্য লম্বালম্বি সিরিয়াল লজিক (Vertical Order)
+        // ফাহাদ ব্রো-র জন্য লম্বালম্বি সিরিয়াল লজিক
         const rowsPerPage = 76; 
         let pagesData = [];
         for (let i = 0; i < filteredItems.length; i += rowsPerPage) pagesData.push(filteredItems.slice(i, i + rowsPerPage));
 
         let html = "";
         pagesData.forEach((data, idx) => {
-            // লম্বালম্বি সিরিয়াল: বাম কলামে ১-৩৮, ডান কলামে ৩৯-৭৬
             let mid = Math.ceil(data.length / 2);
             let left = data.slice(0, mid);
             let right = data.slice(mid);
@@ -160,10 +159,11 @@
             let th = `<tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>`;
             html += `<div class="page">`;
             
+            // ফিক্সড হেডলাইন - শুধুমাত্র ১ম পাতায়
             if(idx === 0) {
                 html += `<div class="report-header">
-                    <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন,</h3>
-                    <h3>রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3>
+                    <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন,</h3>
+                    <h3>.................. রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3>
                     <h3>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3>
                 </div>`;
             }
