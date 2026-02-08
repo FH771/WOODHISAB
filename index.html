@@ -3,49 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDC ERP - A4 PERFECT FIT</title>
+    <title>BFIDC ERP - TOTAL A4 FILL</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
-        body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white; -webkit-tap-highlight-color: transparent;}
+        body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white;}
         header{position:sticky; top:0; background:#020617; padding:10px; display:flex; justify-content:space-between; align-items:center; z-index:999; border-bottom: 1px solid #1e293b;}
         .card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
-        .grid-inputs{display:grid; grid-template-columns: repeat(2, 1fr); gap:8px}
-        input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; }
+        input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; margin-bottom: 8px;}
         
-        /* A4 Perfect Fit - NO EXTRA GAP */
+        /* A4 FULL PAGE FILL LOGIC */
         .page { 
             background: white; 
             width: 210mm; 
-            min-height: 297mm; 
+            height: 297mm; /* ফিক্সড হাইট */
             margin: 10px auto; 
-            padding: 8mm 12mm; 
+            padding: 10mm 15mm; 
             color: black; 
             box-sizing: border-box; 
-            display: flex; 
-            flex-direction: column; 
-            page-break-after: always; 
-            box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            page-break-after: always;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
         
-        .report-header { text-align: center; margin-bottom: 8px; font-family: 'Kalpurush', sans-serif; }
-        .report-header h3 { margin: 1px 0; font-size: 17px; font-weight: normal; line-height: 1.2; }
+        .report-header { text-align: center; margin-bottom: 10px; font-family: 'Kalpurush', sans-serif; }
+        .report-header h3 { margin: 2px 0; font-size: 16px; line-height: 1.2; }
         
-        .dual-container { display: flex; gap: 12px; flex-grow: 1; }
+        /* কলাম গুলো যেন পুরো জায়গা নেয় */
+        .dual-container { 
+            display: flex; 
+            gap: 15px; 
+            flex: 1; /* পুরো জায়গা দখল করবে */
+            overflow: hidden;
+        }
         .col { flex: 1; }
         
         table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; }
-        th, td { border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; line-height: 1.1; }
-        th { background: #f0f0f0; font-weight: bold; }
+        th, td { border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 12.5px; font-family: 'Kalpurush', sans-serif; }
+        th { background: #eeeeee; font-weight: bold; }
         
-        .summary-container { margin-top: auto; padding-top: 5px; border-top: 1.5px solid #000; font-family: 'Kalpurush', sans-serif; }
-        .btn-del { background:#ef4444; color:white; border:none; padding:2px 5px; border-radius:3px; cursor:pointer; font-size: 10px; }
+        .summary-container { 
+            position: absolute; 
+            bottom: 10mm; 
+            left: 15mm; 
+            right: 15mm; 
+            border-top: 2px solid #000;
+            padding-top: 5px;
+            font-family: 'Kalpurush', sans-serif;
+        }
+        
         .hidden { display:none!important; }
-        
+        .btn-del { background:#ef4444; color:white; border:none; padding:2px 5px; border-radius:3px; cursor:pointer; font-size: 10px; }
+
         @media print { 
             header, .no-print, #loginLayer {display:none!important} 
-            body { background: white; margin: 0; padding: 0; } 
-            .page { margin: 0; border: none; width: 100%; height: 297mm; box-shadow: none; padding: 8mm 12mm; overflow: hidden; } 
-            .btn-del { display: none; }
+            body { background: white; margin: 0; } 
+            .page { margin: 0; border: none; box-shadow: none; width: 100%; height: 297mm; } 
         }
     </style>
 </head>
@@ -55,8 +69,8 @@
     <div style="background:#111827; padding:25px; border-radius:14px; width:90%; max-width:320px; text-align:center">
         <h2 style="color:white; margin-bottom:20px">BFIDC LOGIN</h2>
         <input id="uID" placeholder="User ID">
-        <input id="uPass" type="password" placeholder="Password" style="margin-top:10px">
-        <button onclick="handleLogin()" style="width:100%; margin-top:15px; padding:12px; background:#22c55e; color:white; font-weight:bold; border:none; border-radius:8px; cursor:pointer">LOGIN</button>
+        <input id="uPass" type="password" placeholder="Password">
+        <button onclick="handleLogin()" style="width:100%; margin-top:10px; padding:12px; background:#22c55e; color:white; font-weight:bold; border:none; border-radius:8px; cursor:pointer">LOGIN</button>
     </div>
 </div>
 
@@ -64,29 +78,31 @@
     <header>
         <div id="who" style="font-size: 11px; color: #94a3b8; font-weight: bold;">BFIDC ADMIN</div>
         <div style="display:flex; gap:6px">
-            <button onclick="downloadData()" style="background:#34a853; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">💾 SAVE</button>
-            <button onclick="document.getElementById('fileInput').click()" style="background:#f59e0b; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">📂 OPEN</button>
-            <button onclick="newWork()" style="background:#6366f1; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">➕ NEW</button>
+            <button onclick="downloadData()" style="background:#34a853; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold;">💾 SAVE</button>
+            <button onclick="document.getElementById('fileInput').click()" style="background:#f59e0b; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold;">📂 OPEN</button>
+            <button onclick="newWork()" style="background:#6366f1; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold;">➕ NEW</button>
             <input type="file" id="fileInput" class="hidden" accept=".json" onchange="uploadData(event)">
         </div>
     </header>
     
     <div class="card no-print">
-        <div class="grid-inputs">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
             <div>গাছ নং<input id="tree" value="1" oninput="updatePiece()" onkeydown="move(event, 'v1')"></div>
-            <div>পিস নং<input id="piece" readonly style="background:#e2e8f0"></div>
-            <div style="grid-column: span 2">ধরণ
-                <select id="type" onchange="toggleInputs(); updatePiece();">
-                    <option value="log">গোল কাঠ (Round Log)</option>
-                    <option value="wood">সাইজ কাঠ (Sawn Wood)</option>
-                </select>
-            </div>
+            <div>পিস নং<input id="piece" readonly style="background:#f1f5f9"></div>
+        </div>
+        <div>ধরণ
+            <select id="type" onchange="toggleInputs(); updatePiece();">
+                <option value="log">গোল কাঠ (Round Log)</option>
+                <option value="wood">সাইজ কাঠ (Sawn Wood)</option>
+            </select>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
             <div><span id="labelV1">বেড় (ইঞ্চি)</span><input id="v1" inputmode="decimal" onkeydown="move(event, 'v2')"></div>
-            <div id="thickBox" class="hidden">পুরুত্ব (ইঞ্চি)<input id="ve" inputmode="decimal" onkeydown="move(event, 'v2')"></div>
+            <div id="thickBox" class="hidden">পুরুত্ব<input id="ve" inputmode="decimal" onkeydown="move(event, 'v2')"></div>
             <div>লম্বা (ফুট)<input id="v2" inputmode="decimal" onkeydown="move(event, 'save')"></div>
         </div>
-        <button onclick="addItem()" id="addBtn" style="width:100%; margin-top:12px; background:#22c55e; color:white; padding:15px; font-size:18px; border:none; border-radius:8px; font-weight:bold; cursor:pointer">সেভ করুন (ENTER)</button>
-        <button onclick="window.print()" style="width:100%; margin-top:8px; background:#475569; color:white; padding:10px; border:none; border-radius:8px; font-weight:bold; cursor:pointer">PRINT REPORT / PDF</button>
+        <button onclick="addItem()" id="addBtn" style="width:100%; background:#22c55e; color:white; padding:15px; font-size:18px; border:none; border-radius:8px; font-weight:bold;">সেভ করুন (ENTER)</button>
+        <button onclick="window.print()" style="width:100%; margin-top:8px; background:#475569; color:white; padding:10px; border:none; border-radius:8px; font-weight:bold;">PRINT / PDF</button>
     </div>
     <div id="printArea"></div>
 </div>
@@ -121,20 +137,21 @@
 
     function deleteItem(idx) { if(confirm("মুছে ফেলবেন?")) { items.splice(idx, 1); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); } }
 
-    // --- Dynamic Fit Render ---
     function render() {
         let ty = type.value, filtered = items.filter(i => i.type === ty);
         let totalCft = filtered.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(filtered.map(i => i.tree)).size;
         
-        const ITEMS_PER_PAGE = 120; // সর্বোচ্চ ধারণক্ষমতা বাড়িয়ে দিলাম
-        const HALF = 60; 
+        // এবার আমরা ডাইনামিক ভাবে চেক করবো কতগুলো রো ধরলে পেজ পূর্ণ হয়
+        // সাধারণত ১২.৫px ফন্ট সাইজে ১১৪-১২০টি রো এক পেজে ধরে (৬০+৬০)
+        const ROWS_PER_PAGE = 114; 
+        const HALF = 57; 
         let pagesHtml = "";
-        let totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+        let totalPages = Math.ceil(filtered.length / ROWS_PER_PAGE) || 1;
 
         for (let p = 0; p < totalPages; p++) {
-            let pageData = filtered.slice(p * ITEMS_PER_PAGE, (p + 1) * ITEMS_PER_PAGE);
+            let pageData = filtered.slice(p * ROWS_PER_PAGE, (p + 1) * ROWS_PER_PAGE);
             let left = pageData.slice(0, HALF);
-            let right = pageData.slice(HALF, ITEMS_PER_PAGE);
+            let right = pageData.slice(HALF, ROWS_PER_PAGE);
 
             let tableH = `<tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
 
@@ -152,11 +169,13 @@
             if (p === totalPages - 1) {
                 pagesHtml += `
                 <div class="summary-container">
-                    <p style="margin:5px 0; font-size:15px;"><b>মোট গাছ: ${totalTrees} টি, মোট পিস: ${filtered.length} টি, মোট সিএফটি: ${totalCft.toFixed(2)}</b></p>
-                    <p style="text-align:right; font-size:11px; margin:0;">পৃষ্ঠা: ${p+1} / ${totalPages}</p>
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:15px;">
+                        <span>মোট গাছ: ${totalTrees} টি, মোট পিস: ${filtered.length} টি, মোট সিএফটি: ${totalCft.toFixed(2)}</span>
+                        <span>পৃষ্ঠা: ${p+1} / ${totalPages}</span>
+                    </div>
                 </div>`;
             } else {
-                pagesHtml += `<p style="text-align:right; font-size:11px; margin:0; margin-top:auto;">পৃষ্ঠা: ${p+1} / ${totalPages}</p>`;
+                pagesHtml += `<div class="summary-container" style="border:none; text-align:right; font-size:12px;">পৃষ্ঠা: ${p+1} / ${totalPages}</div>`;
             }
             pagesHtml += `</div>`;
         }
@@ -164,22 +183,15 @@
     }
 
     function downloadData() {
-        if(items.length === 0) return alert("কোনো ডাটা নেই!");
         const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = "BFIDC_Data.json"; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "BFIDC_Data.json"; a.click();
     }
-
     function uploadData(event) {
-        const file = event.target.files[0];
-        if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) { items = JSON.parse(e.target.result); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); };
-        reader.readAsText(file);
+        reader.readAsText(event.target.files[0]);
     }
-
-    function newWork() { if(confirm("নতুন কাজ শুরু করবেন?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
-    
+    function newWork() { if(confirm("সব ডাটা মুছে যাবে?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
     if(sessionStorage.getItem("active")) start();
 </script>
 </body>
