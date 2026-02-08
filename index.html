@@ -144,13 +144,18 @@
         let totalCft = filteredItems.reduce((s, i) => s + i.cft, 0);
         let totalTrees = new Set(filteredItems.map(i => i.tree)).size;
         
-        const rowsPerPage = 76; 
+        const rowsPerPage = 76; // এক পৃষ্ঠায় মোট ৩৮ জোড়া (৭৬ পিস)
         let pagesData = [];
         for (let i = 0; i < filteredItems.length; i += rowsPerPage) pagesData.push(filteredItems.slice(i, i + rowsPerPage));
 
         let html = "";
         pagesData.forEach((data, idx) => {
-            let mid = Math.ceil(data.length / 2), left = data.slice(0, mid), right = data.slice(mid);
+            // সিরিয়াল ডানে-বামে (Row-wise) করার লজিক
+            let left = [], right = [];
+            for(let i=0; i<data.length; i++) {
+                if(i % 2 === 0) left.push(data[i]); else right.push(data[i]);
+            }
+
             let th = `<tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>`;
             html += `<div class="page">`;
             if(idx === 0 && currentType === 'log') {
@@ -188,25 +193,19 @@
         reader.onload = function(e) {
             try {
                 let importedItems = JSON.parse(e.target.result);
-                // ফাহাদ ব্রো-র জন্য ডাটা ফিক্সিং লজিক:
                 items = importedItems.map(item => ({
-                    tree: item.tree || 0,
-                    type: item.type || 'log', // যদি টাইপ না থাকে তবে log হিসেবে ধরবে
-                    piece: item.piece || 1,
-                    v1: item.v1 || 0,
-                    v2: item.v2 || 0,
-                    thick: item.thick || 0, // পুরাতন ফাইলে এটি না থাকলেও ০ ধরবে
-                    cft: item.cft || 0
+                    tree: item.tree || 0, type: item.type || 'log', piece: item.piece || 1,
+                    v1: item.v1 || 0, v2: item.v2 || 0, thick: item.thick || 0, cft: item.cft || 0
                 }));
                 localStorage.setItem("bfidc_v2_data", JSON.stringify(items));
                 render(); updatePiece();
-                alert("আপনার আগের ফাইলটি সফলভাবে ওপেন হয়েছে, ফাহাদ ব্রো!");
-            } catch(err) { alert("ফাইলটি সঠিক নয়!"); }
+                alert("ফাইলটি লোড হয়েছে, ফাহাদ ব্রো!");
+            } catch(err) { alert("ভুল ফাইল!"); }
         };
         reader.readAsText(file);
     }
 
-    function newWork() { if(confirm("সব ডাটা মুছে যাবে!")) { items = []; localStorage.removeItem("bfidc_v2_data"); render(); updatePiece(); } }
+    function newWork() { if(confirm("সব মুছবেন?")) { items = []; localStorage.removeItem("bfidc_v2_data"); render(); updatePiece(); } }
     if(sessionStorage.getItem("active")) start();
 </script>
 </body>
