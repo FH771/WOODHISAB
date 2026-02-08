@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDCWOODHISAB - Single File</title>
+<title>BFIDCWOODHISAB - Password Fixed</title>
 <style>
 @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
 body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;margin:0;color:white;}
@@ -72,10 +72,22 @@ input:focus{outline:3px solid #22c55e;background:#f0fdf4;}
 </div>
 
 <script>
-let items=[]; 
+let items=[];
 try{const savedData=localStorage.getItem("bfidc_v2_data"); items=savedData?JSON.parse(savedData):[];}catch(e){items=[];}
-function handleLogin(){if(uPass.value==="0000"){sessionStorage.setItem("active","admin");start();}else alert("ভুল পাসওয়ার্ড!");}
-function start(){loginLayer.classList.add("hidden");appArea.classList.remove("hidden");render();updatePiece();tree.focus();tree.select();}
+
+function handleLogin(){
+    const pass = (uPass.value || "").trim();
+    if(pass === "0000"){
+        // forced show app
+        loginLayer.style.display="none";
+        appArea.style.display="block";
+        render(); updatePiece();
+        tree.focus(); tree.select();
+    } else {
+        alert("ভুল পাসওয়ার্ড!");
+    }
+}
+
 function toggleSizeFields(){let isSize=woodType.value==='size';document.getElementById('sizeFields').classList.toggle('hidden',!isSize);document.getElementById('logField').classList.toggle('hidden',isSize);}
 function updatePiece(){let count=items.filter(i=>i.tree==parseInt(tree.value)&&i.type===woodType.value).length;piece.value=count+1;}
 function addItem(){let t=parseInt(tree.value),type=woodType.value,v2v=parseFloat(v2.value);let v1v,th,cft;if(type==='log'){v1v=parseFloat(v1.value);if(!t||!v1v||!v2v)return;cft=((v1v/4)**2*v2v)/144;}else{v1v=parseFloat(width.value);th=parseFloat(thick.value);if(!t||!v1v||!th||!v2v)return;cft=(v1v*th*v2v)/144;}items.push({tree:t,type:type,piece:items.filter(i=>i.tree==t&&i.type===type).length+1,v1:v1v,v2:v2v,thick:th||0,cft:parseFloat(cft.toFixed(2))});localStorage.setItem("bfidc_v2_data",JSON.stringify(items));v1.value="";v2.value="";width.value="";thick.value="";render();updatePiece();setTimeout(()=>{tree.focus();tree.select();},50);}
@@ -84,7 +96,6 @@ function exportToWord(){let content=document.getElementById('printArea').innerHT
 function downloadBackup(){const blob=new Blob([JSON.stringify(items)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download="BFIDC_Data.json";a.click();}
 function importData(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(e){try{items=JSON.parse(e.target.result);localStorage.setItem("bfidc_v2_data",JSON.stringify(items));render();updatePiece();alert("ডাটা লোড হয়েছে!");}catch(err){alert("ভুল ফাইল!");}};reader.readAsText(file);}
 function newWork(){if(confirm("সব ডাটা মুছবেন?")){items=[];localStorage.removeItem("bfidc_v2_data");render();updatePiece();}}
-if(sessionStorage.getItem("active"))start();
 </script>
 </body>
 </html>
