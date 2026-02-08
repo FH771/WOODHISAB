@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDC ERP - FAST & OFFLINE</title>
+    <title>BFIDC ERP - SINGLE COLUMN REPORT</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
         body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white; -webkit-tap-highlight-color: transparent;}
@@ -11,18 +11,39 @@
         .card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
         .grid-inputs{display:grid; grid-template-columns: repeat(2, 1fr); gap:8px}
         input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; }
-        .page { background: white; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 10mm; color: black; box-sizing: border-box; display: flex; flex-direction: column; page-break-after: always; }
-        .report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; }
-        .report-header h3 { margin: 2px 0; font-size: 18px; font-weight: normal; line-height: 1.3; }
-        .dual-container { display: flex; gap: 15px; flex-grow: 1; overflow: hidden;}
-        .col { flex: 1; }
+        
+        /* পৃষ্ঠা বিন্যাস - একটার পর একটা সিঙ্গেল কলাম */
+        .page { 
+            background: white; 
+            width: 210mm; 
+            min-height: 297mm; 
+            margin: 20px auto; 
+            padding: 15mm; 
+            color: black; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            page-break-after: always;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .report-header { text-align: center; margin-bottom: 20px; font-family: 'Kalpurush', sans-serif; }
+        .report-header h3 { margin: 2px 0; font-size: 19px; font-weight: normal; line-height: 1.4; }
+        
+        .table-container { flex-grow: 1; }
         table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
-        th, td { border: 1px solid #000; padding: 3px; text-align: center; font-size: 12px; font-family: 'Kalpurush', sans-serif; }
+        th, td { border: 1px solid #000; padding: 6px; text-align: center; font-size: 14px; font-family: 'Kalpurush', sans-serif; }
         th { background: #f3f4f6; }
-        .summary-container { margin-top: 5px; border-top: 2px solid #000; font-family: 'Kalpurush', sans-serif; }
-        .btn-del { background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; }
+        
+        .summary-container { margin-top: 10px; border-top: 2px solid #000; font-family: 'Kalpurush', sans-serif; }
+        .btn-del { background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold; }
         .hidden { display:none!important; }
-        @media print { header, .no-print, #loginLayer {display:none!important} body { background: white; } .page { margin: 0; border: none; width: 100%; } }
+        
+        @media print { 
+            header, .no-print, #loginLayer {display:none!important} 
+            body { background: white; } 
+            .page { margin: 0; border: none; width: 100%; box-shadow: none; padding: 10mm; } 
+        }
     </style>
 </head>
 <body>
@@ -40,15 +61,13 @@
     <header>
         <div id="who" style="font-size: 11px; color: #94a3b8; font-weight: bold;">BFIDC ADMIN</div>
         <div style="display:flex; gap:6px">
-            <button onclick="downloadData()" style="background:#34a853; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">💾 SAVE FILE</button>
+            <button onclick="downloadData()" style="background:#34a853; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">💾 SAVE</button>
             <button onclick="document.getElementById('fileInput').click()" style="background:#f59e0b; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">📂 OPEN</button>
             <button onclick="newWork()" style="background:#6366f1; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">➕ NEW</button>
             <input type="file" id="fileInput" class="hidden" accept=".json" onchange="uploadData(event)">
         </div>
     </header>
     
-    <div id="sync_status" style="font-size: 12px; color: #4ade80; text-align: center; margin: 8px 0; height: 16px;"></div>
-
     <div class="card no-print">
         <div class="grid-inputs">
             <div>গাছ নং<input id="tree" value="1" oninput="updatePiece()" onkeydown="move(event, 'v1')"></div>
@@ -72,18 +91,13 @@
 <script>
     let items = JSON.parse(localStorage.getItem("bfidc_data")) || [];
 
-    // --- ফাইল সেভ ও ওপেন লজিক ---
     function downloadData() {
         if(items.length === 0) return alert("কোনো ডাটা নেই!");
-        let fileName = prompt("ফাইলের একটি নাম দিন:", "Wood_Work_01");
+        let fileName = prompt("ফাইলের নাম দিন:", "Wood_Data_1");
         if(!fileName) return;
         const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName + ".json";
-        a.click();
-        document.getElementById('sync_status').innerText = "✅ ফাইল মোবাইলে সেভ হয়েছে!";
+        const a = document.createElement('a'); a.href = url; a.download = fileName + ".json"; a.click();
     }
 
     function uploadData(event) {
@@ -91,80 +105,91 @@
         if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
-            try {
-                items = JSON.parse(e.target.result);
-                localStorage.setItem("bfidc_data", JSON.stringify(items));
-                render();
-                alert("✅ ফাইল সাকসেসফুলি লোড হয়েছে!");
-            } catch(err) { alert("ভুল ফাইল সিলেক্ট করেছেন!"); }
+            items = JSON.parse(e.target.result);
+            localStorage.setItem("bfidc_data", JSON.stringify(items));
+            render(); updatePiece();
         };
         reader.readAsText(file);
     }
 
     function newWork() {
-        if(confirm("আপনি কি নতুন কাজ শুরু করতে চান? আগের সব হিসাব মুছে যাবে (যদি সেভ না করে থাকেন)।")) {
-            items = [];
-            localStorage.removeItem("bfidc_data");
-            render();
-            document.getElementById('tree').value = 1;
-            updatePiece();
-            alert("নতুন পেজ তৈরি হয়েছে!");
+        if(confirm("সব ডাটা মুছে নতুন কাজ শুরু করবেন?")) {
+            items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece();
         }
     }
 
-    // --- কোর ফাংশন ---
-    function handleLogin() { if(uID.value==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("ভুল পাসওয়ার্ড!"); }
-    function start() { document.getElementById('loginLayer').classList.add("hidden"); document.getElementById('appArea').classList.remove("hidden"); updatePiece(); render(); }
-    function toggleInputs() { let isW = document.getElementById('type').value==='wood'; document.getElementById('thickBox').classList.toggle("hidden", !isW); document.getElementById('labelV1').innerText = isW ? "চওড়া" : "বেড়"; render(); }
-    function updatePiece() { let count = items.filter(i => i.tree == document.getElementById('tree').value && i.type == document.getElementById('type').value).length; document.getElementById('piece').value = count + 1; }
+    function handleLogin() { if(uID.value==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("Error!"); }
+    function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); render(); }
+    function toggleInputs() { let isW = type.value==='wood'; thickBox.classList.toggle("hidden", !isW); labelV1.innerText = isW ? "চওড়া" : "বেড়"; render(); }
+    function updatePiece() { let count = items.filter(i => i.tree == tree.value && i.type == type.value).length; piece.value = count + 1; }
     
     function move(e, next) { 
         if(e.key === "Enter") { e.preventDefault(); addItem(); } 
         if(e.key === "ArrowRight") { 
             e.preventDefault(); 
-            if(e.target.id === 'tree') document.getElementById('v1').focus(); 
-            else if(next === 'v2' && document.getElementById('type').value === 'wood' && e.target.id === 'v1') document.getElementById('ve').focus(); 
+            if(e.target.id === 'tree') v1.focus(); 
+            else if(next === 'v2' && type.value === 'wood' && e.target.id === 'v1') ve.focus(); 
             else if(next !== 'save') document.getElementById(next).focus(); 
         } 
     }
 
     function addItem() {
-        let t = document.getElementById('tree').value, ty = document.getElementById('type').value, v1v = parseFloat(document.getElementById('v1').value), v2v = parseFloat(document.getElementById('v2').value), vev = parseFloat(document.getElementById('ve').value) || 0;
+        let t = tree.value, ty = type.value, v1v = parseFloat(v1.value), v2v = parseFloat(v2.value), vev = parseFloat(ve.value) || 0;
         if(!v1v || !v2v) return;
         let cft = ty==='log' ? ((v1v/4)**2 * v2v)/144 : (v1v * vev * v2v)/144;
         items.push({tree: t, piece: items.filter(i=>i.tree==t && i.type==ty).length + 1, type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)});
         localStorage.setItem("bfidc_data", JSON.stringify(items));
-        document.getElementById('v1').value=""; document.getElementById('v2').value=""; document.getElementById('ve').value=""; 
-        render(); updatePiece(); 
-        document.getElementById('tree').focus();
+        v1.value=""; v2.value=""; ve.value=""; render(); updatePiece(); tree.focus();
     }
 
     function deleteItem(idx) { if(confirm("মুছে ফেলবেন?")) { items.splice(idx, 1); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); } }
 
+    // --- রেন্ডার: সিঙ্গেল কলামে হিসাব ---
     function render() {
-        let ty = document.getElementById('type').value, filtered = items.filter(i => i.type === ty);
+        let ty = type.value, filtered = items.filter(i => i.type === ty);
         let totalCft = filtered.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(filtered.map(i => i.tree)).size;
         
-        // ৩ পেজের মধ্যে ডাটা রাখার জন্য প্রতি পেজে এন্ট্রি সংখ্যা বাড়ানো হয়েছে
-        const ITEMS_PER_PAGE = 90; 
+        const ITEMS_PER_PAGE = 35; // এক কলামে ৩৫টি হিসাব ধরবে প্রতি পাতায়
         let pagesHtml = "";
-        for (let p = 0; p < Math.ceil(filtered.length / ITEMS_PER_PAGE) || p === 0; p++) {
-            if(p >= 3) break; // সর্বোচ্চ ৩ পেজ লিমিট
+        let totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+
+        for (let p = 0; p < totalPages; p++) {
             let pageData = filtered.slice(p * ITEMS_PER_PAGE, (p + 1) * ITEMS_PER_PAGE);
-            let mid = Math.ceil(pageData.length / 2);
-            let left = pageData.slice(0, mid), right = pageData.slice(mid);
-            let tableH = `<tr><th>গাছ/পিস</th><th>সাইজ</th><th>সিএফটি</th><th class="no-print">⚙</th></tr>`;
-            pagesHtml += `<div class="page">
+            let tableH = `<tr><th>ক্রমিক</th><th>গাছ নং</th><th>পিস নং</th><th>মাপ (সাইজ)</th><th>সিএফটি (CFT)</th><th class="no-print">⚙</th></tr>`;
+
+            pagesHtml += `
+            <div class="page">
                 <div class="report-header">
                     <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, ..................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3>
                     <h3>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3>
+                    <p style="text-align:right; font-size:13px; font-weight:bold;">পৃষ্ঠা: ${p+1} / ${totalPages}</p>
                 </div>
-                <div class="dual-container">
-                    <div class="col"><table>${tableH}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
-                    <div class="col"><table>${tableH}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
+                <div class="table-container">
+                    <table>
+                        ${tableH}
+                        ${pageData.map((i, index) => `
+                        <tr>
+                            <td>${(p * ITEMS_PER_PAGE) + index + 1}</td>
+                            <td>${i.tree}</td>
+                            <td>${i.piece}</td>
+                            <td>${i.type==='log' ? i.v1+'" x '+i.v2+"'" : i.v1+'" x '+i.ve+'" x '+i.v2+"'"}</td>
+                            <td>${i.cft}</td>
+                            <td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">X</button></td>
+                        </tr>`).join('')}
+                    </table>
                 </div>`;
-            if (p === Math.ceil(filtered.length / ITEMS_PER_PAGE) - 1 || p === 2) {
-                pagesHtml += `<div class="summary-container"><table><tr><td style="text-align:left">মোট গাছ: ${totalTrees} টি, মোট পিস: ${filtered.length} টি, মোট সিএফটি: ${totalCft.toFixed(2)}</td></tr></table></div>`;
+            
+            if (p === totalPages - 1) {
+                pagesHtml += `
+                <div class="summary-container">
+                    <table style="margin-top:10px;">
+                        <tr>
+                            <td style="text-align:left; padding:15px; font-size:16px;">
+                                <b>সারসংক্ষেপ:</b> মোট গাছ: ${totalTrees} টি, মোট পিস: ${filtered.length} টি, মোট সিএফটি: ${totalCft.toFixed(2)}
+                            </td>
+                        </tr>
+                    </table>
+                </div>`;
             }
             pagesHtml += `</div>`;
         }
