@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDC FINAL - FAHAD BRO</title>
+    <title>BFIDCWOODHISAB - FINAL</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
         body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white;}
@@ -45,8 +45,7 @@
 
 <div id="loginLayer" style="position:fixed; inset:0; background:#020617; display:flex; align-items:center; justify-content:center; z-index:9999">
     <div style="background:#111827; padding:25px; border-radius:14px; width:90%; max-width:320px; text-align:center">
-        <h2 style="color:white; margin-bottom:20px">BFIDC LOGIN</h2>
-        <input id="uID" placeholder="User ID" onkeydown="if(event.key==='Enter') uPass.focus()">
+        <h2 style="color:white; margin-bottom:20px">BFIDCWOODHISAB</h2>
         <input id="uPass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter') handleLogin()">
         <button onclick="handleLogin()" style="width:100%; margin-top:10px; padding:12px; background:#22c55e; color:white; font-weight:bold; border:none; border-radius:8px;">LOGIN</button>
     </div>
@@ -54,7 +53,7 @@
 
 <div id="appArea" class="hidden">
     <header>
-        <div style="font-size: 12px; color: #22c55e; font-weight: bold;">FAHAD BRO BFIDC</div>
+        <div style="font-size: 12px; color: #22c55e; font-weight: bold;">BFIDCWOODHISAB</div>
         <div style="display:flex; gap:6px">
             <button onclick="document.getElementById('importFile').click()" style="background:#6366f1; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">📂 OPEN</button>
             <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
@@ -98,7 +97,7 @@
         items = savedData ? JSON.parse(savedData) : [];
     } catch(e) { items = []; }
 
-    function handleLogin() { if(uID.value==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("ভুল পাসওয়ার্ড!"); }
+    function handleLogin() { if(uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("ভুল পাসওয়ার্ড!"); }
     function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); render(); updatePiece(); tree.focus(); tree.select(); }
     
     function navKeys(e, logNextId, sizeNextId) {
@@ -145,13 +144,14 @@
         let totalCft = filteredItems.reduce((s, i) => s + i.cft, 0);
         let totalTrees = new Set(filteredItems.map(i => i.tree)).size;
         
-        // ফাহাদ ব্রো-র জন্য লম্বালম্বি সিরিয়াল লজিক
-        const rowsPerPage = 76; 
+        // ফাহাদ ব্রো-র জন্য সঠিক ভার্টিকাল সিরিয়াল লজিক
+        const rowsPerPage = 76; // এক পৃষ্ঠায় ৩৮ জোড়া
         let pagesData = [];
         for (let i = 0; i < filteredItems.length; i += rowsPerPage) pagesData.push(filteredItems.slice(i, i + rowsPerPage));
 
         let html = "";
         pagesData.forEach((data, idx) => {
+            // সিরিয়াল আগে বাম কলামে নিচে নামবে, তারপর ডান কলামে যাবে
             let mid = Math.ceil(data.length / 2);
             let left = data.slice(0, mid);
             let right = data.slice(mid);
@@ -159,7 +159,6 @@
             let th = `<tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>`;
             html += `<div class="page">`;
             
-            // ফিক্সড হেডলাইন - শুধুমাত্র ১ম পাতায়
             if(idx === 0) {
                 html += `<div class="report-header">
                     <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন,</h3>
