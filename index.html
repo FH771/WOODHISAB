@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDC MOBILE SPEED - FAHAD BRO</title>
+    <title>BFIDC FINAL REPORT - FAHAD BRO</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
         body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white;}
         header{position:sticky; top:0; background:#020617; padding:10px; display:flex; justify-content:space-between; align-items:center; z-index:999; border-bottom: 1px solid #1e293b;}
         .card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
-        
-        /* মোবাইলে বড় এবং স্পষ্ট ইনপুট */
         input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:18px; margin-bottom: 10px;}
         input:focus { outline: 3px solid #22c55e; background: #f0fdf4; }
         
@@ -37,10 +35,6 @@
             body { background: white; margin: 0; } 
             .page { margin: 0; border: none; width: 210mm; min-height: 297mm; page-break-after: always; display: flex !important; } 
         }
-        @media screen and (max-width: 600px) {
-            .page { width: 100%; padding: 5mm; height: auto; font-size: 10px; }
-            th, td { font-size: 9px; }
-        }
     </style>
 </head>
 <body>
@@ -48,26 +42,27 @@
 <div id="loginLayer" style="position:fixed; inset:0; background:#020617; display:flex; align-items:center; justify-content:center; z-index:9999">
     <div style="background:#111827; padding:25px; border-radius:14px; width:90%; max-width:320px; text-align:center">
         <h2 style="color:white; margin-bottom:20px">BFIDC LOGIN</h2>
-        <input id="uID" placeholder="User ID" inputmode="text">
-        <input id="uPass" type="password" placeholder="Password">
+        <input id="uID" placeholder="User ID" onkeydown="if(event.key==='Enter') uPass.focus()">
+        <input id="uPass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter') handleLogin()">
         <button onclick="handleLogin()" style="width:100%; margin-top:10px; padding:12px; background:#22c55e; color:white; font-weight:bold; border:none; border-radius:8px;">LOGIN</button>
     </div>
 </div>
 
 <div id="appArea" class="hidden">
     <header>
-        <div style="font-size: 12px; color: #22c55e; font-weight: bold;">FAHAD BRO MOBILE</div>
+        <div style="font-size: 12px; color: #22c55e; font-weight: bold;">FAHAD BRO BFIDC</div>
         <div style="display:flex; gap:6px">
             <button onclick="document.getElementById('importFile').click()" style="background:#6366f1; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">📂 OPEN</button>
             <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
             <button onclick="downloadBackup()" style="background:#34a853; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">💾 BACKUP</button>
+            <button onclick="exportToWord()" style="background:#2b5797; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">📄 MS WORD</button>
             <button onclick="newWork()" style="background:#ef4444; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">🗑 CLEAR</button>
         </div>
     </header>
     
     <div class="card no-print">
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div>গাছ নং<input id="tree" type="number" value="1" inputmode="numeric" oninput="updatePiece()" onkeydown="handleTreeKeys(event)"></div>
+            <div>গাছ নং<input id="tree" type="number" value="1" inputmode="numeric" oninput="updatePiece()" onkeydown="navKeys(event, 'v1', 'width')"></div>
             <div>পিস নং<input id="piece" readonly style="background:#f1f5f9"></div>
         </div>
         
@@ -79,14 +74,14 @@
         </div>
 
         <div id="sizeFields" class="hidden" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div>চওড়া<input id="width" type="number" step="any" inputmode="decimal" onkeydown="if(event.key==='Enter') thick.focus()"></div>
-            <div>পুরুত্ব<input id="thick" type="number" step="any" inputmode="decimal" onkeydown="if(event.key==='Enter') v2.focus()"></div>
+            <div>চওড়া (ইঞ্চি)<input id="width" type="number" step="any" inputmode="decimal" onkeydown="navKeys(event, 'thick', 'thick')"></div>
+            <div>পুরুত্ব (ইঞ্চি)<input id="thick" type="number" step="any" inputmode="decimal" onkeydown="navKeys(event, 'v2', 'v2')"></div>
         </div>
         
-        <div id="logField">বেড় (ইঞ্চি)<input id="v1" type="number" step="any" inputmode="decimal" onkeydown="if(event.key==='Enter') v2.focus()" onkeydown="if(event.key==='ArrowRight') v2.focus()"></div>
+        <div id="logField">বেড় (ইঞ্চি)<input id="v1" type="number" step="any" inputmode="decimal" onkeydown="navKeys(event, 'v2', 'v2')"></div>
         <div>লম্বা (ফুট)<input id="v2" type="number" step="any" inputmode="decimal" onkeydown="if(event.key==='Enter') addItem()"></div>
         
-        <button onclick="addItem()" style="width:100%; background:#22c55e; color:white; padding:15px; font-size:18px; border:none; border-radius:8px; font-weight:bold;">সেভ করুন</button>
+        <button onclick="addItem()" id="saveBtn" style="width:100%; background:#22c55e; color:white; padding:15px; font-size:18px; border:none; border-radius:8px; font-weight:bold;">সেভ (ENTER)</button>
         <button onclick="window.print()" style="width:100%; margin-top:10px; background:#475569; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">PRINT REPORT</button>
     </div>
     <div id="printArea"></div>
@@ -102,10 +97,11 @@
     function handleLogin() { if(uID.value==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("ভুল পাসওয়ার্ড!"); }
     function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); render(); updatePiece(); tree.focus(); tree.select(); }
     
-    function handleTreeKeys(e) {
+    function navKeys(e, logNextId, sizeNextId) {
         if (e.key === "ArrowRight" || e.key === "Enter") {
             e.preventDefault();
-            if (woodType.value === 'log') v1.focus(); else width.focus();
+            let targetId = (woodType.value === 'log') ? logNextId : sizeNextId;
+            document.getElementById(targetId).focus();
         }
     }
 
@@ -140,11 +136,7 @@
         v1.value=""; v2.value=""; width.value=""; thick.value=""; 
         render(); updatePiece();
         
-        // ফাহাদ ব্রো-র জন্য স্পেশাল: আবার গাছ নং এ ফিরে গিয়ে সিলেক্ট হয়ে থাকবে
-        setTimeout(() => {
-            tree.focus();
-            tree.select();
-        }, 50);
+        setTimeout(() => { tree.focus(); tree.select(); }, 50);
     }
 
     function render() {
@@ -180,6 +172,19 @@
         document.getElementById("printArea").innerHTML = html;
     }
 
+    function exportToWord() {
+        let content = document.getElementById('printArea').innerHTML;
+        let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>BFIDC Report</title><style>table{border-collapse:collapse;width:100%}td,th{border:1pt solid black;padding:5px;text-align:center;font-family:Kalpurush,Arial}</style></head><body>";
+        let footer = "</body></html>";
+        let sourceHTML = header + content + footer;
+        let blob = new Blob(['\ufeff', sourceHTML], { type: 'application/msword' });
+        let url = URL.createObjectURL(blob);
+        let link = document.createElement('a');
+        link.href = url;
+        link.download = 'BFIDC_Report.doc';
+        link.click();
+    }
+
     function downloadBackup() {
         const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "BFIDC_Data.json"; a.click();
@@ -197,7 +202,7 @@
         reader.readAsText(file);
     }
 
-    function newWork() { if(confirm("সব মুছবেন?")) { items = []; localStorage.removeItem("bfidc_v2_data"); render(); updatePiece(); } }
+    function newWork() { if(confirm("সব ডাটা মুছে যাবে!")) { items = []; localStorage.removeItem("bfidc_v2_data"); render(); updatePiece(); } }
     if(sessionStorage.getItem("active")) start();
 </script>
 </body>
