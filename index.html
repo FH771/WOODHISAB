@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDC ERP - FIXED PAGE BREAK</title>
+    <title>BFIDC ERP - FINAL FIX</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
         body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white;}
@@ -12,17 +12,10 @@
         input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; margin-bottom: 8px;}
         
         .page { 
-            background: white; 
-            width: 210mm; 
-            height: 297mm; 
-            margin: 10px auto; 
-            padding: 10mm 15mm; 
-            color: black; 
-            box-sizing: border-box; 
-            display: flex;
-            flex-direction: column;
-            page-break-after: always;
-            position: relative;
+            background: white; width: 210mm; height: 297mm; 
+            margin: 10px auto; padding: 10mm 15mm; color: black; 
+            box-sizing: border-box; display: flex; flex-direction: column; 
+            page-break-after: always; position: relative;
         }
         
         .report-header { text-align: center; margin-bottom: 10px; font-family: 'Kalpurush', sans-serif; }
@@ -32,17 +25,12 @@
         .col { flex: 1; }
         
         table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; }
-        th, td { border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; }
-        th { background: #eee; }
+        th, td { border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; }
+        th { background: #eee; font-weight: bold; }
         
         .summary-container { 
-            position: absolute;
-            bottom: 10mm;
-            left: 15mm;
-            right: 15mm;
-            border-top: 2px solid #000;
-            padding-top: 5px;
-            font-family: 'Kalpurush', sans-serif;
+            position: absolute; bottom: 10mm; left: 15mm; right: 15mm; 
+            border-top: 2px solid #000; padding-top: 8px; font-family: 'Kalpurush', sans-serif;
         }
         
         .hidden { display:none!important; }
@@ -109,19 +97,14 @@
     
     function move(e, next) { 
         if(e.key === "Enter") { e.preventDefault(); addItem(); } 
-        if(e.key === "ArrowRight") { 
-            e.preventDefault(); 
-            if(e.target.id === 'tree') v1.focus(); 
-            else if(next === 'v2' && type.value === 'wood' && e.target.id === 'v1') ve.focus(); 
-            else if(next !== 'save') document.getElementById(next).focus(); 
-        } 
+        if(e.key === "ArrowRight") { e.preventDefault(); document.getElementById(next).focus(); } 
     }
 
     function addItem() {
         let t = tree.value, ty = type.value, v1v = parseFloat(v1.value), v2v = parseFloat(v2.value), vev = parseFloat(ve.value) || 0;
         if(!v1v || !v2v) return;
         let cft = ty==='log' ? ((v1v/4)**2 * v2v)/144 : (v1v * vev * v2v)/144;
-        items.push({tree: t, piece: items.filter(i=>i.tree==t && i.type==ty).length + 1, type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)});
+        items.push({tree: parseInt(t), piece: items.filter(i=>i.tree==t && i.type==ty).length + 1, type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)});
         localStorage.setItem("bfidc_data", JSON.stringify(items));
         v1.value=""; v2.value=""; ve.value=""; render(); updatePiece(); 
         tree.focus(); tree.select(); 
@@ -133,17 +116,19 @@
         let ty = type.value, filtered = items.filter(i => i.type === ty);
         let totalCft = filtered.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(filtered.map(i => i.tree)).size;
         
-        // ফাহাদ ব্রো, আমি প্রতি পাতায় ৮০টি (৪০+৪০) করে ফিক্সড করে দিলাম।
-        // এতে আপনার ৬২০ পর্যন্ত গাছ প্রথম পাতায় থাকবে এবং ৬২১ থেকে পরের পাতায় যাবে।
-        const ROWS_PER_PAGE = 80; 
-        const HALF = 40; 
-        let pagesHtml = "";
-        let totalPages = Math.ceil(filtered.length / ROWS_PER_PAGE) || 1;
+        // ফাহাদ ব্রো-র শর্ত: ৬২০ পর্যন্ত প্রথম পাতা, ৬২১ থেকে পরের পাতা।
+        let page1Data = filtered.filter(i => i.tree <= 620);
+        let page2Data = filtered.filter(i => i.tree > 620);
+        
+        let allPages = [];
+        if(page1Data.length > 0 || page2Data.length === 0) allPages.push(page1Data);
+        if(page2Data.length > 0) allPages.push(page2Data);
 
-        for (let p = 0; p < totalPages; p++) {
-            let pageData = filtered.slice(p * ROWS_PER_PAGE, (p + 1) * ROWS_PER_PAGE);
-            let left = pageData.slice(0, HALF);
-            let right = pageData.slice(HALF, ROWS_PER_PAGE);
+        let pagesHtml = "";
+        allPages.forEach((pData, idx) => {
+            let half = Math.ceil(pData.length / 2);
+            let left = pData.slice(0, half);
+            let right = pData.slice(half);
             let tableH = `<tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
 
             pagesHtml += `
@@ -157,13 +142,13 @@
                     <div class="col"><table>${tableH}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
                 </div>
                 <div class="summary-container">
-                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:14px;">
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:15px;">
                         <span>মোট গাছ: ${totalTrees} টি, মোট পিস: ${filtered.length} টি, মোট সিএফটি: ${totalCft.toFixed(2)}</span>
-                        <span>পৃষ্ঠা: ${p+1} / ${totalPages}</span>
+                        <span>পৃষ্ঠা: ${idx+1} / ${allPages.length}</span>
                     </div>
                 </div>
             </div>`;
-        }
+        });
         document.getElementById("printArea").innerHTML = pagesHtml;
     }
 
