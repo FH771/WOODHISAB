@@ -145,13 +145,13 @@
         let totalTrees = new Set(filteredItems.map(i => i.tree)).size;
         
         // ফাহাদ ব্রো-র জন্য সঠিক ভার্টিকাল সিরিয়াল লজিক
-        const rowsPerPage = 76; // এক পৃষ্ঠায় ৩৮ জোড়া
+        const rowsPerPage = 76; // এক পৃষ্ঠায় ৩৮ জোড়া (বাম ৩৮, ডান ৩৮)
         let pagesData = [];
         for (let i = 0; i < filteredItems.length; i += rowsPerPage) pagesData.push(filteredItems.slice(i, i + rowsPerPage));
 
         let html = "";
         pagesData.forEach((data, idx) => {
-            // সিরিয়াল আগে বাম কলামে নিচে নামবে, তারপর ডান কলামে যাবে
+            // সিরিয়াল লজিক: বাম কলাম আগে পূর্ণ হবে
             let mid = Math.ceil(data.length / 2);
             let left = data.slice(0, mid);
             let right = data.slice(mid);
