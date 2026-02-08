@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPORT TO WORD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>REPORT</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
         body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white;}
@@ -11,25 +11,41 @@
         .card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
         input, select { width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; margin-bottom: 8px;}
         
-        /* Report Style */
-        .page { background: white; width: 210mm; margin: 0 auto; padding: 10mm; color: black; font-family: 'Kalpurush', sans-serif; position: relative; page-break-after: always;}
-        .report-header { text-align: center; margin-bottom: 10px; }
-        .report-header h3 { margin: 2px 0; font-size: 16px; }
+        .page { 
+            background: white; width: 210mm; min-height: 297mm; 
+            margin: 0 auto; padding: 10mm 12mm; color: black; 
+            box-sizing: border-box; display: block; 
+            page-break-after: always; position: relative;
+        }
         
-        .content-wrapper { display: flex; gap: 15px; }
+        .report-header { text-align: center; margin-bottom: 10px; font-family: 'Kalpurush', sans-serif; }
+        .report-header h3 { margin: 1px 0; font-size: 16px; font-weight: bold; line-height: 1.2; }
+        
+        .content-wrapper { display: flex; gap: 15px; align-items: flex-start; }
         .col { flex: 1; }
         
-        table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; }
-        th, td { border: 1px solid #000; padding: 3px; text-align: center; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; margin-bottom: 5px; }
+        th, td { border: 1px solid #000; padding: 2.5px 4px; text-align: center; font-size: 12px; font-family: 'Kalpurush', sans-serif; }
+        th { background: #f2f2f2; font-weight: bold; }
         
-        .summary-box { width: 250px; margin-top: 15px; border: 1.8px solid #000; }
+        .summary-box {
+            width: 260px; margin-top: 10px; border: 1.8px solid #000; font-family: 'Kalpurush', sans-serif; display: inline-block;
+        }
         .summary-box div { display: flex; border-bottom: 1.2px solid #000; }
-        .summary-box span { padding: 5px; font-weight: bold; font-size: 14px; }
-        .summary-box .label { border-right: 1.8px solid #000; flex: 1.4; background: #f2f2f2; }
+        .summary-box div:last-child { border-bottom: none; }
+        .summary-box span { padding: 5px 10px; font-size: 14px; font-weight: bold; }
+        .summary-box .label { border-right: 1.8px solid #000; flex: 1.4; background: #f9f9f9; }
         .summary-box .val { flex: 1; text-align: center; }
 
+        .page-num { position: absolute; bottom: 8mm; right: 12mm; font-size: 12px; font-family: 'Kalpurush', sans-serif; }
         .hidden { display:none!important; }
-        @media print { header, .no-print, #loginLayer {display:none!important} .page {margin:0; width:100%;} }
+        .btn-del { background:#ef4444; color:white; border:none; padding:1px 4px; border-radius:3px; cursor:pointer; font-size: 9px; }
+
+        @media print { 
+            header, .no-print, #loginLayer {display:none!important} 
+            body { background: white; margin: 0; } 
+            .page { margin: 0; border: none; box-shadow: none; width: 100%; height: auto; min-height: 297mm; padding: 10mm 12mm; } 
+        }
     </style>
 </head>
 <body>
@@ -45,23 +61,33 @@
 
 <div id="appArea" class="hidden">
     <header>
-        <div style="font-size: 11px; color: #94a3b8;">BFIDC ADMIN</div>
+        <div style="font-size: 11px; color: #94a3b8; font-weight: bold;">BFIDC ADMIN</div>
         <div style="display:flex; gap:6px">
-            <button onclick="exportToWord()" style="background:#2b5797; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">📄 WORD FILE</button>
-            <button onclick="downloadData()" style="background:#34a853; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">💾 SAVE DATA</button>
-            <button onclick="window.print()" style="background:#475569; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">🖨️ PRINT</button>
+            <button onclick="exportToWord()" style="background:#2b5797; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">📄 MS WORD</button>
+            <button onclick="downloadData()" style="background:#34a853; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">💾 SAVE</button>
+            <button onclick="newWork()" style="background:#6366f1; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">➕ NEW</button>
         </div>
     </header>
     
     <div class="card no-print">
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div>গাছ নং<input id="tree" value="1" onkeydown="move(event, 'v1')"></div>
+            <div>গাছ নং<input id="tree" value="1" oninput="updatePiece()" onkeydown="move(event, 'v1')"></div>
+            <div>পিস নং<input id="piece" readonly style="background:#f1f5f9"></div>
+        </div>
+        <div>ধরণ
+            <select id="type" onchange="toggleInputs(); updatePiece();">
+                <option value="log">গোল কাঠ (Round Log)</option>
+                <option value="wood">সাইজ কাঠ (Sawn Wood)</option>
+            </select>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div><span id="labelV1">বেড় (ইঞ্চি)</span><input id="v1" inputmode="decimal" onkeydown="move(event, 'v2')"></div>
+            <div id="thickBox" class="hidden">পুরুত্ব<input id="ve" inputmode="decimal" onkeydown="move(event, 'v2')"></div>
             <div>লম্বা (ফুট)<input id="v2" inputmode="decimal" onkeydown="move(event, 'save')"></div>
         </div>
-        <div>বেড় (ইঞ্চি)<input id="v1" inputmode="decimal" onkeydown="move(event, 'v2')"></div>
-        <button onclick="addItem()" id="addBtn" style="width:100%; background:#22c55e; color:white; padding:12px; font-size:18px; border:none; border-radius:8px; font-weight:bold;">সেভ করুন</button>
+        <button onclick="addItem()" id="addBtn" style="width:100%; background:#22c55e; color:white; padding:12px; font-size:18px; border:none; border-radius:8px; font-weight:bold;">সেভ (ENTER)</button>
+        <button onclick="window.print()" style="width:100%; margin-top:8px; background:#475569; color:white; padding:10px; border:none; border-radius:8px; font-weight:bold;">PRINT REPORT</button>
     </div>
-    
     <div id="printArea"></div>
 </div>
 
@@ -69,67 +95,70 @@
     let items = JSON.parse(localStorage.getItem("bfidc_data")) || [];
 
     function handleLogin() { if(uID.value==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("Error!"); }
-    function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); render(); }
-    function move(e, next) { if(e.key === "Enter") { e.preventDefault(); if(next==='save') addItem(); else document.getElementById(next).focus(); } }
+    function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); render(); updatePiece(); }
+    function toggleInputs() { let isW = type.value==='wood'; thickBox.classList.toggle("hidden", !isW); labelV1.innerText = isW ? "চওড়া" : "বেড়"; render(); }
+    function updatePiece() { let count = items.filter(i => i.tree == tree.value && i.type == type.value).length; piece.value = count + 1; }
+    function move(e, next) { if(e.key === "Enter") { e.preventDefault(); addItem(); } }
 
     function addItem() {
-        let t = tree.value, v1v = parseFloat(v1.value), v2v = parseFloat(v2.value);
+        let t = tree.value, ty = type.value, v1v = parseFloat(v1.value), v2v = parseFloat(v2.value), vev = parseFloat(ve.value) || 0;
         if(!v1v || !v2v) return;
-        let cft = ((v1v/4)**2 * v2v)/144;
-        items.push({tree: t, piece: items.filter(i=>i.tree==t).length + 1, v1: v1v, v2: v2v, cft: +cft.toFixed(2)});
+        let cft = ty==='log' ? ((v1v/4)**2 * v2v)/144 : (v1v * vev * v2v)/144;
+        items.push({tree: parseInt(t), piece: items.filter(i=>i.tree==t && i.type==ty).length + 1, type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)});
         localStorage.setItem("bfidc_data", JSON.stringify(items));
-        v1.value=""; v2.value=""; render(); tree.focus(); tree.select();
+        v1.value=""; v2.value=""; ve.value=""; render(); updatePiece(); 
+        tree.focus(); tree.select(); 
     }
 
     function render() {
-        let totalCft = items.reduce((s, i) => s + i.cft, 0);
-        let totalTrees = new Set(items.map(i => i.tree)).size;
+        let ty = type.value, filtered = items.filter(i => i.type === ty);
+        let totalCft = filtered.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(filtered.map(i => i.tree)).size;
         
-        let html = `<div class="page" id="wordContent">
-            <div class="report-header">
-                <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h3>
-                <h3>রাবার বাগান হতে বিএফআইডিসি, এলপিসি প্রেরণের সাইজ লিস্ট</h3>
-            </div>
-            <div class="content-wrapper">
-                <div class="col"><table id="tableL"><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>`;
-        
-        let mid = Math.ceil(items.length / 2);
-        items.forEach((item, idx) => {
-            let row = `<tr><td>${item.tree}/${item.piece}</td><td>${item.v1}"x${item.v2}'</td><td>${item.cft}</td></tr>`;
-            if(idx < mid) html += row;
-            if(idx === mid) html += `</table></div><div class="col"><table><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>` + row;
-            if(idx > mid) html += row;
-        });
+        const linesPerPage = 84; 
+        let pages = [];
+        for (let i = 0; i < filtered.length; i += linesPerPage) pages.push(filtered.slice(i, i + linesPerPage));
+        if(pages.length === 0) pages = [[]];
 
-        html += `</table></div></div>
-            <div class="summary-box">
-                <div><span class="label">মোট গাছ:</span><span class="val">${totalTrees} টি</span></div>
-                <div><span class="label">মোট পিস:</span><span class="val">${items.length} টি</span></div>
-                <div><span class="label">মোট সিএফটি:</span><span class="val">${totalCft.toFixed(2)}</span></div>
-            </div>
-        </div>`;
+        let html = "";
+        pages.forEach((data, idx) => {
+            let mid = Math.ceil(data.length / 2);
+            let left = data.slice(0, mid); let right = data.slice(mid);
+            let th = `<tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>`;
+
+            html += `<div class="page">
+                <div class="report-header">
+                    <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h3>
+                    <h3>রাবার বাগান হতে বিএফআইডিসি, এলপিসি প্রেরণের সাইজ লিস্ট</h3>
+                </div>
+                <div class="content-wrapper">
+                    <div class="col"><table>${th}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table></div>
+                    <div class="col"><table>${th}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table></div>
+                </div>`;
+
+            if(idx === pages.length - 1) {
+                html += `<div class="summary-box">
+                    <div><span class="label">মোট গাছ:</span><span class="val">${totalTrees} টি</span></div>
+                    <div><span class="label">মোট পিস:</span><span class="val">${filtered.length} টি</span></div>
+                    <div><span class="label">মোট সিএফটি:</span><span class="val">${totalCft.toFixed(2)}</span></div>
+                </div>`;
+            }
+            html += `<div class="page-num">পৃষ্ঠা: ${idx+1} / ${pages.length}</div></div>`;
+        });
         document.getElementById("printArea").innerHTML = html;
     }
 
     function exportToWord() {
-        let content = document.getElementById("wordContent").innerHTML;
-        let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML to Word</title><style>table {border-collapse:collapse; width:100%;} td, th {border:1px solid black; padding:5px; text-align:center; font-family: 'Kalpurush';}</style></head><body>";
-        let footer = "</body></html>";
-        let sourceHTML = header + content + footer;
-        
-        let source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
-        let fileDownload = document.createElement("a");
-        document.body.appendChild(fileDownload);
-        fileDownload.href = source;
-        fileDownload.download = 'BFIDC_Report.doc';
-        fileDownload.click();
-        document.body.removeChild(fileDownload);
+        let content = document.getElementById("printArea").innerHTML;
+        let blob = new Blob(['<html><head><meta charset="utf-8"><style>table{border:1px solid black; border-collapse:collapse; width:100%} td,th{border:1px solid black; text-align:center;}</style></head><body>' + content + '</body></html>'], {type: 'application/msword'});
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a'); a.href = url; a.download = 'Report.doc'; a.click();
     }
 
     function downloadData() {
         const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "BFIDC_Data.json"; a.click();
     }
+    function newWork() { if(confirm("সব মুছবেন?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
     if(sessionStorage.getItem("active")) start();
 </script>
 </body>
