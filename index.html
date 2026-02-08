@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDC FINAL ERP</title>
+    <title>BFIDC ERP - FAST & OFFLINE</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
         body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white; -webkit-tap-highlight-color: transparent;}
@@ -13,42 +13,41 @@
         input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; }
         .page { background: white; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 10mm; color: black; box-sizing: border-box; display: flex; flex-direction: column; page-break-after: always; }
         .report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; }
-        .report-header h3 { margin: 2px 0; font-size: 19px; font-weight: normal; line-height: 1.4; }
-        .dual-container { display: flex; gap: 20px; flex-grow: 1; }
+        .report-header h3 { margin: 2px 0; font-size: 18px; font-weight: normal; line-height: 1.3; }
+        .dual-container { display: flex; gap: 15px; flex-grow: 1; overflow: hidden;}
         .col { flex: 1; }
         table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
-        th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; }
+        th, td { border: 1px solid #000; padding: 3px; text-align: center; font-size: 12px; font-family: 'Kalpurush', sans-serif; }
         th { background: #f3f4f6; }
+        .summary-container { margin-top: 5px; border-top: 2px solid #000; font-family: 'Kalpurush', sans-serif; }
         .btn-del { background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; }
         .hidden { display:none!important; }
         @media print { header, .no-print, #loginLayer {display:none!important} body { background: white; } .page { margin: 0; border: none; width: 100%; } }
-        .pdf-mode .no-print { display: none !important; }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
 <div id="loginLayer" style="position:fixed; inset:0; background:#020617; display:flex; align-items:center; justify-content:center; z-index:9999">
     <div style="background:#111827; padding:25px; border-radius:14px; width:90%; max-width:320px; text-align:center">
         <h2 style="color:white; margin-bottom:20px">BFIDC LOGIN</h2>
-        <input id="uID" placeholder="User ID" style="margin-bottom:10px">
-        <input id="uPass" type="password" placeholder="Password">
+        <input id="uID" placeholder="User ID">
+        <input id="uPass" type="password" placeholder="Password" style="margin-top:10px">
         <button onclick="handleLogin()" style="width:100%; margin-top:15px; padding:12px; background:#22c55e; color:white; font-weight:bold; border:none; border-radius:8px; cursor:pointer">LOGIN</button>
     </div>
 </div>
 
 <div id="appArea" class="hidden">
     <header>
-        <div id="who" style="font-size: 11px; color: #4ade80; font-weight: bold;">ADMIN MODE</div>
+        <div id="who" style="font-size: 11px; color: #94a3b8; font-weight: bold;">BFIDC ADMIN</div>
         <div style="display:flex; gap:6px">
-            <button id="auth_btn" onclick="handleAuthClick()" style="background:#ef4444; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">🔑 DRIVE LOGIN</button>
-            <button id="sync_btn" onclick="saveToDrive()" class="hidden" style="background:#34a853; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">📤 SAVE</button>
-            <button id="load_btn" onclick="loadFromDrive()" class="hidden" style="background:#f59e0b; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">📥 OPEN</button>
-            <button onclick="logout()" style="background:#64748b; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; cursor:pointer">X</button>
+            <button onclick="downloadData()" style="background:#34a853; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">💾 SAVE FILE</button>
+            <button onclick="document.getElementById('fileInput').click()" style="background:#f59e0b; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">📂 OPEN</button>
+            <button onclick="newWork()" style="background:#6366f1; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer">➕ NEW</button>
+            <input type="file" id="fileInput" class="hidden" accept=".json" onchange="uploadData(event)">
         </div>
     </header>
     
-    <div id="sync_status" style="font-size: 12px; color: #4ade80; text-align: center; margin: 8px 0; font-weight: bold; height: 16px;"></div>
+    <div id="sync_status" style="font-size: 12px; color: #4ade80; text-align: center; margin: 8px 0; height: 16px;"></div>
 
     <div class="card no-print">
         <div class="grid-inputs">
@@ -65,114 +64,57 @@
             <div>লম্বা (ফুট)<input id="v2" inputmode="decimal" onkeydown="move(event, 'save')"></div>
         </div>
         <button onclick="addItem()" id="addBtn" style="width:100%; margin-top:12px; background:#22c55e; color:white; padding:15px; font-size:18px; border:none; border-radius:8px; font-weight:bold; cursor:pointer">সেভ করুন (ENTER)</button>
-        
-        <div style="display: flex; gap: 8px; margin-top: 8px;">
-            <button onclick="downloadPDF()" style="flex: 1; background:#ef4444; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold; cursor:pointer">📄 SAVE PDF</button>
-            <button onclick="window.print()" style="flex: 1; background:#475569; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold; cursor:pointer">🖨️ PRINT</button>
-        </div>
+        <button onclick="window.print()" style="width:100%; margin-top:8px; background:#475569; color:white; padding:10px; border:none; border-radius:8px; font-weight:bold; cursor:pointer">PRINT REPORT</button>
     </div>
     <div id="printArea"></div>
 </div>
 
 <script>
-    const CLIENT_ID = '234418632833-gv6d3hqpnfjeodsi21t2g6afkh81o95i.apps.googleusercontent.com'; 
-    const API_KEY = 'AIzaSyDvmF9t7WvsUvZLs5tFjGVfxTaQxsOKRJs'; 
-    const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
-    const SCOPES = 'https://www.googleapis.com/auth/drive.file';
-    
-    let tokenClient, items = JSON.parse(localStorage.getItem("bfidc_data")) || [], currentFileName = "";
+    let items = JSON.parse(localStorage.getItem("bfidc_data")) || [];
 
-    function gapiLoaded() { gapi.load('client', async () => { await gapi.client.init({apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS}); }); }
-    
-    function gsiLoaded() { 
-        tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: CLIENT_ID, 
-            scope: SCOPES, 
-            callback: (resp) => {
-                if(resp.access_token) { 
-                    document.getElementById('auth_btn').classList.add('hidden'); 
-                    document.getElementById('sync_btn').classList.remove('hidden'); 
-                    document.getElementById('load_btn').classList.remove('hidden'); 
-                    document.getElementById('sync_status').innerText = "☁️ ড্রাইভ কানেক্ট হয়েছে"; 
-                }
-            }
-        }); 
-    }
-    
-    function handleAuthClick() { tokenClient.requestAccessToken({prompt: 'consent'}); }
-
-    async function downloadPDF() {
-        if (!items.length) { alert("পিডিএফ করার মতো ডাটা নেই!"); return; }
-        const element = document.getElementById('printArea');
-        const status = document.getElementById('sync_status');
-        status.innerText = "⏳ PDF তৈরি হচ্ছে...";
-        element.classList.add('pdf-mode'); 
-        const opt = {
-            margin: 0,
-            filename: (currentFileName ? currentFileName.replace('.json', '') : 'Wood_Report') + '.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        try {
-            await html2pdf().set(opt).from(element).save();
-            status.innerText = "✅ PDF ডাউনলোড সফল!";
-        } catch (e) {
-            alert("পিডিএফ তৈরি করতে সমস্যা হয়েছে।");
-        } finally {
-            element.classList.remove('pdf-mode');
-        }
+    // --- ফাইল সেভ ও ওপেন লজিক ---
+    function downloadData() {
+        if(items.length === 0) return alert("কোনো ডাটা নেই!");
+        let fileName = prompt("ফাইলের একটি নাম দিন:", "Wood_Work_01");
+        if(!fileName) return;
+        const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName + ".json";
+        a.click();
+        document.getElementById('sync_status').innerText = "✅ ফাইল মোবাইলে সেভ হয়েছে!";
     }
 
-    async function saveToDrive() {
-        if (!items.length) { alert("সেভ করার মতো ডাটা নেই!"); return; }
-        if (!currentFileName) {
-            let n = prompt("ফাইলের নাম দিন:", "Wood_Report");
-            if (!n) return;
-            currentFileName = n + ".json";
-        }
-        const status = document.getElementById('sync_status');
-        status.innerText = "⏳ ড্রাইভে সেভ হচ্ছে...";
-        try {
-            const fileData = JSON.stringify(items);
-            const listRes = await gapi.client.drive.files.list({ q: `name = '${currentFileName}' and trashed = false` });
-            if (listRes.result.files && listRes.result.files.length > 0) {
-                const fileId = listRes.result.files[0].id;
-                await gapi.client.request({ path: `/upload/drive/v3/files/${fileId}`, method: 'PATCH', params: { uploadType: 'media' }, body: fileData });
-            } else {
-                await gapi.client.drive.files.create({ resource: { name: currentFileName, mimeType: 'application/json' }, media: { mimeType: 'application/json', body: fileData } });
-            }
-            status.innerText = "✅ " + currentFileName + " সেভ হয়েছে!";
-        } catch(e) { 
-            status.innerText = "❌ ড্রাইভ পারমিশন এরর!";
-        }
-    }
-
-    async function loadFromDrive() {
-        let n = prompt("লোড করতে ফাইলের নাম লিখুন:", "Wood_Report");
-        if(!n) return;
-        let fileName = n + ".json";
-        try {
-            const res = await gapi.client.drive.files.list({ q: `name = '${fileName}' and trashed = false` });
-            if(res.result.files.length > 0) {
-                const fileId = res.result.files[0].id;
-                const response = await gapi.client.drive.files.get({ fileId: fileId, alt: 'media' });
-                items = response.result;
-                currentFileName = fileName;
+    function uploadData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                items = JSON.parse(e.target.result);
                 localStorage.setItem("bfidc_data", JSON.stringify(items));
-                render(); alert("✅ " + fileName + " লোড হয়েছে!");
-            } else alert("❌ ফাইল পাওয়া যায়নি!");
-        } catch(e) { alert("❌ লোড ফেইল!"); }
+                render();
+                alert("✅ ফাইল সাকসেসফুলি লোড হয়েছে!");
+            } catch(err) { alert("ভুল ফাইল সিলেক্ট করেছেন!"); }
+        };
+        reader.readAsText(file);
     }
 
-    function handleLogin() {
-        let id = document.getElementById('uID').value.toLowerCase().trim();
-        let pass = document.getElementById('uPass').value.trim();
-        if(id === "admin" && pass === "0000") { sessionStorage.setItem("active", "admin"); start(); } 
-        else alert("ভুল আইডি বা পাসওয়ার্ড!");
+    function newWork() {
+        if(confirm("আপনি কি নতুন কাজ শুরু করতে চান? আগের সব হিসাব মুছে যাবে (যদি সেভ না করে থাকেন)।")) {
+            items = [];
+            localStorage.removeItem("bfidc_data");
+            render();
+            document.getElementById('tree').value = 1;
+            updatePiece();
+            alert("নতুন পেজ তৈরি হয়েছে!");
+        }
     }
+
+    // --- কোর ফাংশন ---
+    function handleLogin() { if(uID.value==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("ভুল পাসওয়ার্ড!"); }
     function start() { document.getElementById('loginLayer').classList.add("hidden"); document.getElementById('appArea').classList.remove("hidden"); updatePiece(); render(); }
-    function logout() { sessionStorage.clear(); location.reload(); }
     function toggleInputs() { let isW = document.getElementById('type').value==='wood'; document.getElementById('thickBox').classList.toggle("hidden", !isW); document.getElementById('labelV1').innerText = isW ? "চওড়া" : "বেড়"; render(); }
     function updatePiece() { let count = items.filter(i => i.tree == document.getElementById('tree').value && i.type == document.getElementById('type').value).length; document.getElementById('piece').value = count + 1; }
     
@@ -192,27 +134,25 @@
         let cft = ty==='log' ? ((v1v/4)**2 * v2v)/144 : (v1v * vev * v2v)/144;
         items.push({tree: t, piece: items.filter(i=>i.tree==t && i.type==ty).length + 1, type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)});
         localStorage.setItem("bfidc_data", JSON.stringify(items));
-        document.getElementById('v1').value=""; document.getElementById('v2').value=""; document.getElementById('ve').value=""; render(); updatePiece(); document.getElementById('tree').focus();
+        document.getElementById('v1').value=""; document.getElementById('v2').value=""; document.getElementById('ve').value=""; 
+        render(); updatePiece(); 
+        document.getElementById('tree').focus();
     }
 
     function deleteItem(idx) { if(confirm("মুছে ফেলবেন?")) { items.splice(idx, 1); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); } }
 
-    // ডাটা কলাম অনুযায়ী সাজানোর জন্য এই ফাংশন আপডেট করা হয়েছে
     function render() {
         let ty = document.getElementById('type').value, filtered = items.filter(i => i.type === ty);
         let totalCft = filtered.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(filtered.map(i => i.tree)).size;
-        const ITEMS_PER_PAGE = 76; 
-        const HALF = ITEMS_PER_PAGE / 2; // ৩৮টি বামে, ৩৮টি ডানে
-        let pagesHtml = "";
         
+        // ৩ পেজের মধ্যে ডাটা রাখার জন্য প্রতি পেজে এন্ট্রি সংখ্যা বাড়ানো হয়েছে
+        const ITEMS_PER_PAGE = 90; 
+        let pagesHtml = "";
         for (let p = 0; p < Math.ceil(filtered.length / ITEMS_PER_PAGE) || p === 0; p++) {
+            if(p >= 3) break; // সর্বোচ্চ ৩ পেজ লিমিট
             let pageData = filtered.slice(p * ITEMS_PER_PAGE, (p + 1) * ITEMS_PER_PAGE);
-            
-            // সিরিয়ালি সাজানোর জন্য পরিবর্তন:
-            // ১ থেকে ৩৮ পর্যন্ত বামে যাবে, ৩৯ থেকে ৭৬ পর্যন্ত ডানে যাবে
-            let left = pageData.slice(0, HALF); 
-            let right = pageData.slice(HALF); 
-
+            let mid = Math.ceil(pageData.length / 2);
+            let left = pageData.slice(0, mid), right = pageData.slice(mid);
             let tableH = `<tr><th>গাছ/পিস</th><th>সাইজ</th><th>সিএফটি</th><th class="no-print">⚙</th></tr>`;
             pagesHtml += `<div class="page">
                 <div class="report-header">
@@ -223,7 +163,7 @@
                     <div class="col"><table>${tableH}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
                     <div class="col"><table>${tableH}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
                 </div>`;
-            if (p === Math.ceil(filtered.length / ITEMS_PER_PAGE) - 1 || filtered.length === 0) {
+            if (p === Math.ceil(filtered.length / ITEMS_PER_PAGE) - 1 || p === 2) {
                 pagesHtml += `<div class="summary-container"><table><tr><td style="text-align:left">মোট গাছ: ${totalTrees} টি, মোট পিস: ${filtered.length} টি, মোট সিএফটি: ${totalCft.toFixed(2)}</td></tr></table></div>`;
             }
             pagesHtml += `</div>`;
@@ -232,8 +172,5 @@
     }
     if(sessionStorage.getItem("active")) start();
 </script>
-
-<script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-<script async defer src="https://accounts.google.com/gsi/client" onload="gsiLoaded()"></script>
 </body>
 </html>
