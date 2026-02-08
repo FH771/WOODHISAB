@@ -3,43 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDC ERP - FINAL FIX</title>
+    <title>BFIDC ERP - CLEAN PRINT</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
         body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white;}
         header{position:sticky; top:0; background:#020617; padding:10px; display:flex; justify-content:space-between; align-items:center; z-index:999; border-bottom: 1px solid #1e293b;}
         .card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
-        input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; margin-bottom: 8px;}
+        input, select { width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; margin-bottom: 8px;}
         
+        /* A4 Page Setup */
         .page { 
             background: white; width: 210mm; height: 297mm; 
-            margin: 10px auto; padding: 10mm 15mm; color: black; 
+            margin: 10px auto; padding: 10mm 12mm; color: black; 
             box-sizing: border-box; display: flex; flex-direction: column; 
             page-break-after: always; position: relative;
         }
         
-        .report-header { text-align: center; margin-bottom: 10px; font-family: 'Kalpurush', sans-serif; }
-        .report-header h3 { margin: 1px 0; font-size: 16px; }
+        .report-header { text-align: center; margin-bottom: 8px; font-family: 'Kalpurush', sans-serif; }
+        .report-header h3 { margin: 1px 0; font-size: 15px; line-height: 1.2; }
         
-        .dual-container { display: flex; gap: 15px; flex-grow: 1; }
+        .dual-container { display: flex; gap: 10px; flex-grow: 1; overflow: hidden; }
         .col { flex: 1; }
         
-        table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; }
-        th, td { border: 1px solid #000; padding: 4px 2px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; }
-        th { background: #eee; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; border: 1.2px solid #000; }
+        th, td { border: 1px solid #000; padding: 2px 1px; text-align: center; font-size: 11.5px; font-family: 'Kalpurush', sans-serif; line-height: 1; }
+        th { background: #f2f2f2; font-weight: bold; }
         
+        /* Summary Box Fix - No Overlap */
         .summary-container { 
-            position: absolute; bottom: 10mm; left: 15mm; right: 15mm; 
-            border-top: 2px solid #000; padding-top: 8px; font-family: 'Kalpurush', sans-serif;
+            width: 100%; margin-top: auto; padding-top: 5px;
+            border-top: 1.5px solid #000; font-family: 'Kalpurush', sans-serif;
+            background: white; z-index: 10;
         }
         
         .hidden { display:none!important; }
-        .btn-del { background:#ef4444; color:white; border:none; padding:2px 5px; border-radius:3px; cursor:pointer; font-size: 10px; }
+        .btn-del { background:#ef4444; color:white; border:none; padding:1px 4px; border-radius:3px; cursor:pointer; font-size: 9px; }
 
         @media print { 
             header, .no-print, #loginLayer {display:none!important} 
             body { background: white; margin: 0; } 
-            .page { margin: 0; border: none; box-shadow: none; width: 100%; height: 297mm; } 
+            .page { margin: 0; border: none; box-shadow: none; width: 100%; height: 297mm; padding: 8mm 10mm; } 
+            table { border: 1px solid #000; }
         }
     </style>
 </head>
@@ -81,7 +85,7 @@
             <div id="thickBox" class="hidden">পুরুত্ব<input id="ve" inputmode="decimal" onkeydown="move(event, 'v2')"></div>
             <div>লম্বা (ফুট)<input id="v2" inputmode="decimal" onkeydown="move(event, 'save')"></div>
         </div>
-        <button onclick="addItem()" id="addBtn" style="width:100%; background:#22c55e; color:white; padding:15px; font-size:18px; border:none; border-radius:8px; font-weight:bold;">সেভ করুন (ENTER)</button>
+        <button onclick="addItem()" id="addBtn" style="width:100%; background:#22c55e; color:white; padding:12px; font-size:18px; border:none; border-radius:8px; font-weight:bold;">সেভ করুন (ENTER)</button>
         <button onclick="window.print()" style="width:100%; margin-top:8px; background:#475569; color:white; padding:10px; border:none; border-radius:8px; font-weight:bold;">PRINT REPORT</button>
     </div>
     <div id="printArea"></div>
@@ -116,40 +120,35 @@
         let ty = type.value, filtered = items.filter(i => i.type === ty);
         let totalCft = filtered.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(filtered.map(i => i.tree)).size;
         
-        // ফাহাদ ব্রো-র শর্ত: ৬২০ পর্যন্ত প্রথম পাতা, ৬২১ থেকে পরের পাতা।
-        let page1Data = filtered.filter(i => i.tree <= 620);
-        let page2Data = filtered.filter(i => i.tree > 620);
-        
-        let allPages = [];
-        if(page1Data.length > 0 || page2Data.length === 0) allPages.push(page1Data);
-        if(page2Data.length > 0) allPages.push(page2Data);
+        // ৬২০ পর্যন্ত ১ম পাতা, বাকিগুলো পরের পাতা
+        let p1 = filtered.filter(i => i.tree <= 620);
+        let p2 = filtered.filter(i => i.tree > 620);
+        let all = []; if(p1.length > 0 || p2.length === 0) all.push(p1); if(p2.length > 0) all.push(p2);
 
-        let pagesHtml = "";
-        allPages.forEach((pData, idx) => {
-            let half = Math.ceil(pData.length / 2);
-            let left = pData.slice(0, half);
-            let right = pData.slice(half);
-            let tableH = `<tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
+        let html = "";
+        all.forEach((data, idx) => {
+            let half = Math.ceil(data.length / 2);
+            let L = data.slice(0, half); let R = data.slice(half);
+            let th = `<tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th><th class="no-print">⚙</th></tr>`;
 
-            pagesHtml += `
-            <div class="page">
+            html += `<div class="page">
                 <div class="report-header">
                     <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, ..................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3>
                     <h3>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3>
                 </div>
                 <div class="dual-container">
-                    <div class="col"><table>${tableH}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
-                    <div class="col"><table>${tableH}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
+                    <div class="col"><table>${th}${L.map(i=>`<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
+                    <div class="col"><table>${th}${R.map(i=>`<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
                 </div>
                 <div class="summary-container">
-                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:15px;">
-                        <span>মোট গাছ: ${totalTrees} টি, মোট পিস: ${filtered.length} টি, মোট সিএফটি: ${totalCft.toFixed(2)}</span>
-                        <span>পৃষ্ঠা: ${idx+1} / ${allPages.length}</span>
+                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:13px;">
+                        <span>মোট গাছ: ${totalTrees} টি, পিস: ${filtered.length} টি, সিএফটি: ${totalCft.toFixed(2)}</span>
+                        <span>পৃষ্ঠা: ${idx+1} / ${all.length}</span>
                     </div>
                 </div>
             </div>`;
         });
-        document.getElementById("printArea").innerHTML = pagesHtml;
+        document.getElementById("printArea").innerHTML = html;
     }
 
     function downloadData() {
@@ -161,7 +160,7 @@
         reader.onload = function(e) { items = JSON.parse(e.target.result); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); };
         reader.readAsText(event.target.files[0]);
     }
-    function newWork() { if(confirm("মুছে ফেলবেন?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
+    function newWork() { if(confirm("সব মুছবেন?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
     if(sessionStorage.getItem("active")) start();
 </script>
 </body>
