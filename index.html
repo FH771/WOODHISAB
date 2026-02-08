@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDC ERP - SINGLE COLUMN REPORT</title>
+    <title>BFIDC ERP - FAST ENTRY MODE</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
         body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white; -webkit-tap-highlight-color: transparent;}
@@ -12,38 +12,19 @@
         .grid-inputs{display:grid; grid-template-columns: repeat(2, 1fr); gap:8px}
         input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; }
         
-        /* পৃষ্ঠা বিন্যাস - একটার পর একটা সিঙ্গেল কলাম */
-        .page { 
-            background: white; 
-            width: 210mm; 
-            min-height: 297mm; 
-            margin: 20px auto; 
-            padding: 15mm; 
-            color: black; 
-            box-sizing: border-box; 
-            display: flex; 
-            flex-direction: column; 
-            page-break-after: always;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-        
-        .report-header { text-align: center; margin-bottom: 20px; font-family: 'Kalpurush', sans-serif; }
-        .report-header h3 { margin: 2px 0; font-size: 19px; font-weight: normal; line-height: 1.4; }
-        
-        .table-container { flex-grow: 1; }
+        /* ২ কলাম রিপোর্ট ডিজাইন */
+        .page { background: white; width: 210mm; min-height: 297mm; margin: 20px auto; padding: 15mm; color: black; box-sizing: border-box; display: flex; flex-direction: column; page-break-after: always; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; }
+        .report-header h3 { margin: 2px 0; font-size: 18px; font-weight: normal; line-height: 1.3; }
+        .dual-container { display: flex; gap: 15px; flex-grow: 1; }
+        .col { flex: 1; }
         table { width: 100%; border-collapse: collapse; border: 2px solid #000; }
-        th, td { border: 1px solid #000; padding: 6px; text-align: center; font-size: 14px; font-family: 'Kalpurush', sans-serif; }
+        th, td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; }
         th { background: #f3f4f6; }
-        
         .summary-container { margin-top: 10px; border-top: 2px solid #000; font-family: 'Kalpurush', sans-serif; }
-        .btn-del { background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold; }
+        .btn-del { background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; }
         .hidden { display:none!important; }
-        
-        @media print { 
-            header, .no-print, #loginLayer {display:none!important} 
-            body { background: white; } 
-            .page { margin: 0; border: none; width: 100%; box-shadow: none; padding: 10mm; } 
-        }
+        @media print { header, .no-print, #loginLayer {display:none!important} body { background: white; } .page { margin: 0; border: none; width: 100%; box-shadow: none; } }
     </style>
 </head>
 <body>
@@ -93,7 +74,7 @@
 
     function downloadData() {
         if(items.length === 0) return alert("কোনো ডাটা নেই!");
-        let fileName = prompt("ফাইলের নাম দিন:", "Wood_Data_1");
+        let fileName = prompt("ফাইলের নাম দিন:", "Wood_Data");
         if(!fileName) return;
         const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
@@ -113,18 +94,21 @@
     }
 
     function newWork() {
-        if(confirm("সব ডাটা মুছে নতুন কাজ শুরু করবেন?")) {
+        if(confirm("সব মুছে নতুন কাজ শুরু করবেন?")) {
             items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece();
         }
     }
 
     function handleLogin() { if(uID.value==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("Error!"); }
-    function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); render(); }
+    function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); render(); updatePiece(); }
     function toggleInputs() { let isW = type.value==='wood'; thickBox.classList.toggle("hidden", !isW); labelV1.innerText = isW ? "চওড়া" : "বেড়"; render(); }
     function updatePiece() { let count = items.filter(i => i.tree == tree.value && i.type == type.value).length; piece.value = count + 1; }
     
     function move(e, next) { 
-        if(e.key === "Enter") { e.preventDefault(); addItem(); } 
+        if(e.key === "Enter") { 
+            e.preventDefault(); 
+            addItem(); 
+        } 
         if(e.key === "ArrowRight") { 
             e.preventDefault(); 
             if(e.target.id === 'tree') v1.focus(); 
@@ -139,55 +123,50 @@
         let cft = ty==='log' ? ((v1v/4)**2 * v2v)/144 : (v1v * vev * v2v)/144;
         items.push({tree: t, piece: items.filter(i=>i.tree==t && i.type==ty).length + 1, type: ty, v1: v1v, v2: v2v, ve: vev, cft: +cft.toFixed(2)});
         localStorage.setItem("bfidc_data", JSON.stringify(items));
-        v1.value=""; v2.value=""; ve.value=""; render(); updatePiece(); tree.focus();
+        
+        // ইনপুট ক্লিয়ার করা
+        v1.value=""; v2.value=""; ve.value=""; 
+        render(); 
+        updatePiece(); 
+        
+        // গাছ নম্বর অটো সিলেক্ট করা
+        tree.focus();
+        tree.select(); 
     }
 
     function deleteItem(idx) { if(confirm("মুছে ফেলবেন?")) { items.splice(idx, 1); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); } }
 
-    // --- রেন্ডার: সিঙ্গেল কলামে হিসাব ---
     function render() {
         let ty = type.value, filtered = items.filter(i => i.type === ty);
         let totalCft = filtered.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(filtered.map(i => i.tree)).size;
         
-        const ITEMS_PER_PAGE = 35; // এক কলামে ৩৫টি হিসাব ধরবে প্রতি পাতায়
+        const ITEMS_PER_PAGE = 80; 
         let pagesHtml = "";
         let totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
 
         for (let p = 0; p < totalPages; p++) {
             let pageData = filtered.slice(p * ITEMS_PER_PAGE, (p + 1) * ITEMS_PER_PAGE);
-            let tableH = `<tr><th>ক্রমিক</th><th>গাছ নং</th><th>পিস নং</th><th>মাপ (সাইজ)</th><th>সিএফটি (CFT)</th><th class="no-print">⚙</th></tr>`;
+            let mid = Math.ceil(pageData.length / 2);
+            let left = pageData.slice(0, mid), right = pageData.slice(mid);
+            let tableH = `<tr><th>গাছ/পিস</th><th>সাইজ</th><th>সিএফটি</th><th class="no-print">⚙</th></tr>`;
 
             pagesHtml += `
             <div class="page">
                 <div class="report-header">
                     <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, ..................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3>
                     <h3>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3>
-                    <p style="text-align:right; font-size:13px; font-weight:bold;">পৃষ্ঠা: ${p+1} / ${totalPages}</p>
+                    <p style="text-align:right; font-size:12px;">পৃষ্ঠা: ${p+1} / ${totalPages}</p>
                 </div>
-                <div class="table-container">
-                    <table>
-                        ${tableH}
-                        ${pageData.map((i, index) => `
-                        <tr>
-                            <td>${(p * ITEMS_PER_PAGE) + index + 1}</td>
-                            <td>${i.tree}</td>
-                            <td>${i.piece}</td>
-                            <td>${i.type==='log' ? i.v1+'" x '+i.v2+"'" : i.v1+'" x '+i.ve+'" x '+i.v2+"'"}</td>
-                            <td>${i.cft}</td>
-                            <td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">X</button></td>
-                        </tr>`).join('')}
-                    </table>
+                <div class="dual-container">
+                    <div class="col"><table>${tableH}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
+                    <div class="col"><table>${tableH}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
                 </div>`;
             
             if (p === totalPages - 1) {
                 pagesHtml += `
                 <div class="summary-container">
-                    <table style="margin-top:10px;">
-                        <tr>
-                            <td style="text-align:left; padding:15px; font-size:16px;">
-                                <b>সারসংক্ষেপ:</b> মোট গাছ: ${totalTrees} টি, মোট পিস: ${filtered.length} টি, মোট সিএফটি: ${totalCft.toFixed(2)}
-                            </td>
-                        </tr>
+                    <table style="margin-top:5px;">
+                        <tr><td style="text-align:left; padding:10px;"><b>মোট গাছ: ${totalTrees} টি, মোট পিস: ${filtered.length} টি, মোট সিএফটি: ${totalCft.toFixed(2)}</b></td></tr>
                     </table>
                 </div>`;
             }
