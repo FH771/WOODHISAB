@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDC ERP - PROFESSIONAL MODE</title>
+    <title>BFIDC ERP - A4 PERFECT FIT</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
         body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white; -webkit-tap-highlight-color: transparent;}
@@ -12,13 +12,13 @@
         .grid-inputs{display:grid; grid-template-columns: repeat(2, 1fr); gap:8px}
         input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; }
         
-        /* প্রফেশনাল ফুল পেজ ডিজাইন */
+        /* A4 Perfect Fit - NO EXTRA GAP */
         .page { 
             background: white; 
             width: 210mm; 
             min-height: 297mm; 
             margin: 10px auto; 
-            padding: 10mm; 
+            padding: 8mm 12mm; 
             color: black; 
             box-sizing: border-box; 
             display: flex; 
@@ -27,24 +27,25 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.5); 
         }
         
-        .report-header { text-align: center; margin-bottom: 10px; font-family: 'Kalpurush', sans-serif; }
-        .report-header h3 { margin: 1px 0; font-size: 16px; font-weight: normal; line-height: 1.2; }
+        .report-header { text-align: center; margin-bottom: 8px; font-family: 'Kalpurush', sans-serif; }
+        .report-header h3 { margin: 1px 0; font-size: 17px; font-weight: normal; line-height: 1.2; }
         
-        .dual-container { display: flex; gap: 10px; flex-grow: 1; align-items: flex-start; }
+        .dual-container { display: flex; gap: 12px; flex-grow: 1; }
         .col { flex: 1; }
         
         table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; }
-        th, td { border: 1px solid #000; padding: 2px 4px; text-align: center; font-size: 12px; font-family: 'Kalpurush', sans-serif; }
+        th, td { border: 1px solid #000; padding: 3px 2px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; line-height: 1.1; }
         th { background: #f0f0f0; font-weight: bold; }
         
-        .summary-container { margin-top: 5px; border: 1.5px solid #000; font-family: 'Kalpurush', sans-serif; }
+        .summary-container { margin-top: auto; padding-top: 5px; border-top: 1.5px solid #000; font-family: 'Kalpurush', sans-serif; }
         .btn-del { background:#ef4444; color:white; border:none; padding:2px 5px; border-radius:3px; cursor:pointer; font-size: 10px; }
         .hidden { display:none!important; }
         
         @media print { 
             header, .no-print, #loginLayer {display:none!important} 
-            body { background: white; } 
-            .page { margin: 0; border: none; width: 100%; box-shadow: none; padding: 5mm; } 
+            body { background: white; margin: 0; padding: 0; } 
+            .page { margin: 0; border: none; width: 100%; height: 297mm; box-shadow: none; padding: 8mm 12mm; overflow: hidden; } 
+            .btn-del { display: none; }
         }
     </style>
 </head>
@@ -93,7 +94,6 @@
 <script>
     let items = JSON.parse(localStorage.getItem("bfidc_data")) || [];
 
-    // --- অন্যান্য ফাংশন আগের মতোই থাকবে ---
     function handleLogin() { if(uID.value==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("Error!"); }
     function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); render(); updatePiece(); }
     function toggleInputs() { let isW = type.value==='wood'; thickBox.classList.toggle("hidden", !isW); labelV1.innerText = isW ? "চওড়া" : "বেড়"; render(); }
@@ -121,13 +121,13 @@
 
     function deleteItem(idx) { if(confirm("মুছে ফেলবেন?")) { items.splice(idx, 1); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); } }
 
-    // --- রেন্ডার: ফুল পেজ সিরিয়াল মেইনটেইন ---
+    // --- Dynamic Fit Render ---
     function render() {
         let ty = type.value, filtered = items.filter(i => i.type === ty);
         let totalCft = filtered.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(filtered.map(i => i.tree)).size;
         
-        const ITEMS_PER_PAGE = 100; // প্রতি পাতায় ১০০টি পিস (৫০+৫০)
-        const HALF = 50; 
+        const ITEMS_PER_PAGE = 120; // সর্বোচ্চ ধারণক্ষমতা বাড়িয়ে দিলাম
+        const HALF = 60; 
         let pagesHtml = "";
         let totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
 
@@ -143,7 +143,6 @@
                 <div class="report-header">
                     <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, ..................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3>
                     <h3>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3>
-                    <p style="text-align:right; font-size:10px; margin:0;">পৃষ্ঠা: ${p+1} / ${totalPages}</p>
                 </div>
                 <div class="dual-container">
                     <div class="col"><table>${tableH}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
@@ -153,8 +152,11 @@
             if (p === totalPages - 1) {
                 pagesHtml += `
                 <div class="summary-container">
-                    <table style="border:none;"><tr><td style="text-align:left; padding:5px; font-size:14px; border:none;"><b>মোট গাছ: ${totalTrees} টি, মোট পিস: ${filtered.length} টি, মোট সিএফটি: ${totalCft.toFixed(2)}</b></td></tr></table>
+                    <p style="margin:5px 0; font-size:15px;"><b>মোট গাছ: ${totalTrees} টি, মোট পিস: ${filtered.length} টি, মোট সিএফটি: ${totalCft.toFixed(2)}</b></p>
+                    <p style="text-align:right; font-size:11px; margin:0;">পৃষ্ঠা: ${p+1} / ${totalPages}</p>
                 </div>`;
+            } else {
+                pagesHtml += `<p style="text-align:right; font-size:11px; margin:0; margin-top:auto;">পৃষ্ঠা: ${p+1} / ${totalPages}</p>`;
             }
             pagesHtml += `</div>`;
         }
