@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>FINAL REPORT PRINT FIXED</title>
+    <title>FINAL REPORT</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
         body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white;}
@@ -11,47 +11,45 @@
         .card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
         input, select { width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; margin-bottom: 8px;}
         
-        /* A4 Page Styling */
         .page { 
-            background: white; width: 210mm; height: 296mm; 
-            margin: 0 auto; padding: 8mm 10mm; color: black; 
+            background: white; width: 210mm; min-height: 296mm; 
+            margin: 0 auto; padding: 10mm 12mm; color: black; 
             box-sizing: border-box; display: flex; flex-direction: column;
-            position: relative; overflow: hidden;
+            position: relative;
         }
         
-        .report-header { text-align: center; margin-bottom: 5px; font-family: 'Kalpurush', sans-serif; }
-        .report-header h3 { margin: 1px 0; font-size: 15px; font-weight: bold; line-height: 1.2; }
+        /* হেডলাইন শুধু প্রথম পাতায় দেখানোর জন্য */
+        .report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; }
+        .report-header h3 { margin: 1px 0; font-size: 16px; font-weight: bold; line-height: 1.3; }
         
-        .content-wrapper { display: flex; gap: 10px; flex: 1; align-items: flex-start; }
+        .content-wrapper { display: flex; gap: 15px; flex: 1; align-items: flex-start; }
         .col { flex: 1; }
         
         table { width: 100%; border-collapse: collapse; border: 1.2px solid #000; }
-        th, td { border: 1px solid #000; padding: 1.5px 3px; text-align: center; font-size: 11px; font-family: 'Kalpurush', sans-serif; }
+        th, td { border: 1px solid #000; padding: 2px 4px; text-align: center; font-size: 11.5px; font-family: 'Kalpurush', sans-serif; }
         th { background: #f2f2f2; font-weight: bold; }
         
         .summary-box {
-            width: 240px; margin-top: 5px; border: 1.5px solid #000; 
-            font-family: 'Kalpurush', sans-serif;
+            width: 250px; margin-top: 20px; border: 1.8px solid #000; 
+            font-family: 'Kalpurush', sans-serif; align-self: flex-start;
         }
-        .summary-box div { display: flex; border-bottom: 1px solid #000; }
+        .summary-box div { display: flex; border-bottom: 1.2px solid #000; }
         .summary-box div:last-child { border-bottom: none; }
-        .summary-box span { padding: 3px 8px; font-size: 13px; font-weight: bold; }
-        .summary-box .label { border-right: 1.5px solid #000; flex: 1.4; background: #f9f9f9; }
+        .summary-box span { padding: 4px 10px; font-size: 14px; font-weight: bold; }
+        .summary-box .label { border-right: 1.8px solid #000; flex: 1.4; background: #f9f9f9; }
         .summary-box .val { flex: 1; text-align: center; }
 
-        .page-num { position: absolute; bottom: 5mm; right: 10mm; font-size: 11px; font-family: 'Kalpurush', sans-serif; }
+        .page-num { position: absolute; bottom: 8mm; right: 12mm; font-size: 12px; font-family: 'Kalpurush', sans-serif; }
         .hidden { display:none!important; }
 
-        /* প্রিন্ট করার জন্য আসল যাদু এখানে */
         @media print { 
             @page { size: A4; margin: 0; }
             header, .no-print, #loginLayer {display:none!important} 
-            body { background: white; margin: 0; padding: 0; } 
+            body { background: white; margin: 0; } 
             .page { 
-                margin: 0; border: none; width: 210mm; height: 297mm; 
+                margin: 0; border: none; width: 210mm; min-height: 297mm; 
                 page-break-after: always; display: flex !important;
             } 
-            * { -webkit-print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -110,7 +108,7 @@
     function render() {
         let totalCft = items.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(items.map(i => i.tree)).size;
         
-        // ফাহাদ ব্রো-র ফিক্সড লজিক: ৬০৮ পর্যন্ত ১ম পাতা
+        // ১ম পাতা ৬০৮ গাছ পর্যন্ত, বাকিটা ২য় পাতায়
         let p1Data = items.filter(i => i.tree <= 608);
         let p2Data = items.filter(i => i.tree > 608);
         
@@ -125,18 +123,27 @@
             let left = data.slice(0, mid); let right = data.slice(mid);
             let th = `<tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>`;
 
-            html += `<div class="page">
+            html += `<div class="page">`;
+            
+            // হেডলাইন শুধু প্রথম পাতায় আসবে (idx === 0)
+            if(idx === 0) {
+                html += `
                 <div class="report-header">
                     <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, ..................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3>
                     <h3>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3>
-                </div>
+                </div>`;
+            }
+
+            html += `
                 <div class="content-wrapper">
                     <div class="col"><table>${th}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table></div>
                     <div class="col"><table>${th}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table></div>
                 </div>`;
 
+            // টোটাল হিসাব শুধু একদম শেষ পাতার শেষে আসবে
             if(idx === pagesData.length - 1) {
-                html += `<div class="summary-box">
+                html += `
+                <div class="summary-box">
                     <div><span class="label">মোট গাছ:</span><span class="val">${totalTrees} টি</span></div>
                     <div><span class="label">মোট পিস:</span><span class="val">${items.length} টি</span></div>
                     <div><span class="label">মোট সিএফটি:</span><span class="val">${totalCft.toFixed(2)}</span></div>
@@ -151,7 +158,7 @@
         let content = document.getElementById("printArea").innerHTML;
         let blob = new Blob(['<html><head><meta charset="utf-8"><style>table{border:1px solid black; border-collapse:collapse; width:100%} td,th{border:1px solid black; text-align:center; font-family: "Kalpurush";}</style></head><body>' + content + '</body></html>'], {type: 'application/msword'});
         let url = URL.createObjectURL(blob);
-        let a = document.createElement('a'); a.href = url; a.download = 'Report.doc'; a.click();
+        let a = document.createElement('a'); a.href = url; a.download = 'BFIDC_Report.doc'; a.click();
     }
 
     function downloadData() {
