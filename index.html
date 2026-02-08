@@ -11,34 +11,35 @@
         .card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
         input, select { width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; margin-bottom: 8px;}
         
-        /* A4 Page Layout */
         .page { 
-            background: white; width: 210mm; height: 297mm; 
+            background: white; width: 210mm; min-height: 297mm; 
             margin: 0 auto; padding: 10mm 12mm; color: black; 
-            box-sizing: border-box; display: flex; flex-direction: column; 
+            box-sizing: border-box; display: block; 
             page-break-after: always; position: relative;
         }
         
-        .report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; }
-        .report-header h3 { margin: 1px 0; font-size: 16px; font-weight: bold; line-height: 1.3; }
+        .report-header { text-align: center; margin-bottom: 10px; font-family: 'Kalpurush', sans-serif; }
+        .report-header h3 { margin: 1px 0; font-size: 16px; font-weight: bold; line-height: 1.2; }
         
-        /* Two Column Dynamic Table Fix */
-        .dual-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex-grow: 1; align-items: flex-start; }
+        /* Two Column Dynamic Table */
+        .content-wrapper { display: flex; gap: 15px; align-items: flex-start; }
+        .col { flex: 1; }
         
-        table { width: 100%; border-collapse: collapse; border: 1.2px solid #000; }
-        th, td { border: 1px solid #000; padding: 3px 5px; text-align: center; font-size: 12.5px; font-family: 'Kalpurush', sans-serif; }
+        table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; margin-bottom: 5px; }
+        th, td { border: 1px solid #000; padding: 2.5px 4px; text-align: center; font-size: 12px; font-family: 'Kalpurush', sans-serif; }
         th { background: #f2f2f2; font-weight: bold; }
         
-        /* আপনার দেওয়া ছবি অনুযায়ী সেই ৩টি ঘরের সামারি ছক */
+        /* summary box - ঠিক লিস্টের নিচে থাকার জন্য */
         .summary-box {
             width: 260px;
-            margin-top: 15px;
+            margin-top: 10px;
             border: 1.8px solid #000;
             font-family: 'Kalpurush', sans-serif;
+            display: inline-block;
         }
         .summary-box div { display: flex; border-bottom: 1.2px solid #000; }
         .summary-box div:last-child { border-bottom: none; }
-        .summary-box span { padding: 6px 10px; font-size: 14px; font-weight: bold; }
+        .summary-box span { padding: 5px 10px; font-size: 14px; font-weight: bold; }
         .summary-box .label { border-right: 1.8px solid #000; flex: 1.4; background: #f9f9f9; }
         .summary-box .val { flex: 1; text-align: center; }
 
@@ -50,7 +51,7 @@
         @media print { 
             header, .no-print, #loginLayer {display:none!important} 
             body { background: white; margin: 0; } 
-            .page { margin: 0; border: none; box-shadow: none; width: 100%; height: 297mm; padding: 10mm 12mm; } 
+            .page { margin: 0; border: none; box-shadow: none; width: 100%; height: auto; min-height: 297mm; padding: 10mm 12mm; } 
             * { -webkit-print-color-adjust: exact; }
         }
     </style>
@@ -125,8 +126,7 @@
         let ty = type.value, filtered = items.filter(i => i.type === ty);
         let totalCft = filtered.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(filtered.map(i => i.tree)).size;
         
-        // ১ পাতায় সর্বোচ্চ ৮৪টি লাইন ধরবে (৪২ বামে + ৪২ ডানে)
-        const linesPerPage = 84; 
+        const linesPerPage = 84; // ৪২ লাইনের ২ কলাম
         let pages = [];
         for (let i = 0; i < filtered.length; i += linesPerPage) {
             pages.push(filtered.slice(i, i + linesPerPage));
@@ -145,13 +145,15 @@
                     <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, ..................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3>
                     <h3>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3>
                 </div>
-                <div class="dual-container">
-                    <div><table>${th}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
-                    <div><table>${th}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
+                <div class="content-wrapper">
+                    <div class="col"><table>${th}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
+                    <div class="col"><table>${th}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='log'?i.v1+'"x'+i.v2+"'":i.v1+'"x'+i.ve+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="btn-del" onclick="deleteItem(${items.indexOf(i)})">D</button></td></tr>`).join('')}</table></div>
                 </div>`;
 
+            // সামারি ছক ঠিক শেষ টেবিলের নিচেই থাকবে
             if(idx === pages.length - 1) {
-                html += `<div class="summary-box">
+                html += `
+                <div class="summary-box">
                     <div><span class="label">মোট গাছ:</span><span class="val">${totalTrees} টি</span></div>
                     <div><span class="label">মোট পিস:</span><span class="val">${filtered.length} টি</span></div>
                     <div><span class="label">মোট সিএফটি:</span><span class="val">${totalCft.toFixed(2)}</span></div>
