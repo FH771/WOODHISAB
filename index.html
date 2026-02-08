@@ -3,37 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDC FINAL REPORT</title>
+    <title>BFIDC MOBILE READY</title>
     <style>
         @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
-        body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white;}
+        body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white; overflow-x: hidden;}
         header{position:sticky; top:0; background:#020617; padding:10px; display:flex; justify-content:space-between; align-items:center; z-index:999; border-bottom: 1px solid #1e293b;}
         .card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
-        input, select { width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; margin-bottom: 8px;}
+        input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:16px; margin-bottom: 10px;}
         
-        .page { 
-            background: white; width: 210mm; min-height: 296mm; 
-            margin: 0 auto; padding: 10mm 12mm; color: black; 
-            box-sizing: border-box; display: flex; flex-direction: column;
-            position: relative;
-        }
-        
-        /* হেডলাইন স্টাইল */
+        .page { background: white; width: 210mm; min-height: 296mm; margin: 0 auto; padding: 10mm 12mm; color: black; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
         .report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; }
         .report-header h3 { margin: 1px 0; font-size: 16px; font-weight: bold; line-height: 1.3; }
         
-        .content-wrapper { display: flex; gap: 15px; align-items: flex-start; }
+        .content-wrapper { display: flex; gap: 15px; align-items: flex-start; flex: 1; }
         .col { flex: 1; }
         
         table { width: 100%; border-collapse: collapse; border: 1.2px solid #000; }
-        th, td { border: 1px solid #000; padding: 2px 4px; text-align: center; font-size: 11.5px; font-family: 'Kalpurush', sans-serif; }
+        th, td { border: 1px solid #000; padding: 2.5px 4px; text-align: center; font-size: 11.5px; font-family: 'Kalpurush', sans-serif; }
         th { background: #f2f2f2; font-weight: bold; }
         
-        /* আপনার লাল মার্ক করা জায়গায় সামারি বক্স */
-        .summary-box {
-            width: 250px; margin-top: 15px; border: 2px solid #000; 
-            font-family: 'Kalpurush', sans-serif; align-self: flex-start;
-        }
+        .summary-box { width: 250px; margin-top: 15px; border: 2px solid #000; font-family: 'Kalpurush', sans-serif; align-self: flex-start; }
         .summary-box div { display: flex; border-bottom: 1.2px solid #000; }
         .summary-box div:last-child { border-bottom: none; }
         .summary-box span { padding: 4px 10px; font-size: 14px; font-weight: bold; }
@@ -47,10 +36,13 @@
             @page { size: A4; margin: 0; }
             header, .no-print, #loginLayer {display:none!important} 
             body { background: white; margin: 0; } 
-            .page { 
-                margin: 0; border: none; width: 210mm; min-height: 297mm; 
-                page-break-after: always; display: flex !important;
-            } 
+            .page { margin: 0; border: none; width: 210mm; min-height: 297mm; page-break-after: always; display: flex !important; } 
+        }
+        
+        /* মোবাইল এর জন্য বাটন বড় করা */
+        @media screen and (max-width: 600px) {
+            header div { display: flex; flex-wrap: wrap; gap: 4px; }
+            .page { width: 100%; padding: 5mm; height: auto; }
         }
     </style>
 </head>
@@ -69,104 +61,88 @@
     <header>
         <div style="font-size: 11px; color: #94a3b8; font-weight: bold;">BFIDC ADMIN</div>
         <div style="display:flex; gap:6px">
-            <button onclick="exportToWord()" style="background:#2b5797; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">📄 MS WORD</button>
-            <button onclick="downloadData()" style="background:#34a853; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">💾 SAVE</button>
-            <button onclick="newWork()" style="background:#6366f1; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">➕ NEW</button>
+            <button onclick="document.getElementById('importFile').click()" style="background:#6366f1; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">📂 OPEN</button>
+            <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
+            <button onclick="downloadBackup()" style="background:#34a853; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">💾 BACKUP</button>
+            <button onclick="newWork()" style="background:#ef4444; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">🗑 CLEAR</button>
         </div>
     </header>
     
     <div class="card no-print">
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div>গাছ নং<input id="tree" value="1" oninput="updatePiece()" onkeydown="move(event, 'v1')"></div>
+            <div>গাছ নং<input id="tree" type="number" value="1" oninput="updatePiece()"></div>
             <div>পিস নং<input id="piece" readonly style="background:#f1f5f9"></div>
         </div>
-        <div>বেড় (ইঞ্চি)<input id="v1" inputmode="decimal" onkeydown="move(event, 'v2')"></div>
-        <div>লম্বা (ফুট)<input id="v2" inputmode="decimal" onkeydown="move(event, 'save')"></div>
-        <button onclick="addItem()" id="addBtn" style="width:100%; background:#22c55e; color:white; padding:12px; font-size:18px; border:none; border-radius:8px; font-weight:bold;">সেভ (ENTER)</button>
-        <button onclick="window.print()" style="width:100%; margin-top:8px; background:#475569; color:white; padding:10px; border:none; border-radius:8px; font-weight:bold;">PRINT REPORT</button>
+        <div>বেড় (ইঞ্চি)<input id="v1" inputmode="decimal" placeholder="বেড়"></div>
+        <div>লম্বা (ফুট)<input id="v2" inputmode="decimal" placeholder="লম্বা"></div>
+        <button onclick="addItem()" style="width:100%; background:#22c55e; color:white; padding:14px; font-size:18px; border:none; border-radius:8px; font-weight:bold;">সেভ করুন</button>
+        <button onclick="window.print()" style="width:100%; margin-top:10px; background:#475569; color:white; padding:10px; border:none; border-radius:8px; font-weight:bold;">PRINT REPORT</button>
     </div>
     <div id="printArea"></div>
 </div>
 
 <script>
-    let items = JSON.parse(localStorage.getItem("bfidc_data")) || [];
+    let items = [];
+    try {
+        const savedData = localStorage.getItem("bfidc_v2_data");
+        items = savedData ? JSON.parse(savedData) : [];
+    } catch(e) { items = []; }
 
-    function handleLogin() { if(uID.value==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("Error!"); }
+    function handleLogin() { if(uID.value==="admin" && uPass.value==="0000") { sessionStorage.setItem("active", "admin"); start(); } else alert("ভুল পাসওয়ার্ড!"); }
     function start() { loginLayer.classList.add("hidden"); appArea.classList.remove("hidden"); render(); updatePiece(); }
-    function updatePiece() { let count = items.filter(i => i.tree == tree.value).length; piece.value = count + 1; }
-    function move(e, next) { if(e.key === "Enter") { e.preventDefault(); addItem(); } }
+    function updatePiece() { let count = items.filter(i => i.tree == parseInt(tree.value)).length; piece.value = count + 1; }
 
     function addItem() {
-        let t = tree.value, v1v = parseFloat(v1.value), v2v = parseFloat(v2.value);
-        if(!v1v || !v2v) return;
+        let t = parseInt(tree.value), v1v = parseFloat(v1.value), v2v = parseFloat(v2.value);
+        if(!t || !v1v || !v2v) { alert("সব তথ্য দিন!"); return; }
         let cft = ((v1v/4)**2 * v2v)/144;
-        items.push({tree: parseInt(t), piece: items.filter(i=>i.tree==t).length + 1, v1: v1v, v2: v2v, cft: +cft.toFixed(2)});
-        localStorage.setItem("bfidc_data", JSON.stringify(items));
-        v1.value=""; v2.value=""; render(); updatePiece(); 
-        v1.focus();
+        items.push({ tree: t, piece: items.filter(i=>i.tree==t).length + 1, v1: v1v, v2: v2v, cft: parseFloat(cft.toFixed(2)) });
+        localStorage.setItem("bfidc_v2_data", JSON.stringify(items));
+        v1.value=""; v2.value=""; render(); updatePiece(); v1.focus();
     }
 
     function render() {
+        if(items.length === 0) { document.getElementById("printArea").innerHTML = ""; return; }
         let totalCft = items.reduce((s, i) => s + i.cft, 0), totalTrees = new Set(items.map(i => i.tree)).size;
-        
-        // ফাহাদ ব্রো-র শর্ত: ৬০৮ পর্যন্ত ১ম পাতা
-        let p1Data = items.filter(i => i.tree <= 608);
-        let p2Data = items.filter(i => i.tree > 608);
-        
+        let p1Data = items.filter(i => i.tree <= 608), p2Data = items.filter(i => i.tree > 608);
         let pagesData = [];
         if(p1Data.length > 0) pagesData.push(p1Data);
         if(p2Data.length > 0) pagesData.push(p2Data);
-        if(pagesData.length === 0) pagesData = [[]];
 
         let html = "";
         pagesData.forEach((data, idx) => {
-            let mid = Math.ceil(data.length / 2);
-            let left = data.slice(0, mid); let right = data.slice(mid);
+            let mid = Math.ceil(data.length / 2), left = data.slice(0, mid), right = data.slice(mid);
             let th = `<tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>`;
-
             html += `<div class="page">`;
-            
-            // হেডলাইন শুধু ১ম পাতায়
-            if(idx === 0) {
-                html += `
-                <div class="report-header">
-                    <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, ..................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3>
-                    <h3>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3>
-                </div>`;
-            }
-
-            html += `
-                <div class="content-wrapper">
-                    <div class="col"><table>${th}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table></div>
-                    <div class="col"><table>${th}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table></div>
-                </div>`;
-
-            // আপনার লাল মার্ক করা জায়গায় সামারি: টেবিল শেষ হওয়ার ঠিক নিচে
-            if(idx === pagesData.length - 1) {
-                html += `
-                <div class="summary-box">
-                    <div><span class="label">মোট গাছ:</span><span class="val">${totalTrees} টি</span></div>
-                    <div><span class="label">মোট পিস:</span><span class="val">${items.length} টি</span></div>
-                    <div><span class="label">মোট সিএফটি:</span><span class="val">${totalCft.toFixed(2)}</span></div>
-                </div>`;
-            }
+            if(idx === 0) html += `<div class="report-header"><h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, ..................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3><h3>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3></div>`;
+            html += `<div class="content-wrapper"><div class="col"><table>${th}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table></div><div class="col"><table>${th}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table></div></div>`;
+            if(idx === pagesData.length - 1) html += `<div class="summary-box"><div><span class="label">মোট গাছ:</span><span class="val">${totalTrees} টি</span></div><div><span class="label">মোট পিস:</span><span class="val">${items.length} টি</span></div><div><span class="label">মোট সিএফটি:</span><span class="val">${totalCft.toFixed(2)}</span></div></div>`;
             html += `<div class="page-num">পৃষ্ঠা: ${idx+1} / ${pagesData.length}</div></div>`;
         });
         document.getElementById("printArea").innerHTML = html;
     }
 
-    function exportToWord() {
-        let content = document.getElementById("printArea").innerHTML;
-        let blob = new Blob(['<html><head><meta charset="utf-8"><style>table{border:1px solid black; border-collapse:collapse; width:100%} td,th{border:1px solid black; text-align:center; font-family: "Kalpurush";}</style></head><body>' + content + '</body></html>'], {type: 'application/msword'});
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement('a'); a.href = url; a.download = 'BFIDC_Report.doc'; a.click();
+    function downloadBackup() {
+        const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "BFIDC_Data.json"; a.click();
     }
 
-    function downloadData() {
-        const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
-        const a = document.createElement('a'); a.href = url; a.download = "BFIDC_Data.json"; a.click();
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                items = JSON.parse(e.target.result);
+                localStorage.setItem("bfidc_v2_data", JSON.stringify(items));
+                render(); updatePiece();
+                alert("ডাটা ওপেন হয়েছে!");
+            } catch(err) { alert("ভুল ফাইল!"); }
+        };
+        reader.readAsText(file);
     }
-    function newWork() { if(confirm("সব মুছবেন?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
+
+    function newWork() { if(confirm("সব ডাটা মুছে যাবে! আপনি কি নিশ্চিত?")) { items = []; localStorage.removeItem("bfidc_v2_data"); render(); updatePiece(); } }
     if(sessionStorage.getItem("active")) start();
 </script>
 </body>
