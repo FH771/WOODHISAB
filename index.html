@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDCWOODHISAB - PROFESSIONAL</title>
+<title>BFIDCWOODHISAB - MASTER</title>
 <style>
 @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
 body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white; -webkit-print-color-adjust: exact;}
@@ -12,24 +12,37 @@ header{position:sticky; top:0; background:#020617; padding:10px; display:flex; j
 input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:18px; margin-bottom: 10px;}
 input:focus { outline: 3px solid #22c55e; background: #f0fdf4; }
 
-.page { background: white; width: 210mm; min-height: 296mm; margin: 0 auto; padding: 10mm 12mm; color: black; box-sizing: border-box; display: flex; flex-direction: column; position: relative; page-break-after: always; }
-.report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+.page { background: white; width: 210mm; min-height: 296mm; margin: 0 auto; padding: 10mm 12mm; color: black; box-sizing: border-box; display: flex; flex-direction: column; position: relative; page-break-after: always; overflow: hidden; }
+
+/* লোগো ওয়াটারমার্ক সেটিংস */
+.watermark { 
+    position: absolute; 
+    top: 55%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    width: 350px; 
+    opacity: 0.08; /* আপনি চাইলে এটি বাড়িয়ে বা কমিয়ে ঝাপসা ঠিক করতে পারেন */
+    z-index: 0; 
+    pointer-events: none;
+}
+
+.report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; position: relative; z-index: 1; }
 .report-header h3 { margin: 1px 0; font-size: 16px; font-weight: bold; line-height: 1.4; }
 
-.content-wrapper { display: flex; gap: 20px; flex: 1; }
+.content-wrapper { display: flex; gap: 20px; flex: 1; position: relative; z-index: 1; }
 .col { flex: 1; }
-table { width: 100%; border-collapse: collapse; border: 1.2px solid #000; }
+table { width: 100%; border-collapse: collapse; border: 1.2px solid #000; background: transparent; }
 th, td { border: 1px solid #000; padding: 3px 4px; text-align: center; font-size: 12px; font-family: 'Kalpurush', sans-serif; height: 21px; }
 th { background: #f2f2f2 !important; font-weight: bold; }
 
-.summary-box { width: 250px; margin-top: 20px; border: 1.2px solid #000; font-family: 'Kalpurush', sans-serif; }
+.summary-box { width: 250px; margin-top: 20px; border: 1.2px solid #000; font-family: 'Kalpurush', sans-serif; position: relative; z-index: 1; }
 .summary-box div { display: flex; border-bottom: 1.2px solid #000; }
 .summary-box div:last-child { border-bottom: none; }
 .summary-box span { padding: 4px 10px; font-size: 14px; font-weight: bold; }
 .summary-box .label { border-right: 1.2px solid #000; flex: 1.4; background: #f9f9f9 !important; text-align: left; }
 .summary-box .val { flex: 1; text-align: center; }
 
-.page-num { position: absolute; bottom: 8mm; right: 12mm; font-size: 12px; font-family: 'Kalpurush', sans-serif; }
+.page-num { position: absolute; bottom: 8mm; right: 12mm; font-size: 12px; font-family: 'Kalpurush', sans-serif; z-index: 1; }
 .hidden { display:none!important; }
 
 @media print { 
@@ -45,7 +58,7 @@ th { background: #f2f2f2 !important; font-weight: bold; }
 <div id="loginLayer" style="position:fixed; inset:0; background:#020617; display:flex; align-items:center; justify-content:center; z-index:9999">
     <div style="background:#111827; padding:25px; border-radius:14px; width:90%; max-width:320px; text-align:center">
         <h2 style="color:white; margin-bottom:20px">BFIDCWOODHISAB</h2>
-        <select id="userSelect">
+        <select id="userSelect" style="margin-bottom: 10px; padding: 10px; border-radius: 5px;">
             <option value="admin">Admin</option>
             <option value="user1">User1</option>
             <option value="user2">User2</option>
@@ -79,10 +92,10 @@ th { background: #f2f2f2 !important; font-weight: bold; }
             </select>
         </div>
         <div id="sizeFields" class="hidden" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div>চওড়া<input id="width" type="number" step="any"></div>
+            <div>চওড়া<input id="width" type="number" step="any"></div>
             <div>পুরুত্ব<input id="thick" type="number" step="any"></div>
         </div>
-        <div id="logField">বেড় (ইঞ্চি)<input id="v1" type="number" step="any"></div>
+        <div id="logField">বেড় (ইঞ্চি)<input id="v1" type="number" step="any"></div>
         <div>লম্বা (ফুট)<input id="v2" type="number" step="any" onkeydown="if(event.key==='Enter') addItem()"></div>
         <button onclick="addItem()" style="width:100%; background:#22c55e; color:white; padding:15px; font-size:18px; border:none; border-radius:8px; font-weight:bold;">সেভ (ENTER)</button>
         <button onclick="window.print()" style="width:100%; margin-top:10px; background:#475569; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">প্রিন্ট রিপোর্ট</button>
@@ -92,12 +105,13 @@ th { background: #f2f2f2 !important; font-weight: bold; }
 </div>
 
 <script>
-// Multiple User Data Setup
 let userPass = { admin:"0000", user1:"1234", user2:"5678" };
 let currentUser = "";
 let items = [];
 
-// Login Handler
+// গিটহাবে আপনার আপলোড করা লোগোর ফাইল নেম
+const logoFile = "logo.jpg"; 
+
 function handleLogin() {
     const user = userSelect.value;
     const pass = uPass.value;
@@ -105,7 +119,7 @@ function handleLogin() {
         currentUser = user;
         sessionStorage.setItem("activeUser", user);
         start();
-    } else alert("ভুল পাসওয়ার্ড!");
+    } else alert("ভুল পাসওয়ার্ড!");
 }
 
 function start() {
@@ -117,17 +131,14 @@ function start() {
     tree.focus();
 }
 
-// Load user-specific data
 function loadUserData() {
     items = JSON.parse(localStorage.getItem("bfidc_data_"+currentUser) || "[]");
 }
 
-// Save user-specific data
 function saveUserData() {
     localStorage.setItem("bfidc_data_"+currentUser, JSON.stringify(items));
 }
 
-// Navigation & input focus
 function toggleSizeFields() {
     let isSize = woodType.value === 'size';
     document.getElementById('sizeFields').classList.toggle('hidden', !isSize);
@@ -171,7 +182,9 @@ function render() {
         let right = pageData.slice(38);
 
         let tableHead = `<tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>`;
-        html += `<div class="page">`;
+        
+        html += `<div class="page">
+            <img class="watermark" src="${logoFile}" alt="BFIDC LOGO">`;
 
         html += `<div class="report-header">
             <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন,</h3>
@@ -209,7 +222,7 @@ function importData(event) {
             saveUserData(); 
             render(); 
             updatePiece(); 
-            alert("ডাটা লোড হয়েছে!");
+            alert("ডাটা লোড হয়েছে!");
         } catch(err){ alert("ভুল ফাইল!"); }
     };
     reader.readAsText(event.target.files[0]);
