@@ -3,113 +3,137 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDCWOODHISAB - MASTER</title>
+<title>BFIDCWOODHISAB - PREMIUM MASTER</title>
 <style>
 @font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
-body{font-family: 'Segoe UI', Arial, sans-serif; background:#0f172a; margin:0; color:white; -webkit-print-color-adjust: exact;}
-header{position:sticky; top:0; background:#020617; padding:10px; display:flex; justify-content:space-between; align-items:center; z-index:999; border-bottom: 1px solid #1e293b;}
-.card{background:white; padding:15px; border-radius:12px; margin:10px; color:black;}
-input, select { width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; box-sizing:border-box; font-size:18px; margin-bottom: 10px;}
-input:focus { outline: 3px solid #22c55e; background: #f0fdf4; }
 
-.page { background: white; width: 210mm; min-height: 296mm; margin: 0 auto; padding: 10mm 12mm; color: black; box-sizing: border-box; display: flex; flex-direction: column; position: relative; page-break-after: always; overflow: hidden; }
-
-/* লোগো ওয়াটারমার্ক সেটিংস */
-.watermark { 
-    position: absolute; 
-    top: 55%; 
-    left: 50%; 
-    transform: translate(-50%, -50%); 
-    width: 350px; 
-    opacity: 0.08; /* আপনি চাইলে এটি বাড়িয়ে বা কমিয়ে ঝাপসা ঠিক করতে পারেন */
-    z-index: 0; 
-    pointer-events: none;
+:root {
+    --primary: #22c55e;
+    --dark: #0f172a;
+    --card-bg: #1e293b;
+    --accent: #6366f1;
 }
 
-.report-header { text-align: center; margin-bottom: 15px; font-family: 'Kalpurush', sans-serif; position: relative; z-index: 1; }
-.report-header h3 { margin: 1px 0; font-size: 16px; font-weight: bold; line-height: 1.4; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--dark); margin: 0; color: white; -webkit-print-color-adjust: exact; }
 
-.content-wrapper { display: flex; gap: 20px; flex: 1; position: relative; z-index: 1; }
+header { 
+    position: sticky; top: 0; background: #020617; padding: 12px 20px; 
+    display: flex; justify-content: space-between; align-items: center; 
+    z-index: 999; border-bottom: 2px solid var(--primary); 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+button { 
+    cursor: pointer; border: none; padding: 8px 12px; border-radius: 8px; 
+    font-weight: bold; transition: 0.3s; font-size: 12px; color: white;
+}
+.btn-save { background: var(--primary); padding: 15px; width: 100%; font-size: 18px; margin-top: 10px; }
+.btn-save:hover { background: #16a34a; transform: scale(1.02); }
+
+/* আধুনিক কার্ড ডিজাইন */
+.card { background: white; padding: 20px; border-radius: 16px; margin: 15px; color: #1e293b; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-top: 5px solid var(--primary); }
+input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 18px; margin-bottom: 12px; transition: 0.3s; }
+input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
+
+/* রিপোর্ট পেইজ সেটিংস */
+.page { 
+    background: white; width: 210mm; min-height: 296mm; margin: 20px auto; 
+    padding: 10mm 15mm; color: black; box-sizing: border-box; 
+    display: flex; flex-direction: column; position: relative; 
+    page-break-after: always; box-shadow: 0 0 20px rgba(0,0,0,0.5); 
+}
+
+/* বড় ওয়াটারমার্ক লোগো - আপনার পেইজের সাথে অ্যাডজাস্ট করা */
+.watermark { 
+    position: absolute; top: 50%; left: 50%; 
+    transform: translate(-50%, -50%); 
+    width: 80%; /* পেইজের অধিকাংশ জায়গা জুড়ে থাকবে */
+    max-width: 600px;
+    opacity: 0.06; /* হালকা ঝাপসা */
+    z-index: 0; pointer-events: none;
+}
+
+.report-header { text-align: center; margin-bottom: 25px; font-family: 'Kalpurush', sans-serif; position: relative; z-index: 1; border-bottom: 1.5px solid black; padding-bottom: 10px; }
+.report-header h3 { margin: 2px 0; font-size: 18px; font-weight: bold; }
+
+.content-wrapper { display: flex; gap: 30px; flex: 1; position: relative; z-index: 1; }
 .col { flex: 1; }
-table { width: 100%; border-collapse: collapse; border: 1.2px solid #000; background: transparent; }
-th, td { border: 1px solid #000; padding: 3px 4px; text-align: center; font-size: 12px; font-family: 'Kalpurush', sans-serif; height: 21px; }
-th { background: #f2f2f2 !important; font-weight: bold; }
 
-.summary-box { width: 250px; margin-top: 20px; border: 1.2px solid #000; font-family: 'Kalpurush', sans-serif; position: relative; z-index: 1; }
+table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; background: transparent; }
+th, td { border: 1.2px solid #000; padding: 5px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; }
+th { background: #f1f5f9 !important; font-weight: bold; }
+
+.summary-box { width: 280px; margin-top: 25px; border: 1.5px solid #000; font-family: 'Kalpurush', sans-serif; position: relative; z-index: 1; }
 .summary-box div { display: flex; border-bottom: 1.2px solid #000; }
-.summary-box div:last-child { border-bottom: none; }
-.summary-box span { padding: 4px 10px; font-size: 14px; font-weight: bold; }
-.summary-box .label { border-right: 1.2px solid #000; flex: 1.4; background: #f9f9f9 !important; text-align: left; }
-.summary-box .val { flex: 1; text-align: center; }
+.summary-box .label { flex: 1.5; background: #f8fafc !important; text-align: left; padding: 6px 12px; font-weight: bold; border-right: 1.2px solid #000; }
+.summary-box .val { flex: 1; text-align: center; padding: 6px; font-weight: bold; }
 
-.page-num { position: absolute; bottom: 8mm; right: 12mm; font-size: 12px; font-family: 'Kalpurush', sans-serif; z-index: 1; }
+.page-num { position: absolute; bottom: 10mm; right: 15mm; font-size: 12px; font-weight: bold; }
 .hidden { display:none!important; }
 
 @media print { 
-    @page { size: A4; margin: 0; }
-    header, .no-print, #loginLayer {display:none!important} 
-    body { background: white; margin: 0; } 
-    .page { margin: 0; border: none; width: 210mm; min-height: 297mm; display: flex !important; } 
+    body { background: white; margin: 0; }
+    header, .no-print, #loginLayer { display:none!important; }
+    .page { margin: 0; border: none; box-shadow: none; width: 210mm; min-height: 297mm; display: flex !important; }
 }
 </style>
 </head>
 <body>
 
-<div id="loginLayer" style="position:fixed; inset:0; background:#020617; display:flex; align-items:center; justify-content:center; z-index:9999">
-    <div style="background:#111827; padding:25px; border-radius:14px; width:90%; max-width:320px; text-align:center">
-        <h2 style="color:white; margin-bottom:20px">BFIDCWOODHISAB</h2>
-        <select id="userSelect" style="margin-bottom: 10px; padding: 10px; border-radius: 5px;">
-            <option value="admin">Admin</option>
-            <option value="user1">User1</option>
-            <option value="user2">User2</option>
+<div id="loginLayer" style="position:fixed; inset:0; background:radial-gradient(circle, #1e293b, #020617); display:flex; align-items:center; justify-content:center; z-index:9999">
+    <div style="background:#1e293b; padding:35px; border-radius:24px; width:90%; max-width:350px; text-align:center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #334155;">
+        <h2 style="color:var(--primary); margin-bottom:10px; letter-spacing: 1px;">BFIDC WOOD</h2>
+        <p style="color: #94a3b8; margin-bottom: 25px; font-size: 14px;">Master Management System</p>
+        <select id="userSelect" style="background: #0f172a; color: white; border: 1px solid #334155;">
+            <option value="admin">Admin (Fahad Bro)</option>
+            <option value="user1">Operator 1</option>
         </select>
-        <input id="uPass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter') handleLogin()">
-        <button onclick="handleLogin()" style="width:100%; margin-top:10px; padding:12px; background:#22c55e; color:white; font-weight:bold; border:none; border-radius:8px;">LOGIN</button>
+        <input id="uPass" type="password" placeholder="••••••••" style="background: #0f172a; color: white; border: 1px solid #334155; text-align: center;">
+        <button onclick="handleLogin()" style="width:100%; margin-top:10px; padding:15px; background:var(--primary); color:white; font-size:16px; border-radius:12px;">LOGIN NOW</button>
     </div>
 </div>
 
 <div id="appArea" class="hidden">
     <header>
-        <div style="font-size: 14px; color: #22c55e; font-weight: bold;">BFIDCWOODHISAB</div>
-        <div style="display:flex; gap:6px">
-            <button onclick="document.getElementById('importFile').click()" style="background:#6366f1; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">📂 খুলুন</button>
+        <div style="font-size: 18px; color: var(--primary); font-weight: bold;">BFIDC <span style="color:white">WOOD</span></div>
+        <div class="btn-group">
+            <button onclick="document.getElementById('importFile').click()" style="background:#6366f1;">📂 OPEN</button>
             <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
-            <button onclick="downloadBackup()" style="background:#34a853; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">💾 ব্যাকআপ</button>
-            <button onclick="exportToWord()" style="background:#2b5797; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">📄 WORD</button>
-            <button onclick="newWork()" style="background:#ef4444; color:white; border:none; padding:8px 10px; border-radius:6px; font-size:11px;">🗑 মুছুন</button>
+            <button onclick="downloadBackup()" style="background:#10b981;">💾 BACKUP</button>
+            <button onclick="exportToWord()" style="background:#3b82f6;">📄 WORD</button>
+            <button onclick="newWork()" style="background:#ef4444;">🗑 CLEAR</button>
         </div>
     </header>
 
     <div class="card no-print">
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div>গাছ নং<input id="tree" type="number" value="1" inputmode="numeric" oninput="updatePiece()"></div>
-            <div>পিস নং<input id="piece" readonly style="background:#f1f5f9"></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+            <div>গাছ নং<input id="tree" type="number" value="1" oninput="updatePiece()"></div>
+            <div>পিস নং<input id="piece" readonly style="background:#f8fafc; color:#64748b"></div>
         </div>
         <div>কাঠের ধরণ
             <select id="woodType" onchange="toggleSizeFields(); render();">
-                <option value="log">গোল কাঠ (Round Log)</option>
-                <option value="size">সাইজ কাঠ (Sawn Wood)</option>
+                <option value="log">🌳 গোল কাঠ (Round Log)</option>
+                <option value="size">📏 সাইজ কাঠ (Sawn Wood)</option>
             </select>
         </div>
-        <div id="sizeFields" class="hidden" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div>চওড়া<input id="width" type="number" step="any"></div>
-            <div>পুরুত্ব<input id="thick" type="number" step="any"></div>
+        <div id="sizeFields" class="hidden" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+            <div>চওড়া (ইঞ্চি)<input id="width" type="number" step="any"></div>
+            <div>পুরুত্ব (ইঞ্চি)<input id="thick" type="number" step="any"></div>
         </div>
         <div id="logField">বেড় (ইঞ্চি)<input id="v1" type="number" step="any"></div>
         <div>লম্বা (ফুট)<input id="v2" type="number" step="any" onkeydown="if(event.key==='Enter') addItem()"></div>
-        <button onclick="addItem()" style="width:100%; background:#22c55e; color:white; padding:15px; font-size:18px; border:none; border-radius:8px; font-weight:bold;">সেভ (ENTER)</button>
-        <button onclick="window.print()" style="width:100%; margin-top:10px; background:#475569; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold;">প্রিন্ট রিপোর্ট</button>
+        <button class="btn-save" onclick="addItem()">সেভ করুন (ENTER)</button>
+        <button onclick="window.print()" style="width:100%; margin-top:10px; background:#475569; color:white; padding:12px; border:none; border-radius:10px; font-weight:bold;">🖨 প্রিন্ট রিপোর্ট</button>
     </div>
 
     <div id="printArea"></div>
 </div>
 
 <script>
-let userPass = { admin:"0000", user1:"1234", user2:"5678" };
+let userPass = { admin:"0000", user1:"1234" };
 let currentUser = "";
 let items = [];
-
-// গিটহাবে আপনার আপলোড করা লোগোর ফাইল নেম
 const logoFile = "logo.jpg"; 
 
 function handleLogin() {
@@ -131,13 +155,8 @@ function start() {
     tree.focus();
 }
 
-function loadUserData() {
-    items = JSON.parse(localStorage.getItem("bfidc_data_"+currentUser) || "[]");
-}
-
-function saveUserData() {
-    localStorage.setItem("bfidc_data_"+currentUser, JSON.stringify(items));
-}
+function loadUserData() { items = JSON.parse(localStorage.getItem("bfidc_data_"+currentUser) || "[]"); }
+function saveUserData() { localStorage.setItem("bfidc_data_"+currentUser, JSON.stringify(items)); }
 
 function toggleSizeFields() {
     let isSize = woodType.value === 'size';
@@ -184,18 +203,16 @@ function render() {
         let tableHead = `<tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>`;
         
         html += `<div class="page">
-            <img class="watermark" src="${logoFile}" alt="BFIDC LOGO">`;
-
-        html += `<div class="report-header">
-            <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন,</h3>
-            <h3>.................. রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h3>
-            <h3>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3>
-        </div>`;
-
-        html += `<div class="content-wrapper">
-            <div class="col"><table>${tableHead}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='size'?i.v1+'"x'+(i.thick)+'"x'+i.v2+"'":i.v1+'"x'+i.v2+"'"}</td><td>${i.cft.toFixed(2)}</td></tr>`).join('')}</table></div>
-            <div class="col"><table>${tableHead}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='size'?i.v1+'"x'+(i.thick)+'"x'+i.v2+"'":i.v1+'"x'+i.v2+"'"}</td><td>${i.cft.toFixed(2)}</td></tr>`).join('')}</table></div>
-        </div>`;
+            <img class="watermark" src="${logoFile}">
+            <div class="report-header">
+                <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন (BFIDC)</h3>
+                <h3>রাবার বাগান হতে বিএফআইডিসি, এলপিসি-তে</h3>
+                <h3>প্রেরণের জন্য জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</h3>
+            </div>
+            <div class="content-wrapper">
+                <div class="col"><table>${tableHead}${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='size'?i.v1+'"x'+(i.thick)+'"x'+i.v2+"'":i.v1+'"x'+i.v2+"'"}</td><td>${i.cft.toFixed(2)}</td></tr>`).join('')}</table></div>
+                <div class="col"><table>${tableHead}${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='size'?i.v1+'"x'+(i.thick)+'"x'+i.v2+"'":i.v1+'"x'+i.v2+"'"}</td><td>${i.cft.toFixed(2)}</td></tr>`).join('')}</table></div>
+            </div>`;
 
         if (p + perPage >= filteredItems.length) {
             html += `<div class="summary-box">
@@ -211,42 +228,28 @@ function render() {
 
 function downloadBackup() {
     const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `BFIDC_Data_${currentUser}.json`; a.click();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `BFIDC_Backup_${currentUser}.json`; a.click();
 }
 
 function importData(event) {
     const reader = new FileReader();
     reader.onload = (e) => { 
-        try {
-            items = JSON.parse(e.target.result); 
-            saveUserData(); 
-            render(); 
-            updatePiece(); 
-            alert("ডাটা লোড হয়েছে!");
-        } catch(err){ alert("ভুল ফাইল!"); }
+        items = JSON.parse(e.target.result); saveUserData(); render(); updatePiece(); alert("ডাটা ইমপোর্ট হয়েছে!");
     };
     reader.readAsText(event.target.files[0]);
 }
 
-function newWork() { 
-    if(confirm("সব ডাটা মুছবেন?")) { 
-        items = []; 
-        saveUserData(); 
-        render(); 
-        updatePiece(); 
-    } 
-}
+function newWork() { if(confirm("সব ডাটা ডিলিট করবেন?")) { items = []; saveUserData(); render(); updatePiece(); } }
 
 function exportToWord() {
     let content = document.getElementById('printArea').innerHTML;
     let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>";
     let blob = new Blob(['\ufeff', header + content + "</body></html>"], { type: 'application/msword' });
     let url = URL.createObjectURL(blob);
-    let link = document.createElement('a'); link.href = url; link.download = `BFIDC_Report_${currentUser}.doc`; link.click();
+    let link = document.createElement('a'); link.href = url; link.download = `BFIDC_Report.doc`; link.click();
 }
 
 if(sessionStorage.getItem("activeUser")) { currentUser = sessionStorage.getItem("activeUser"); start(); }
-
 </script>
 </body>
 </html>
