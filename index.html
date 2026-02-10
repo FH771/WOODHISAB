@@ -2,265 +2,244 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFIDC WOOD HISAB ELITE</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>BFIDCWOODHISAB</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         
+        :root { --primary: #00ffd5; --glass: rgba(255, 255, 255, 0.05); }
+        
         body { 
             margin:0; font-family: 'Poppins', sans-serif; 
-            min-height: 100vh; display: flex; justify-content: center;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            min-height: 100vh; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
             color: white; overflow-x: hidden;
         }
 
-        .container { width: 100%; max-width: 850px; padding: 20px; box-sizing: border-box; }
-
-        /* 3D Glassy Effect */
+        /* LOGIN LAYER */
+        #loginLayer { 
+            position:fixed; inset:0; display:flex; align-items:center; justify-content:center; 
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 10000;
+        }
         .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            padding: 25px; margin-bottom: 25px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 0 15px rgba(255,255,255,0.05);
+            background: var(--glass); backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px;
+            padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
 
-        .logo-container {
-            width: 110px; height: 110px; margin: 0 auto 15px;
-            border: 3px solid #00ffd5; border-radius: 50%; padding: 5px;
-            box-shadow: 0 0 20px rgba(0, 255, 213, 0.6);
-        }
-        .logo-container img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-
-        h2, h3 { text-align: center; color: #00ffd5; text-shadow: 0 0 15px rgba(0,255,213,0.4); }
+        /* APP LAYOUT */
+        #appArea { display:none; padding: 15px; max-width: 900px; margin: auto; }
         
+        header { 
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;
+        }
+        .logo { font-size: 22px; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
+
+        .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: var(--glass); padding: 15px; border-radius: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-box b { display: block; font-size: 20px; color: var(--primary); }
+
+        /* INPUTS */
         input, select {
-            width: 100%; padding: 13px; margin-top: 12px; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.4);
-            color: #fff; outline: none; font-size: 15px;
+            width: 100%; padding: 12px; margin-top: 10px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3);
+            color: #fff; outline: none; box-sizing: border-box;
         }
-
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
         .btn {
-            flex: 1; padding: 14px; border-radius: 12px; border: none; font-weight: 700;
-            cursor: pointer; transition: 0.3s; text-transform: uppercase; min-width: 120px;
+            padding: 12px 20px; border-radius: 12px; border: none; font-weight: 700;
+            cursor: pointer; transition: 0.3s; text-transform: uppercase;
         }
-        .btn-save { background: linear-gradient(45deg, #00ffd5, #008cff); color: #000; }
-        .btn-edit { background: #f1c40f; color: #000; padding: 4px 8px; font-size: 11px; margin-right: 5px; border-radius: 5px; }
-        .btn-del { background: #ff4d4d; color: #fff; padding: 4px 8px; font-size: 11px; border-radius: 5px; }
+        .btn-main { background: linear-gradient(45deg, #00ffd5, #008cff); color: #000; width: 100%; margin-top: 15px; }
+        .btn-edit { background: #f1c40f; color: #000; padding: 4px 8px; font-size: 11px; border-radius: 5px; }
+        .btn-del { background: #ff4d4d; color: #fff; padding: 4px 8px; font-size: 11px; border-radius: 5px; margin-left: 5px; }
 
-        /* Table UI */
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-        .data-table th { background: rgba(0,255,213,0.2); color: #00ffd5; padding: 12px; text-align: left; border-bottom: 2px solid #00ffd5; }
-        .data-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        /* TABLE */
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .data-table th { text-align: left; color: var(--primary); padding: 12px; border-bottom: 1px solid var(--primary); }
+        .data-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
 
-        /* Print Section Hidden */
+        /* PRINT STYLE */
         #printArea { display: none; }
-
         @media print {
             body { background: white !important; color: black !important; }
-            .container { display: none !important; }
-            #printArea { display: block !important; }
-            .print-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid black; padding-bottom: 10px; }
-            .two-column { display: flex; justify-content: space-between; gap: 20px; }
-            .column { width: 49%; }
-            table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 5px; }
-            th, td { border: 1px solid black; padding: 5px; text-align: center; }
-            .watermark { position: fixed; top: 40%; left: 25%; font-size: 100px; opacity: 0.05; transform: rotate(-35deg); pointer-events: none; }
+            #appArea, #loginLayer { display: none !important; }
+            #printArea { display: block !important; padding: 20px; }
+            .print-header { text-align: center; margin-bottom: 15px; }
+            .two-column { display: flex; gap: 20px; }
+            .col { width: 50%; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th, td { border: 1px solid black; padding: 4px; text-align: center; }
+            .watermark { position: fixed; top: 35%; left: 25%; font-size: 80px; opacity: 0.05; transform: rotate(-35deg); }
         }
-
-        #appArea, #thickInput { display: none; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="loginLayer" class="glass-card">
-        <div class="logo-container"><img src="Logo.jpg" onerror="this.src='https://via.placeholder.com/100'"></div>
-        <h2>BFIDC SYSTEM LOGIN</h2>
+<div id="loginLayer">
+    <div class="glass-card" style="width: 320px; text-align: center;">
+        <h2 style="color: var(--primary);">BFIDC LOGIN</h2>
         <input type="email" id="emailInput" placeholder="Email (lpcfahad7@gmail.com)">
-        <input type="password" id="passwordInput" placeholder="Password (547087)">
-        <button class="btn btn-save" onclick="handleAuth()" style="width: 100%; margin-top: 20px;">LOGIN</button>
+        <input type="password" id="passInput" placeholder="Password (547087)">
+        <button class="btn btn-main" onclick="handleLogin()">ACCESS SYSTEM</button>
+    </div>
+</div>
+
+<div id="appArea">
+    <header>
+        <div class="logo">BFIDCWOODHISAB</div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn" onclick="triggerPrint()" style="background: #fff; color: #000; padding: 8px 15px; font-size: 12px;">PRINT</button>
+            <button class="btn" onclick="logout()" style="background: #ff4d4d; color: #fff; padding: 8px 15px; font-size: 12px;">LOGOUT</button>
+        </div>
+    </header>
+
+    <div class="dashboard">
+        <div class="stat-box"><small>TREES</small><b id="treeStat">0</b></div>
+        <div class="stat-box"><small>PIECES</small><b id="pieceStat">0</b></div>
+        <div class="stat-box"><small>TOTAL CFT</small><b id="cftStat">0.00</b></div>
     </div>
 
-    <div id="appArea">
-        <div class="glass-card">
-            <h3>Input Wood Measurements</h3>
+    <div class="glass-card">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <select id="typeInput" onchange="toggleInputs()">
-                <option value="log">Round Log (গোল কাঠ)</option>
-                <option value="sawn">Sawn Wood (সাইজ কাঠ)</option>
+                <option value="log">Round Log (গোল)</option>
+                <option value="size">Sawn Wood (সাইজ)</option>
             </select>
-            <input type="number" id="treeInput" placeholder="Tree No" class="nav-input">
-            <input type="number" id="pieceInput" placeholder="Piece No" readonly>
-            <input type="number" id="v1Input" placeholder="Girth / Width (Inch)" class="nav-input">
-            <input type="number" id="thickInput" placeholder="Thickness (Inch)" class="nav-input">
-            <input type="number" id="v2Input" placeholder="Length (Feet)" class="nav-input">
-            <button class="btn btn-save" onclick="addItem()" id="mainSaveBtn" style="width: 100%; margin-top: 20px;">SAVE DATA</button>
+            <input type="number" id="treeInput" placeholder="Tree No" oninput="updatePiece()">
         </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px;">
+            <input type="number" id="pieceInput" placeholder="Pc No" readonly style="opacity: 0.6;">
+            <input type="number" id="v1Input" placeholder="Girth/Width">
+            <input type="number" id="thickInput" placeholder="Thick" style="display: none;">
+            <input type="number" id="v2Input" placeholder="Length">
+        </div>
+        <button class="btn btn-main" id="saveBtn" onclick="addItem()">SAVE DATA (ENTER)</button>
+    </div>
 
-        <div class="glass-card" style="overflow-x: auto;">
-            <table class="data-table">
-                <thead>
-                    <tr><th>Tree/Pc</th><th>Measurement</th><th>CFT</th><th>Actions</th></tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
-
-        <div class="btn-group">
-            <button class="btn" onclick="triggerPrint()" style="background: white; color: #000;">Print (2-Col)</button>
-            <button class="btn" onclick="exportExcel()" style="background: #217346; color: #fff;">Excel</button>
-            <button class="btn" onclick="logout()" style="background: #ff4d4d; color: #fff;">Logout</button>
-        </div>
+    <div class="glass-card" style="overflow-x: auto;">
+        <input type="text" id="searchInput" placeholder="Search Tree Number..." oninput="render()" style="margin-bottom: 15px; background: rgba(0,0,0,0.5);">
+        <table class="data-table">
+            <thead>
+                <tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th>Action</th></tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
     </div>
 </div>
 
 <div id="printArea">
     <div class="watermark">BFIDC</div>
     <div class="print-header">
-        <h2 id="pTitleMain">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, রাবার বাগান হতে বিএফআইডিসি, এলপিসি</h2>
-        <p>প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের লিস্ট।</p>
+        <h2 style="margin:0;">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন (BFIDC)</h2>
+        <p style="margin:5px 0;">প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের লিস্ট।</p>
         <p>তারিখ: <span id="pDate"></span> | মোট সিএফটি: <b id="pTotal">0.00</b></p>
     </div>
     <div class="two-column" id="pBody"></div>
 </div>
 
 <script>
-let items = JSON.parse(localStorage.getItem('data') || '[]');
+let items = JSON.parse(localStorage.getItem('bfidc_data') || '[]');
 let editId = null;
 
-function handleAuth() {
-    if(document.getElementById('emailInput').value === "lpcfahad7@gmail.com" && 
-       document.getElementById('passwordInput').value === "547087") {
-        sessionStorage.setItem('auth', 'ok');
-        startApp();
-    } else { alert("Wrong Data!"); }
+// Login Logic
+function handleLogin(){
+    if(emailInput.value === "lpcfahad7@gmail.com" && passInput.value === "547087"){
+        sessionStorage.setItem('isLoggedIn', 'true');
+        loginLayer.style.display = 'none';
+        appArea.style.display = 'block';
+        render(); updatePiece();
+    } else alert('Wrong Credentials!');
 }
 
-function startApp() {
-    document.getElementById('loginLayer').style.display='none';
-    document.getElementById('appArea').style.display='block';
-    render();
+window.onload = () => {
+    if(sessionStorage.getItem('isLoggedIn') === 'true') {
+        loginLayer.style.display = 'none';
+        appArea.style.display = 'block';
+        render(); updatePiece();
+    }
 }
 
-/* NAVIGATION */
-const navInputs = document.querySelectorAll('.nav-input');
-navInputs.forEach((input, index) => {
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowDown' || e.key === 'Enter') {
-            e.preventDefault();
-            index === navInputs.length - 1 ? addItem() : navInputs[index + 1].focus();
-        }
-        if (e.key === 'ArrowUp' && index > 0) { e.preventDefault(); navInputs[index - 1].focus(); }
-    });
-});
-
-function toggleInputs() {
-    document.getElementById('thickInput').style.display = (document.getElementById('typeInput').value === 'log') ? 'none' : 'block';
+// UI Logic
+function toggleInputs(){
+    thickInput.style.display = (typeInput.value === 'size') ? 'block' : 'none';
 }
 
-document.getElementById('treeInput').addEventListener('input', function() {
-    document.getElementById('pieceInput').value = items.filter(i => i.tree == this.value).length + 1;
-});
+function updatePiece(){ 
+    pieceInput.value = items.filter(i => i.tree == treeInput.value && i.type === typeInput.value).length + 1; 
+}
 
-function addItem() {
-    const tree = document.getElementById('treeInput').value;
-    const v1 = +document.getElementById('v1Input').value;
-    const v2 = +document.getElementById('v2Input').value;
-    const th = +document.getElementById('thickInput').value || 0;
-    const type = document.getElementById('typeInput').value;
-
+// Add/Edit Logic
+function addItem(){
+    let tree = treeInput.value, v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0, type = typeInput.value;
     if(!tree || !v1 || !v2) return;
 
-    const cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
+    let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
     
-    if(editId) {
-        items = items.map(i => i.id === editId ? {...i, tree, piece: document.getElementById('pieceInput').value, cft: +cft.toFixed(2), v1, v2, th, type} : i);
-        editId = null;
-        document.getElementById('mainSaveBtn').innerText = "SAVE DATA";
+    if(editId){
+        items = items.map(i => i.id === editId ? {...i, tree, v1, v2, th, type, cft: +cft.toFixed(2)} : i);
+        editId = null; saveBtn.innerText = "SAVE DATA (ENTER)";
     } else {
-        items.push({ id: Date.now(), tree, piece: document.getElementById('pieceInput').value, cft: +cft.toFixed(2), type, v1, v2, th });
+        items.push({ id: Date.now(), tree, piece: pieceInput.value, v1, v2, th, type, cft: +cft.toFixed(2) });
     }
     
-    localStorage.setItem('data', JSON.stringify(items));
-    render();
-    document.getElementById('v1Input').value = "";
-    document.getElementById('v2Input').value = "";
-    document.getElementById('v1Input').focus();
-    document.getElementById('pieceInput').value = items.filter(i => i.tree == tree).length + 1;
+    localStorage.setItem('bfidc_data', JSON.stringify(items));
+    v1Input.value = v2Input.value = thickInput.value = "";
+    render(); updatePiece(); v1Input.focus();
 }
 
-function editItem(id) {
-    const i = items.find(item => item.id === id);
-    if(i) {
-        document.getElementById('treeInput').value = i.tree;
-        document.getElementById('pieceInput').value = i.piece;
-        document.getElementById('v1Input').value = i.v1;
-        document.getElementById('v2Input').value = i.v2;
-        document.getElementById('thickInput').value = i.th;
-        document.getElementById('typeInput').value = i.type;
-        toggleInputs();
-        editId = id;
-        document.getElementById('mainSaveBtn').innerText = "UPDATE DATA";
-        window.scrollTo(0,0);
-    }
+function editItem(id){
+    let i = items.find(x => x.id === id);
+    treeInput.value = i.tree; v1Input.value = i.v1; v2Input.value = i.v2; thickInput.value = i.th; typeInput.value = i.type;
+    toggleInputs(); editId = id; saveBtn.innerText = "UPDATE DATA";
+    window.scrollTo(0,0);
 }
 
-function deleteItem(id) {
-    if(confirm('Delete?')) {
+function deleteItem(id){
+    if(confirm('Delete this record?')){
         items = items.filter(i => i.id !== id);
-        localStorage.setItem('data', JSON.stringify(items));
+        localStorage.setItem('bfidc_data', JSON.stringify(items));
         render();
     }
 }
 
-function render() {
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = "";
-    items.slice().reverse().forEach(i => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${i.tree}/${i.piece}</td>
-                <td>${i.v1}${i.th ? 'x'+i.th : ''}x${i.v2}'</td>
-                <td>${i.cft}</td>
-                <td>
-                    <button class="btn-edit" onclick="editItem(${i.id})">Edit</button>
-                    <button class="btn-del" onclick="deleteItem(${i.id})">Del</button>
-                </td>
-            </tr>
-        `;
-    });
+// Keyboard Nav
+document.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' && document.activeElement.id === 'v2Input') addItem();
+});
+
+// Render & Stats
+function render(){
+    let kw = searchInput.value.toLowerCase();
+    let filtered = items.filter(i => i.tree.toString().includes(kw));
+    
+    tableBody.innerHTML = filtered.slice().reverse().map(i => `
+        <tr>
+            <td>${i.tree}/${i.piece}</td>
+            <td>${i.v1}${i.th?'x'+i.th:''}'x${i.v2}"</td>
+            <td>${i.cft}</td>
+            <td>
+                <button class="btn-edit" onclick="editItem(${i.id})">Edit</button>
+                <button class="btn-del" onclick="deleteItem(${i.id})">Del</button>
+            </td>
+        </tr>
+    `).join('');
+
+    treeStat.innerText = new Set(items.map(i => i.tree)).size;
+    pieceStat.innerText = items.length;
+    cftStat.innerText = items.reduce((s,i) => s + i.cft, 0).toFixed(2);
 }
 
 function triggerPrint() {
-    document.getElementById('pDate').innerText = new Date().toLocaleDateString();
-    document.getElementById('pTotal').innerText = items.reduce((s,i)=>s+i.cft,0).toFixed(2);
-    
+    pDate.innerText = new Date().toLocaleDateString();
+    pTotal.innerText = cftStat.innerText;
     let mid = Math.ceil(items.length / 2);
-    const tableHtml = (data) => {
-        let h = "<table><tr><th>গাছ/পিস</th><th>সাইজ</th><th>সিএফটি</th></tr>";
-        data.forEach(d => h += `<tr><td>${d.tree}/${d.piece}</td><td>${d.v1}${d.th ? 'x'+d.th : ''}x${d.v2}'</td><td>${d.cft}</td></tr>`);
-        return h + "</table>";
-    };
-    document.getElementById('pBody').innerHTML = `
-        <div class="column">${tableHtml(items.slice(0, mid))}</div>
-        <div class="column">${tableHtml(items.slice(mid))}</div>
-    `;
+    const tbl = (data) => `<table><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>${data.map(i=>`<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table>`;
+    pBody.innerHTML = `<div class="col">${tbl(items.slice(0,mid))}</div><div class="col">${tbl(items.slice(mid))}</div>`;
     window.print();
 }
 
-function exportExcel() {
-    const ws = XLSX.utils.json_to_sheet(items);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Data");
-    XLSX.writeFile(wb, "BFIDC_Report.xlsx");
-}
-
-function logout() { sessionStorage.clear(); location.reload(); }
-window.onload = () => { if(sessionStorage.getItem('auth')) startApp(); };
+function logout(){ sessionStorage.clear(); location.reload(); }
 </script>
 </body>
 </html>
