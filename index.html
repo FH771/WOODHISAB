@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>BFIDCWOODHISAB - FAHAD BRO</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         :root { --primary: #00ffd5; --glass: rgba(255, 255, 255, 0.1); }
@@ -16,58 +15,55 @@
             color: white; overflow-x: hidden; position: relative;
         }
 
-        /* Watermark Background */
+        /* Background Watermark */
         body::before {
             content: ""; position: fixed; inset: 0;
             background: url('logo.jpg') no-repeat center center;
-            background-size: 50%; opacity: 0.08; z-index: -1;
+            background-size: 60%; opacity: 0.08; z-index: -1;
         }
 
         .glass-card {
-            background: var(--glass); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px;
-            padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px;
+            padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
 
-        #authLayer { 
-            position:fixed; inset:0; display:flex; align-items:center; justify-content:center; 
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); z-index: 10000;
+        /* 3D White Glass Buttons */
+        .btn { 
+            padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.4); 
+            font-weight: 700; cursor: pointer; transition: 0.3s all; font-size: 11px; 
+            text-transform: uppercase; background: rgba(255, 255, 255, 0.15); color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); backdrop-filter: blur(5px);
         }
+        .btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        .btn:active { transform: translateY(0); }
+        
+        .btn-main { background: rgba(255, 255, 255, 0.9); color: #000; width: 100%; margin-top: 15px; font-size: 14px; border: none; }
+        .btn-main:hover { background: #fff; color: #000; }
+        .btn-danger { background: rgba(255, 77, 77, 0.2); border-color: #ff4d4d; color: #ff4d4d; }
 
+        #authLayer { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.9); z-index: 10000; }
         #appArea, #adminArea { display:none; padding: 15px; max-width: 950px; margin: auto; }
         
-        header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--primary); margin-bottom: 15px; }
-        .app-logo { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--primary); }
-
         input, select {
             width: 100%; padding: 12px; margin-top: 10px; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.6);
-            color: #fff; outline: none; box-sizing: border-box; font-size: 14px;
+            border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5);
+            color: #fff; outline: none; box-sizing: border-box;
         }
 
-        .garden-input {
-            background: none !important; border: none !important; border-bottom: 2px dotted var(--primary) !important;
-            width: 150px !important; color: var(--primary) !important; text-align: center; font-weight: bold;
-            padding: 0 !important; margin: 0 !important; border-radius: 0 !important; display: inline-block !important;
-        }
-
-        .btn { padding: 10px 15px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 11px; text-transform: uppercase; }
-        .btn-main { background: linear-gradient(45deg, #00ffd5, #008cff); color: #000; width: 100%; margin-top: 15px; font-size: 14px;}
-        .btn-danger { background: #ff4d4d; color: white; }
-
-        .stat-box { background: var(--glass); padding: 12px; border-radius: 15px; text-align: center; border-bottom: 3px solid var(--primary); }
-        .stat-box b { font-size: 20px; color: var(--primary); }
-
+        .stat-box { background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 15px; text-align: center; border-bottom: 3px solid var(--primary); }
         .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .data-table th { color: var(--primary); text-align: left; padding: 10px; border-bottom: 1px solid var(--primary); }
-        .data-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 13px; }
+        .data-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
 
+        /* Print Section CSS */
+        #printArea { display: none; }
         @media print {
-            body::before { display: none; }
-            #appArea, #authLayer { display: none !important; }
-            #printArea { display: block !important; color: black; }
-            .print-table { width: 100%; border-collapse: collapse; border: 1px solid black; }
-            .print-table th, .print-table td { border: 1px solid black; padding: 5px; text-align: center; }
+            @page { size: portrait; margin: 10mm; }
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { display: block !important; position: absolute; left: 0; top: 0; width: 100%; color: black !important; }
+            .print-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            .print-table th, .print-table td { border: 1px solid black !important; padding: 5px; text-align: center; font-size: 12px; color: black !important; }
         }
     </style>
 </head>
@@ -75,35 +71,31 @@
 
 <div id="authLayer">
     <div class="glass-card" style="width: 320px; text-align: center;">
-        <img src="logo.jpg" style="width:70px; border-radius:50%; margin-bottom:10px;">
-        <h2 id="authTitle" style="color: var(--primary);">LOGIN</h2>
-        <input type="email" id="emailIn" placeholder="Enter Email">
-        <input type="password" id="passIn" placeholder="Enter Password">
+        <img src="logo.jpg" style="width:70px; border-radius:50%; margin-bottom:15px; border: 2px solid white;">
+        <h2 id="authTitle">LOGIN</h2>
+        <input type="email" id="emailIn" placeholder="Email">
+        <input type="password" id="passIn" placeholder="Password">
         <button class="btn btn-main" onclick="processAuth()">ENTER SYSTEM</button>
-        <p id="toggleText" style="font-size:12px; margin-top:15px; cursor:pointer; color:var(--primary);" onclick="toggleAuthMode()">New here? Create Account</p>
+        <p style="font-size:12px; margin-top:15px; cursor:pointer;" onclick="toggleAuthMode()">New here? Create Account</p>
     </div>
 </div>
 
 <div id="appArea">
-    <header>
-        <div style="display:flex; align-items:center; gap:10px;">
-            <img src="logo.jpg" class="app-logo">
-            <div style="font-size:18px; font-weight:900; color:var(--primary);">WOODHISAB</div>
-        </div>
-        <div style="display:flex; gap:5px;">
-            <button id="adminBtn" class="btn" style="background:gold; color:black; display:none;" onclick="showAdmin()">Admin Panel</button>
+    <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <img src="logo.jpg" style="width:45px; border-radius:50%;">
+        <div style="display:flex; gap:10px;">
+            <button id="adminBtn" class="btn" style="background:gold; color:black; display:none;" onclick="showAdmin()">Admin</button>
             <button class="btn btn-danger" onclick="logout()">Logout</button>
         </div>
     </header>
 
     <div class="glass-card" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
-        <button class="btn" onclick="saveToFile()" style="background:#8e44ad; color:white">Backup</button>
-        <button class="btn" onclick="document.getElementById('fileInput').click()" style="background:#2980b9; color:white">Open</button>
+        <button class="btn" onclick="saveToFile()">Backup</button>
+        <button class="btn" onclick="document.getElementById('fileInput').click()">Open</button>
         <input type="file" id="fileInput" style="display:none" onchange="openFromFile(event)">
-        <button class="btn" onclick="exportExcel()" style="background:#217346; color:white">Excel</button>
-        <button class="btn" onclick="exportPDF()" style="background:#e74c3c; color:white">PDF</button>
-        <button class="btn" onclick="triggerPrint()" style="background:white; color:black">Print</button>
-        <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+        <button class="btn" onclick="exportExcel()">Excel</button>
+        <button class="btn" onclick="triggerPrint()">Print Report</button>
+        <button class="btn btn-danger" onclick="clearAllData()">Clear Data</button>
     </div>
 
     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:20px;">
@@ -126,87 +118,69 @@
             <input type="number" id="thickInput" placeholder="Thick" style="flex:1; display:none">
             <input type="number" id="v2Input" placeholder="Length" style="flex:1">
         </div>
-        <button class="btn btn-main" id="saveBtn" onclick="addItem()">SAVE DATA (ENTER)</button>
+        <button class="btn btn-main" id="saveBtn" onclick="addItem()">SAVE DATA</button>
     </div>
 
     <div class="glass-card">
-        <div style="text-align: center; margin-bottom: 15px;">
-            <h3 style="margin:0; color:var(--primary);">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h3>
-            <p style="font-size:12px;">
-                <input type="text" id="gardenName" class="garden-input" placeholder="বাগানের নাম"> 
-                রাবার বাগান হতে বিএফআইডিসি, এলপিসি প্রেরণের জন্য কাঠের সাইজ লিস্ট।
-            </p>
-        </div>
-        <input type="text" id="searchInput" placeholder="🔍 Search tree no..." oninput="render()" style="margin-bottom:15px; border-color: var(--primary);">
-        <div style="overflow-x: auto;">
-            <table class="data-table">
-                <thead><tr><th>Tree/Pc</th><th>Measurement</th><th>CFT</th><th>Action</th></tr></thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
+        <input type="text" id="gardenName" placeholder="বাগানের নাম লিখুন..." style="text-align:center; border:none; border-bottom:1px solid white; background:none; margin-bottom:15px;">
+        <input type="text" id="searchInput" placeholder="🔍 Search tree..." oninput="render()">
+        <table class="data-table">
+            <tbody id="tableBody"></tbody>
+        </table>
     </div>
 </div>
 
 <div id="adminArea">
     <div class="glass-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h2 style="color:gold; margin:0;">ADMIN: ALL USERS DATA</h2>
-            <button class="btn" onclick="closeAdmin()" style="background:white; color:black;">Back to App</button>
-        </div>
-        <div id="adminContent"></div>
+        <button class="btn" onclick="closeAdmin()">Back</button>
+        <div id="adminContent" style="margin-top:20px;"></div>
+    </div>
+</div>
+
+<div id="printArea">
+    <div style="text-align: center;">
+        <img src="logo.jpg" style="width:60px;">
+        <h2 style="margin:0;">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h2>
+        <h3 id="prGarden" style="margin:5px;"></h3>
+        <p style="font-size:12px;">বিএফআইডিসি, এলপিসি প্রেরণের জন্য কাঠের সাইজ লিস্ট। তারিখ: <span id="prDate"></span></p>
+    </div>
+    <div id="prContent" style="display:flex; justify-content:space-between; gap:10px;"></div>
+    <div style="margin-top:20px; font-weight:bold; border-top:1px solid black; padding-top:10px;">
+        Total Tree: <span id="prTree"></span> | Total Piece: <span id="prPiece"></span> | Total CFT: <span id="prCft"></span>
     </div>
 </div>
 
 <script>
-let users = JSON.parse(localStorage.getItem('bfidc_db_v2') || '[]');
-let currentUser = JSON.parse(sessionStorage.getItem('active_session') || 'null');
+let users = JSON.parse(localStorage.getItem('bfidc_db_final') || '[]');
+let currentUser = JSON.parse(sessionStorage.getItem('active_user') || 'null');
 let items = [];
 let isSignUp = false;
 let editId = null;
 
-function toggleAuthMode() {
-    isSignUp = !isSignUp;
-    authTitle.innerText = isSignUp ? "CREATE ACCOUNT" : "LOGIN";
-    toggleText.innerText = isSignUp ? "Already have account? Login" : "New here? Create Account";
-}
+function toggleAuthMode() { isSignUp = !isSignUp; authTitle.innerText = isSignUp ? "SIGN UP" : "LOGIN"; }
 
 function processAuth() {
     let email = emailIn.value.toLowerCase().trim(), pass = passIn.value.trim();
-    if(!email || !pass) return alert("Please enter both email and password!");
-
-    // Special Admin Bypass for Fahad Bro
     if(email === "lpcfahad7@gmail.com" && pass === "547087") {
-        let adminUser = users.find(u => u.email === email);
-        if(!adminUser) {
-            adminUser = { email, pass, data: [] };
-            users.push(adminUser);
-            localStorage.setItem('bfidc_db_v2', JSON.stringify(users));
-        }
-        currentUser = adminUser;
-        sessionStorage.setItem('active_session', JSON.stringify(currentUser));
-        initApp();
-        return;
+        currentUser = { email, pass, data: [] };
+        if(!users.find(u => u.email === email)) users.push(currentUser);
+        sessionStorage.setItem('active_user', JSON.stringify(currentUser));
+        initApp(); return;
     }
-
     if(isSignUp) {
-        if(users.find(u => u.email === email)) return alert("User already exists!");
+        if(users.find(u => u.email === email)) return alert("Exists!");
         users.push({ email, pass, data: [] });
-        localStorage.setItem('bfidc_db_v2', JSON.stringify(users));
-        alert("Account created successfully! Now Login.");
-        toggleAuthMode();
+        localStorage.setItem('bfidc_db_final', JSON.stringify(users));
+        alert("Success! Login now."); toggleAuthMode();
     } else {
         let found = users.find(u => u.email === email && u.pass === pass);
-        if(found) {
-            currentUser = found;
-            sessionStorage.setItem('active_session', JSON.stringify(currentUser));
-            initApp();
-        } else alert("Wrong Credentials! Please try again.");
+        if(found) { currentUser = found; sessionStorage.setItem('active_user', JSON.stringify(found)); initApp(); }
+        else alert("Wrong!");
     }
 }
 
 function initApp() {
-    authLayer.style.display = 'none';
-    appArea.style.display = 'block';
+    authLayer.style.display = 'none'; appArea.style.display = 'block';
     items = currentUser.data || [];
     if(currentUser.email === "lpcfahad7@gmail.com") adminBtn.style.display = 'block';
     render();
@@ -214,56 +188,45 @@ function initApp() {
 
 function sync() {
     users = users.map(u => u.email === currentUser.email ? {...u, data: items} : u);
-    localStorage.setItem('bfidc_db_v2', JSON.stringify(users));
+    localStorage.setItem('bfidc_db_final', JSON.stringify(users));
 }
 
 function addItem() {
     let t = treeInput.value, v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0, type = typeInput.value;
     if(!t || !v1 || !v2) return;
     let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
-    if(editId) {
-        items = items.map(i => i.id === editId ? {...i, tree:t, v1, v2, th, type, cft:+cft.toFixed(2)} : i);
-        editId = null; saveBtn.innerText = "SAVE DATA (ENTER)";
-    } else {
-        items.push({ id: Date.now(), tree:t, piece: pieceInput.value, v1, v2, th, type, cft: +cft.toFixed(2) });
-    }
-    sync(); render(); updatePiece(); v1Input.value = v2Input.value = thickInput.value = ""; v1Input.focus();
+    items.push({ id: Date.now(), tree:t, piece: items.filter(i=>i.tree==t).length+1, v1, v2, th, type, cft: +cft.toFixed(2) });
+    sync(); render(); v1Input.value = v2Input.value = thickInput.value = ""; v1Input.focus();
 }
 
 function render() {
     let kw = searchInput.value.toLowerCase();
-    let filtered = items.filter(i => i.tree.toString().includes(kw));
-    tableBody.innerHTML = filtered.slice().reverse().map(i => `
+    tableBody.innerHTML = items.filter(i => i.tree.includes(kw)).slice().reverse().map(i => `
         <tr><td>${i.tree}/${i.piece}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td>
-        <td><button onclick="editItem(${i.id})" style="background:orange;border:none;padding:3px;border-radius:4px;">Edit</button>
-        <button onclick="deleteItem(${i.id})" style="background:red;color:white;border:none;padding:3px;border-radius:4px;">Del</button></td></tr>
+        <td><button onclick="deleteItem(${i.id})" style="background:red;border:none;color:white;border-radius:5px;">Del</button></td></tr>
     `).join('');
     treeStat.innerText = new Set(items.map(i => i.tree)).size;
     pieceStat.innerText = items.length;
     cftStat.innerText = items.reduce((s,i) => s + i.cft, 0).toFixed(2);
 }
 
-function showAdmin() {
-    appArea.style.display = 'none'; adminArea.style.display = 'block';
-    adminContent.innerHTML = users.map(u => `
-        <div class="glass-card">
-            <b>User: ${u.email}</b><br>
-            <small>Total Entry: ${u.data.length} | Total CFT: ${u.data.reduce((s,i)=>s+i.cft,0).toFixed(2)}</small>
-        </div>
-    `).join('');
+function triggerPrint() {
+    if(items.length === 0) return alert("No data to print!");
+    prDate.innerText = new Date().toLocaleDateString();
+    prGarden.innerText = (gardenName.value || "..........") + " রাবার বাগান";
+    let mid = Math.ceil(items.length / 2);
+    const tbl = (d) => `<table class="print-table"><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>${d.map(i=>`<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table>`;
+    prContent.innerHTML = `<div style="width:48%">${tbl(items.slice(0,mid))}</div><div style="width:48%">${tbl(items.slice(mid))}</div>`;
+    prTree.innerText = treeStat.innerText; prPiece.innerText = pieceStat.innerText; prCft.innerText = cftStat.innerText;
+    window.print();
 }
-function closeAdmin() { adminArea.style.display = 'none'; appArea.style.display = 'block'; }
-function clearAllData() { if(confirm("Delete everything?")) { items = []; sync(); render(); updatePiece(); } }
+
+function clearAllData() { if(confirm("Clear everything?")) { items = []; sync(); render(); } }
 function logout() { sessionStorage.clear(); location.reload(); }
 function toggleInputs(){ thickInput.style.display = (typeInput.value === 'size') ? 'block' : 'none'; }
-function updatePiece(){ pieceInput.value = items.filter(i => i.tree == treeInput.value).length + 1; }
-function editItem(id) { let i = items.find(x => x.id === id); treeInput.value = i.tree; v1Input.value = i.v1; v2Input.value = i.v2; thickInput.value = i.th; typeInput.value = i.type; toggleInputs(); editId = id; saveBtn.innerText = "UPDATE DATA"; }
-function deleteItem(id) { if(confirm('Delete?')) { items = items.filter(i => i.id !== id); sync(); render(); } }
-function saveToFile() { const blob = new Blob([JSON.stringify(items)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Backup.json`; a.click(); }
-function openFromFile(event) { const r = new FileReader(); r.onload = (e) => { items = JSON.parse(e.target.result); sync(); render(); }; r.readAsText(event.target.files[0]); }
-function exportExcel() { const ws = XLSX.utils.json_to_sheet(items); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data"); XLSX.writeFile(wb, "Wood_Report.xlsx"); }
-function exportPDF() { window.print(); }
-function triggerPrint() { window.print(); }
+function deleteItem(id) { items = items.filter(i => i.id !== id); sync(); render(); }
+function showAdmin() { appArea.style.display = 'none'; adminArea.style.display = 'block'; adminContent.innerHTML = users.map(u => `<div class="glass-card">${u.email} - Entries: ${u.data.length}</div>`).join(''); }
+function closeAdmin() { adminArea.style.display = 'none'; appArea.style.display = 'block'; }
 window.onload = () => { if(currentUser) initApp(); };
 </script>
 </body>
