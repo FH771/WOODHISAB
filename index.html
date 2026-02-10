@@ -39,6 +39,12 @@ button:hover{transform:scale(1.05);}
 <script>
 // Mode: register or login
 let mode = 'register';
+const mainBtn = document.getElementById('mainBtn');
+const toggleText = document.getElementById('toggleText');
+const msg = document.getElementById('msg');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+
 function toggleMode(){
   if(mode==='register'){
     mode='login';
@@ -53,9 +59,16 @@ function toggleMode(){
   }
 }
 
-// Helper: simple hash function (for demo, not crypto-secure)
+// Simple hash function for demo
 function hashPwd(pwd){
   let hash=0; for(let i=0;i<pwd.length;i++){hash=((hash<<5)-hash)+pwd.charCodeAt(i);hash=hash & hash;} return hash;
+}
+
+// Pre-add admin account
+let users = JSON.parse(localStorage.getItem('bfidc_users')||'[]');
+if(!users.find(u=>u.email==='lpcfahad7@gmail.com')){
+  users.push({email:'lpcfahad7@gmail.com', pwd:hashPwd('547087')});
+  localStorage.setItem('bfidc_users', JSON.stringify(users));
 }
 
 function handleAuth(){
@@ -80,7 +93,7 @@ function handleAuth(){
 function showApp(){
   loginLayer.style.display='none';
   appArea.style.display='block';
-  // Here you can init the full BFIDCWOODHISAB app logic
+  // Initialize full BFIDCWOODHISAB app logic here
 }
 
 // Auto login if session exists
