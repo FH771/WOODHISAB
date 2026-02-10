@@ -11,31 +11,22 @@
         
         body { 
             margin:0; font-family: 'Poppins', sans-serif; 
-            min-height: 100vh;
-            display: flex; justify-content: center; align-items: flex-start;
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?q=80&w=2070');
+            min-height: 100vh; display: flex; justify-content: center; align-items: flex-start;
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?q=80&w=2070');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: white; 
         }
 
         .container { width: 100%; max-width: 450px; padding: 20px; box-sizing: border-box; }
 
-        /* Logo Styling for Logo.jpg */
         .logo-container {
-            width: 130px; height: 130px;
-            margin: 10px auto 25px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            border: 3px solid #00ffd5;
-            box-shadow: 0 0 25px rgba(0, 255, 213, 0.5);
-            overflow: hidden; /* যাতে ছবি বাইরে না যায় */
+            width: 120px; height: 120px; margin: 20px auto;
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            border: 3px solid #00ffd5; box-shadow: 0 0 20px rgba(0, 255, 213, 0.5);
+            overflow: hidden;
         }
-        .logo-container img {
-            width: 100%; height: 100%;
-            object-fit: cover; /* ছবি পুরো সার্কেল জুড়ে থাকবে */
-        }
+        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
 
         .glass-card {
             background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(25px);
@@ -43,9 +34,9 @@
             padding: 30px; margin-bottom: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.6);
         }
 
-        h2 { text-align: center; color: #00ffd5; margin-bottom: 5px; letter-spacing: 2px; text-transform: uppercase; }
+        h2 { text-align: center; color: #00ffd5; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
         
-        input, select {
+        input {
             width: 100%; padding: 14px; margin-top: 15px; border-radius: 12px;
             border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.4);
             color: #fff; outline: none; box-sizing: border-box; font-size: 15px;
@@ -56,14 +47,14 @@
             background: linear-gradient(45deg, #00ffd5, #008cff); color: #000;
             font-weight: 700; cursor: pointer; transition: 0.3s;
         }
-        button:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(0, 255, 213, 0.6); }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: rgba(255,255,255,0.12); padding: 15px 5px; border-radius: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .stat-box b { display: block; font-size: 18px; color: #00ffd5; }
+        button:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(0, 255, 213, 0.5); }
 
         #appArea, #adminPanel, #thickInput { display: none; }
         .error-msg { color: #ff8080; text-align: center; margin-top: 15px; font-weight: bold; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: rgba(255,255,255,0.1); padding: 15px 5px; border-radius: 15px; text-align: center; }
+        .stat-box b { display: block; font-size: 18px; color: #00ffd5; }
     </style>
 </head>
 <body>
@@ -71,13 +62,12 @@
 <div class="container">
     <div id="loginLayer">
         <div class="logo-container">
-            <img src="Logo.jpg" alt="BFIDC Logo" onerror="this.src='https://via.placeholder.com/150?text=LOGO+NOT+FOUND'">
+            <img src="Logo.jpg" alt="Logo" onerror="this.src='https://via.placeholder.com/150?text=LOGO'">
         </div>
-        
         <div class="glass-card">
             <h2>BFIDC LOGIN</h2>
-            <input type="email" id="emailInput" placeholder="lpcfahad7@gmail.com">
-            <input type="password" id="passwordInput" placeholder="547087">
+            <input type="email" id="emailInput" placeholder="Email (lpcfahad7@gmail.com)">
+            <input type="password" id="passwordInput" placeholder="Password (547087)">
             <button onclick="handleAuth()">LOGIN NOW</button>
             <div id="msg" class="error-msg"></div>
         </div>
@@ -91,57 +81,57 @@
         </div>
 
         <div class="glass-card">
-            <h3>Add Wood Entry</h3>
-            <select id="typeInput" onchange="toggleInputs()">
+            <h3>Add Wood Data</h3>
+            <select id="typeInput" onchange="toggleInputs()" style="width:100%; padding:12px; border-radius:10px; background:#000; color:#fff;">
                 <option value="log">Round Log (গোল)</option>
                 <option value="sawn">Sawn Wood (সাইজ)</option>
             </select>
             <input type="number" id="treeInput" placeholder="Tree No">
-            <input type="number" id="pieceInput" placeholder="Piece No" readonly>
+            <input type="number" id="pieceInput" placeholder="Piece No" readonly style="opacity:0.7">
             <input type="number" id="v1Input" placeholder="Girth / Width">
             <input type="number" id="thickInput" placeholder="Thickness">
             <input type="number" id="v2Input" placeholder="Length (ft)">
-            <button onclick="addItem()">SAVE DATA</button>
+            <button onclick="addItem()">SAVE ENTRY</button>
         </div>
 
         <div class="glass-card"><canvas id="chart"></canvas></div>
 
         <div class="glass-card">
-            <button onclick="backup()" style="background: #f1c40f; margin-top: 0;">Backup JSON</button>
-            <button onclick="exportExcel()" style="background: #fff; margin-top: 10px;">Export Excel</button>
-            <button onclick="logout()" style="background: #ff4d4d; color: #fff; margin-top: 25px;">LOGOUT</button>
+            <button onclick="backup()" style="background: #f1c40f;">Backup JSON</button>
+            <button onclick="exportExcel()" style="background: #fff; margin-top:10px;">Export Excel</button>
+            <button onclick="logout()" style="background: #ff4d4d; color: #fff; margin-top: 20px;">LOGOUT</button>
         </div>
 
-        <div id="adminPanel" class="glass-card" style="border: 2px solid #00ffd5;">
-            <h3>Staff Control</h3>
-            <input type="email" id="newUserEmail" placeholder="New Staff Email">
-            <input type="password" id="newUserPass" placeholder="New Staff Pass">
+        <div id="adminPanel" class="glass-card" style="border: 1px solid #00ffd5;">
+            <h3>Admin Panel</h3>
+            <input type="email" id="newUserEmail" placeholder="New Email">
+            <input type="password" id="newUserPass" placeholder="New Pass">
             <button onclick="createUser()">ADD STAFF</button>
         </div>
     </div>
 </div>
 
 <script>
-const hash = (p) => btoa(p); 
-
-function setupSystem() {
-    let users = [{ email: 'lpcfahad7@gmail.com', pass: hash('547087'), role: 'admin' }];
-    let old = JSON.parse(localStorage.getItem('users') || '[]');
-    old.forEach(u => { if(u.email !== 'lpcfahad7@gmail.com') users.push(u); });
-    localStorage.setItem('users', JSON.stringify(users));
-}
-
+// ১. লগইন সহজ করার জন্য সরাসরি ভ্যালু চেক করা
 function handleAuth() {
-    const e = document.getElementById('emailInput').value.trim().toLowerCase();
-    const p = document.getElementById('passwordInput').value.trim();
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.email === e && u.pass === hash(p));
-    
-    if (user) {
+    const email = document.getElementById('emailInput').value.trim().toLowerCase();
+    const pass = document.getElementById('passwordInput').value.trim();
+
+    // সরাসরি চেক (যাতে ডাটাবেসের ঝামেলা না হয়)
+    if (email === "lpcfahad7@gmail.com" && pass === "547087") {
+        const user = { email, role: 'admin' };
         sessionStorage.setItem('loggedUser', JSON.stringify(user));
         startApp(user);
     } else {
-        document.getElementById('msg').innerText = "Wrong Email or Password!";
+        // এছাড়া অন্য কোনো সেভ করা স্টাফ থাকলে সেটা চেক করা
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        let staff = users.find(u => u.email === email && u.pass === btoa(pass));
+        if (staff) {
+            sessionStorage.setItem('loggedUser', JSON.stringify(staff));
+            startApp(staff);
+        } else {
+            document.getElementById('msg').innerText = "Wrong Email or Password!";
+        }
     }
 }
 
@@ -154,6 +144,7 @@ function startApp(user) {
 
 function logout() { sessionStorage.clear(); location.reload(); }
 
+// ২. ডাটা অপারেশন
 let items = JSON.parse(localStorage.getItem('data') || '[]');
 
 function toggleInputs() {
@@ -188,11 +179,11 @@ function render() {
 let chart;
 function drawChart() {
     let map = {}; items.forEach(i => map[i.tree] = (map[i.tree] || 0) + i.cft);
+    const ctx = document.getElementById('chart').getContext('2d');
     if(chart) chart.destroy();
-    chart = new Chart(document.getElementById('chart'), {
+    chart = new Chart(ctx, {
         type: 'bar',
-        data: { labels: Object.keys(map), datasets: [{ label: 'CFT', data: Object.values(map), backgroundColor: '#00ffd5' }] },
-        options: { plugins: { legend: { labels: { color: '#fff' } } } }
+        data: { labels: Object.keys(map), datasets: [{ label: 'CFT', data: Object.values(map), backgroundColor: '#00ffd5' }] }
     });
 }
 
@@ -201,7 +192,7 @@ function createUser() {
     let e = document.getElementById('newUserEmail').value.toLowerCase().trim();
     let p = document.getElementById('newUserPass').value.trim();
     if(e && p) {
-        users.push({email: e, pass: hash(p), role: 'staff'});
+        users.push({email: e, pass: btoa(p), role: 'staff'});
         localStorage.setItem('users', JSON.stringify(users));
         alert("Staff Added!");
     }
@@ -221,7 +212,12 @@ function exportExcel() {
 }
 
 window.onload = () => {
-    setupSystem();
+    // আগের ভুল ইউজার ডাটা ক্লিয়ার করা (প্রথমবার রান করার জন্য)
+    if (!localStorage.getItem('fixed_v1')) {
+        localStorage.removeItem('users');
+        localStorage.setItem('fixed_v1', 'true');
+    }
+    
     let saved = sessionStorage.getItem('loggedUser');
     if(saved) startApp(JSON.parse(saved));
 };
