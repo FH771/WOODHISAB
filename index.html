@@ -48,6 +48,9 @@ table{ width:100%; border-collapse:collapse; margin-top:10px; font-family: 'Kalp
 th,td{ padding:4px; border:1px solid #000; text-align:center; font-size: 12px;}
 th{background:#f2f2f2 !important;}
 
+/* Summary Box on Report */
+.summary-box { margin-top: 20px; border: 2px solid black; padding: 10px; display: flex; justify-content: space-around; font-family: 'Kalpurush', sans-serif; font-weight: bold; font-size: 14px; }
+
 @media print{ header, .no-print, .dashboard, .card, #loginLayer {display:none !important} body{background:white; margin:0;} .report-page {margin:0; border:none; display:block !important;} }
 </style>
 </head>
@@ -74,6 +77,7 @@ th{background:#f2f2f2 !important;}
             <button class="action-btn" onclick="exportExcel()" style="background:#10b981">Excel</button>
             <button class="action-btn" onclick="exportWord()" style="background:#3b82f6">Word</button>
             <button class="action-btn" onclick="backup()" style="background:var(--primary)">Save</button>
+            <button class="action-btn" onclick="logout()" style="background:#ef4444">Logout</button>
         </div>
     </header>
 
@@ -118,8 +122,36 @@ th{background:#f2f2f2 !important;}
 
 <script>
 let items = JSON.parse(localStorage.getItem('bfidc_data') || '[]');
-let editIndex = null;
 const logoFile = "logo.jpg";
+
+// রিফ্রেশ দিলেও লগআউট হবে না (Auto-login check)
+window.onload = function() {
+    if(sessionStorage.getItem('isLoggedIn') === 'true') {
+        loginLayer.style.display = 'none';
+        appArea.style.display = 'block';
+        render(); updatePiece();
+    }
+}
+
+function handleLogin(){
+    let savedPass = localStorage.getItem('bfidc_pass') || '0000';
+    if(passInput.value === savedPass){
+        sessionStorage.setItem('isLoggedIn', 'true'); // সেশন সেট করা হলো
+        loginLayer.style.display = 'none';
+        appArea.style.display = 'block';
+        render(); updatePiece();
+    } else alert('Wrong Password');
+}
+
+function logout() {
+    sessionStorage.removeItem('isLoggedIn');
+    location.reload();
+}
+
+function changePass(){
+    let newP = prompt("Enter New Password:");
+    if(newP) { localStorage.setItem('bfidc_pass', newP); alert("Password Changed!"); }
+}
 
 // 🎯 Keyboard Nav
 document.addEventListener('keydown', (e) => {
@@ -130,17 +162,6 @@ document.addEventListener('keydown', (e) => {
     }
     if (e.key === 'Enter' && active.id === 'v2Input') addItem();
 });
-
-function handleLogin(){
-    let savedPass = localStorage.getItem('bfidc_pass') || '0000';
-    if(passInput.value === savedPass){ loginLayer.style.display = 'none'; appArea.style.display = 'block'; render(); updatePiece(); } 
-    else alert('Wrong Password');
-}
-
-function changePass(){
-    let newP = prompt("Enter New Password:");
-    if(newP) { localStorage.setItem('bfidc_pass', newP); alert("Password Changed!"); }
-}
 
 function toggleInputs(){
     let isSize = typeInput.value === 'size';
@@ -168,14 +189,24 @@ function addItem(){
 function render(){
     let keyword = searchInput.value?.toLowerCase() || '';
     let filtered = items.filter(i => i.tree.toString().includes(keyword));
-    treeStat.innerText = new Set(filtered.map(i => i.tree)).size;
-    pieceStat.innerText = filtered.length;
-    cftStat.innerText = filtered.reduce((s, i) => s + i.cft, 0).toFixed(2);
+    
+    // ড্যাশবোর্ড আপডেট
+    let tTrees = new Set(filtered.map(i => i.tree)).size;
+    let tPieces = filtered.length;
+    let tCft = filtered.reduce((s, i) => s + i.cft, 0).toFixed(2);
+    
+    treeStat.innerText = tTrees;
+    pieceStat.innerText = tPieces;
+    cftStat.innerText = tCft;
 
     const perPage = 76; let html = "";
     for (let p = 0; p < filtered.length; p += perPage) {
         let pageData = filtered.slice(p, p + perPage);
         let left = pageData.slice(0, 38); let right = pageData.slice(38);
+        
+        // চেক করা হচ্ছে এটা কি শেষ পেজ কি না
+        let isLastPage = (p + perPage >= filtered.length);
+
         html += `<div class="report-page">
             <img class="watermark" src="${logoFile}">
             <div class="report-header">
@@ -187,8 +218,19 @@ function render(){
                     ${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='size'?i.v1+'"x'+i.thick+'"x'+i.v2+"'":i.v1+'"x'+i.v2+"'"}</td><td>${i.cft}</td></tr>`).join('')}</table></div>
                 <div style="flex:1"><table><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>
                     ${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='size'?i.v1+'"x'+i.thick+'"x'+i.v2+"'":i.v1+'"x'+i.v2+"'"}</td><td>${i.cft}</td></tr>`).join('')}</table></div>
-            </div>
-        </div>`;
+            </div>`;
+        
+        // শেষ পেজে টোটাল সামারি বক্স যোগ করা হচ্ছে
+        if(isLastPage) {
+            html += `
+            <div class="summary-box">
+                <div>মোট গাছ: ${tTrees} টি</div>
+                <div>মোট পিস: ${tPieces} টি</div>
+                <div>মোট সিএফটি: ${tCft} cft</div>
+            </div>`;
+        }
+        
+        html += `<div style="position:absolute; bottom:10mm; right:15mm; font-size:12px">পৃষ্ঠা: ${Math.floor(p/perPage)+1}</div></div>`;
     }
     printArea.innerHTML = html;
 }
