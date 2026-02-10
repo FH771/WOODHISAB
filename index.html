@@ -1,231 +1,321 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDCWOODHISAB - ULTRA SPEED EDITION</title>
-<style>
-@font-face { font-family: 'Kalpurush'; src: url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype'); }
-
-:root { --primary: #22c55e; --dark: #0f172a; --card-bg: #1e293b; }
-body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--dark); margin: 0; color: white; -webkit-print-color-adjust: exact; }
-
-header { 
-    position: sticky; top: 0; background: #020617; padding: 12px 20px; 
-    display: flex; justify-content: space-between; align-items: center; 
-    z-index: 999; border-bottom: 2px solid var(--primary); 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BFIDCWOODHISAB TITANIUM</title><style>
+:root{
+--primary:#22c55e;
+--dark:#020617;
+--card:#0f172a;
 }
 
-.card { background: white; padding: 20px; border-radius: 16px; margin: 15px; color: #1e293b; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-top: 5px solid var(--primary); }
-input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 18px; margin-bottom: 12px; transition: 0.3s; }
-input:focus { border-color: var(--primary); outline: none; background: #f0fdf4; }
-
-.page { 
-    background: white; width: 210mm; min-height: 296mm; margin: 20px auto; 
-    padding: 10mm 15mm; color: black; box-sizing: border-box; 
-    display: flex; flex-direction: column; position: relative; 
-    page-break-after: always;
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#020617,#0f172a);
+color:white;
 }
 
-.watermark { 
-    position: absolute; top: 50%; left: 50%; 
-    transform: translate(-50%, -50%); 
-    width: 80%; max-width: 600px;
-    opacity: 0.07; z-index: 0; pointer-events: none;
+/* LOGIN */
+#loginLayer{
+position:fixed;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+background:radial-gradient(circle,#0f172a,#020617);
 }
 
-.report-header { text-align: center; margin-bottom: 20px; font-family: 'Kalpurush', sans-serif; position: relative; z-index: 1; border-bottom: 1.5px solid black; }
-.content-wrapper { display: flex; gap: 25px; flex: 1; position: relative; z-index: 1; }
-.col { flex: 1; }
+.login-box{
+background:rgba(15,23,42,.9);
+padding:40px;
+border-radius:20px;
+width:340px;
+box-shadow:0 25px 60px rgba(0,0,0,.6);
+text-align:center;
+border:1px solid #22c55e55;
+}
 
-table { width: 100%; border-collapse: collapse; border: 1.5px solid #000; }
-th, td { border: 1.2px solid #000; padding: 4px; text-align: center; font-size: 13px; font-family: 'Kalpurush', sans-serif; }
-th { background: #f1f5f9 !important; }
+input,select,button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:10px;
+border:none;
+font-size:16px;
+}
 
-.summary-box { width: 280px; margin-top: 20px; border: 1.5px solid #000; font-family: 'Kalpurush', sans-serif; position: relative; z-index: 1; }
-.summary-box div { display: flex; border-bottom: 1.2px solid #000; }
-.summary-box .label { flex: 1.5; background: #f8fafc !important; padding: 6px; border-right: 1.2px solid #000; font-weight: bold; }
-.summary-box .val { flex: 1; text-align: center; padding: 6px; font-weight: bold; }
+input{background:#020617;color:white;border:1px solid #334155}
 
-.hidden { display:none!important; }
-@media print { header, .no-print, #loginLayer { display:none!important; } .page { margin: 0; border: none; width: 210mm; min-height: 297mm; display: flex !important; } }
-</style>
-</head>
-<body>
+button{
+background:var(--primary);
+color:white;
+font-weight:bold;
+cursor:pointer;
+transition:.2s;
+}
 
-<div id="loginLayer" style="position:fixed; inset:0; background:#020617; display:flex; align-items:center; justify-content:center; z-index:9999">
-    <div style="background:#1e293b; padding:35px; border-radius:24px; width:90%; max-width:350px; text-align:center; border: 1px solid var(--primary);">
-        <h2 style="color:var(--primary); margin-bottom:10px;">BFIDCWOODHISAB</h2>
-        <p style="color: #94a3b8; margin-bottom: 25px;">Enter System Password</p>
-        <input id="uPass" type="password" placeholder="••••" style="background: #0f172a; color: white; text-align: center;" onkeydown="if(event.key==='Enter') handleLogin()">
-        <button onclick="handleLogin()" style="width:100%; padding:15px; background:var(--primary); color:white; border-radius:12px; border:none; cursor:pointer; font-weight:bold;">LOGIN</button>
-    </div>
+button:hover{transform:scale(1.03)}
+
+/* APP */
+#appArea{display:none}
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 25px;
+background:#020617;
+border-bottom:1px solid #22c55e33;
+position:sticky;
+top:0;
+z-index:999;
+}
+
+.logo{
+font-size:22px;
+font-weight:900;
+color:var(--primary);
+letter-spacing:1px;
+}
+
+.dashboard{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+padding:20px;
+}
+
+.stat{
+background:rgba(15,23,42,.8);
+padding:20px;
+border-radius:18px;
+text-align:center;
+box-shadow:0 10px 25px rgba(0,0,0,.5);
+}
+
+.stat h2{margin:0;color:#22c55e}
+
+.card{
+margin:20px;
+padding:20px;
+border-radius:20px;
+background:var(--card);
+box-shadow:0 10px 30px rgba(0,0,0,.6);
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+gap:12px;
+}
+
+.table-wrap{overflow:auto}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+th,td{
+padding:8px;
+border-bottom:1px solid #334155;
+text-align:center;
+}
+
+th{background:#020617}
+
+.action-btn{
+padding:4px 8px;
+border-radius:6px;
+font-size:12px;
+width:auto;
+}
+
+.edit{background:#3b82f6}
+.delete{background:#ef4444}
+
+.search{
+margin-top:10px;
+background:#020617;
+border:1px solid #334155;
+}
+
+.quick-bar{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.quick-bar button{width:auto;padding:8px 14px}
+
+@media print{
+header,.no-print,.dashboard,.quick-bar{display:none}
+body{background:white}
+.card{box-shadow:none}
+}
+
+</style></head>
+<body><div id="loginLayer">
+<div class="login-box">
+<h2>BFIDCWOODHISAB</h2>
+<p>TITANIUM Forestry System</p>
+<input id="pass" type="password" placeholder="Enter Password" onkeydown="if(event.key==='Enter')handleLogin()">
+<button onclick="handleLogin()">LOGIN</button>
 </div>
-
-<div id="appArea" class="hidden">
-    <header>
-        <div style="font-size: 20px; color: var(--primary); font-weight: 900; letter-spacing: 1px;">BFIDCWOODHISAB</div>
-        <div style="display:flex; gap:8px">
-            <button onclick="document.getElementById('importFile').click()" style="background:#6366f1; padding:8px 12px; color:white; border-radius:8px; border:none;">📂 OPEN</button>
-            <input type="file" id="importFile" class="hidden" accept=".json" onchange="importData(event)">
-            <button onclick="downloadBackup()" style="background:#10b981; padding:8px 12px; color:white; border-radius:8px; border:none;">💾 BACKUP</button>
-            <button onclick="newWork()" style="background:#ef4444; padding:8px 12px; color:white; border-radius:8px; border:none;">🗑 CLEAR</button>
-        </div>
-    </header>
-
-    <div class="card no-print">
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-            <div>গাছ নং<input id="tree" type="number" value="1" oninput="updatePiece()"></div>
-            <div>পিস নং<input id="piece" readonly style="background:#f8fafc; color:#64748b"></div>
-        </div>
-        <div>কাঠের ধরণ
-            <select id="woodType" onchange="toggleSizeFields(); render();">
-                <option value="log">🌳 গোল কাঠ (Round Log)</option>
-                <option value="size">📏 সাইজ কাঠ (Sawn Wood)</option>
-            </select>
-        </div>
-        <div id="sizeFields" class="hidden" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-            <div>চওড়া (ইঞ্চি)<input id="width" type="number" step="any"></div>
-            <div>পুরুত্ব (ইঞ্চি)<input id="thick" type="number" step="any"></div>
-        </div>
-        <div id="logField">বেড় (ইঞ্চি)<input id="v1" type="number" step="any"></div>
-        <div>লম্বা (ফুট)<input id="v2" type="number" step="any"></div>
-        <button id="saveBtn" onclick="addItem()" style="width:100%; padding:15px; background:var(--primary); color:white; font-size:18px; border-radius:10px; border:none; cursor:pointer; font-weight:bold;">SAVE (ENTER)</button>
-    </div>
-
-    <div id="printArea"></div>
+</div><div id="appArea">
+<header>
+<div class="logo">BFIDCWOODHISAB</div>
+<div class="quick-bar">
+<button onclick="exportExcel()">Excel</button>
+<button onclick="backup()">Backup</button>
+<button onclick="window.print()">Print</button>
+<button onclick="logout()" style="background:#ef4444">Logout</button>
 </div>
+</header><div class="dashboard">
+<div class="stat"><h2 id="treeStat">0</h2>Trees</div>
+<div class="stat"><h2 id="pieceStat">0</h2>Pieces</div>
+<div class="stat"><h2 id="cftStat">0</h2>Total CFT</div>
+</div><div class="card no-print">
+<div class="grid">
+<div>Tree<input id="tree" type="number" value="1" oninput="updatePiece()"></div>
+<div>Piece<input id="piece" readonly></div>
+<div>Type
+<select id="type" onchange="toggleInputs();render()">
+<option value="log">Round Log</option>
+<option value="wood">Sawn Wood</option>
+</select>
+</div>
+<div id="girthBox">Girth<input id="v1" type="number"></div>
+<div id="thickBox" style="display:none">Thickness<input id="thick" type="number"></div>
+<div>Length<input id="v2" type="number"></div>
+</div>
+<button onclick="addItem()">SAVE</button>
+<input class="search" id="search" placeholder="Search Tree..." oninput="render()">
+</div><div class="card table-wrap">
+<div id="tableArea"></div>
+</div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><script>
+let items=JSON.parse(localStorage.getItem('bfidc_data')||'[]');
+let editIndex=null;
 
-<script>
-let items = [];
-const logoFile = "logo.jpg"; 
+function handleLogin(){
+if(pass.value==='0000'){
+loginLayer.style.display='none';
+appArea.style.display='block';
+render();
+updatePiece();
+}else alert('Wrong Password');
+}
 
-// 🎯 Smart Navigation System
-document.addEventListener('keydown', function(e) {
-    const active = document.activeElement;
-    
-    if (e.key === 'ArrowRight') {
-        if (active.id === 'tree') {
-            if (woodType.value === 'log') v1.focus(); else width.focus();
-        } else if (active.id === 'v1' || active.id === 'thick') {
-            v2.focus();
-        }
-    }
-    
-    if (e.key === 'Enter') {
-        if (active.id === 'v2') {
-            addItem();
-        } else if (active.id === 'uPass') {
-            handleLogin();
-        }
-    }
+function logout(){location.reload()}
+
+function toggleInputs(){
+let isWood=type.value==='wood';
+thickBox.style.display=isWood?'block':'none';
+girthBox.style.display=isWood?'none':'block';
+}
+
+function updatePiece(){
+piece.value=items.filter(i=>i.tree==tree.value).length+1;
+}
+
+function addItem(){
+let t=parseInt(tree.value);
+let v2v=parseFloat(v2.value);
+let cft,v1v,th;
+
+if(type.value==='log'){
+v1v=parseFloat(v1.value);
+if(!t||!v1v||!v2v)return;
+cft=((v1v/4)**2*v2v)/144;
+}else{
+v1v=parseFloat(v1.value);
+th=parseFloat(thick.value);
+if(!t||!v1v||!th||!v2v)return;
+cft=(v1v*th*v2v)/144;
+}
+
+let obj={tree:t,piece:editIndex!==null?items[editIndex].piece:items.filter(i=>i.tree==t).length+1,type:type.value,v1:v1v,v2:v2v,thick:th||0,cft:+cft.toFixed(2)};
+
+if(editIndex!==null){
+items[editIndex]=obj;
+editIndex=null;
+}else items.push(obj);
+
+localStorage.setItem('bfidc_data',JSON.stringify(items));
+
+v1.value=v2.value=thick.value='';
+render();updatePiece();
+}
+
+function editItem(i){
+let d=items[i];
+editIndex=i;
+tree.value=d.tree;
+type.value=d.type;
+toggleInputs();
+v1.value=d.v1;
+v2.value=d.v2;
+thick.value=d.thick;
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function deleteItem(i){
+if(confirm('Delete item?')){
+items.splice(i,1);
+localStorage.setItem('bfidc_data',JSON.stringify(items));
+render();updatePiece();
+}
+}
+
+function render(){
+let keyword=search.value?.toLowerCase()||'';
+let filtered=items.filter(i=>i.tree.toString().includes(keyword));
+
+let trees=new Set(filtered.map(i=>i.tree)).size;
+let total=filtered.reduce((s,i)=>s+i.cft,0);
+
+treeStat.innerText=trees;
+pieceStat.innerText=filtered.length;
+cftStat.innerText=total.toFixed(2);
+
+let html='<table><tr><th>Tree/Piece</th><th>Size</th><th>CFT</th><th class="no-print">Action</th></tr>';
+
+filtered.forEach((d)=>{
+let idx=items.indexOf(d);
+let size=d.type==='log'?`${d.v1}" x ${d.v2}'`:`${d.v1}" x ${d.thick}" x ${d.v2}'`;
+html+=`<tr>
+<td>${d.tree}/${d.piece}</td>
+<td>${size}</td>
+<td>${d.cft}</td>
+<td class='no-print'>
+<button class='action-btn edit' onclick='editItem(${idx})'>Edit</button>
+<button class='action-btn delete' onclick='deleteItem(${idx})'>Delete</button>
+</td>
+</tr>`;
 });
 
-function handleLogin() {
-    if(uPass.value === "0000") {
-        sessionStorage.setItem("activeUser", "admin");
-        start();
-    } else alert("ভুল পাসওয়ার্ড!");
+html+='</table>';
+
+tableArea.innerHTML=html;
 }
 
-function start() {
-    loginLayer.classList.add("hidden");
-    appArea.classList.remove("hidden");
-    items = JSON.parse(localStorage.getItem("bfidc_data") || "[]");
-    render(); updatePiece(); tree.select();
+function backup(){
+let blob=new Blob([JSON.stringify(items)],{type:'application/json'});
+let a=document.createElement('a');
+a.href=URL.createObjectURL(blob);
+a.download='BFIDCWOODHISAB_Backup.json';
+a.click();
 }
 
-function toggleSizeFields() {
-    let isSize = woodType.value === 'size';
-    document.getElementById('sizeFields').classList.toggle('hidden', !isSize);
-    document.getElementById('logField').classList.toggle('hidden', isSize);
+function exportExcel(){
+let wb=XLSX.utils.book_new();
+let ws=XLSX.utils.json_to_sheet(items);
+XLSX.utils.book_append_sheet(wb,ws,'Data');
+XLSX.writeFile(wb,'BFIDCWOODHISAB.xlsx');
 }
 
-function updatePiece() {
-    let count = items.filter(i => i.tree == parseInt(tree.value) && i.type === woodType.value).length;
-    piece.value = count + 1;
-}
-
-function addItem() {
-    let t = parseInt(tree.value), type = woodType.value, v2v = parseFloat(v2.value);
-    let v1v, th, cft;
-    
-    if (type === 'log') {
-        v1v = parseFloat(v1.value); if(!t || !v1v || !v2v) return;
-        cft = ((v1v/4)**2 * v2v)/144;
-    } else {
-        v1v = parseFloat(width.value); th = parseFloat(thick.value); if(!t || !v1v || !th || !v2v) return;
-        cft = (v1v * th * v2v)/144;
-    }
-
-    items.push({ tree: t, type: type, piece: items.filter(i=>i.tree==t && i.type===type).length + 1, v1: v1v, v2: v2v, thick: th || 0, cft: parseFloat(cft.toFixed(2)) });
-    localStorage.setItem("bfidc_data", JSON.stringify(items));
-    
-    // Clear & Refocus
-    v1.value=""; v2.value=""; width.value=""; thick.value="";
-    render(); updatePiece();
-    tree.select(); // অটোমেটিক গাছ নং সিলেক্ট হবে পরের এন্ট্রির জন্য
-}
-
-function render() {
-    let filteredItems = items.filter(i => i.type === woodType.value);
-    if(filteredItems.length === 0) { document.getElementById("printArea").innerHTML = ""; return; }
-
-    let totalCft = filteredItems.reduce((s, i) => s + i.cft, 0);
-    let totalTrees = new Set(filteredItems.map(i => i.tree)).size;
-    const perPage = 76; 
-    let html = "";
-
-    for (let p = 0; p < filteredItems.length; p += perPage) {
-        let pageData = filteredItems.slice(p, p + perPage);
-        let left = pageData.slice(0, 38);
-        let right = pageData.slice(38);
-
-        html += `<div class="page">
-            <img class="watermark" src="${logoFile}">
-            <div class="report-header">
-                <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন (BFIDC)</h3>
-                <h3 style="font-size:14px">রাবার বাগান হতে বিএফআইডিসি, এলপিসি-তে প্রেরণের জন্য কাঠের সাইজ লিস্ট।</h3>
-            </div>
-            <div class="content-wrapper">
-                <div class="col">
-                    <table><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>
-                    ${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='size'?i.v1+'"x'+(i.thick)+'"x'+i.v2+"'":i.v1+'"x'+i.v2+"'"}</td><td>${i.cft.toFixed(2)}</td></tr>`).join('')}
-                    </table>
-                </div>
-                <div class="col">
-                    <table><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>
-                    ${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='size'?i.v1+'"x'+(i.thick)+'"x'+i.v2+"'":i.v1+'"x'+i.v2+"'"}</td><td>${i.cft.toFixed(2)}</td></tr>`).join('')}
-                    </table>
-                </div>
-            </div>`;
-
-        if (p + perPage >= filteredItems.length) {
-            html += `<div class="summary-box">
-                <div><span class="label">মোট গাছ:</span><span class="val">${totalTrees} টি</span></div>
-                <div><span class="label">মোট পিস:</span><span class="val">${filteredItems.length} টি</span></div>
-                <div><span class="label">মোট সিএফটি:</span><span class="val">${totalCft.toFixed(2)}</span></div>
-            </div>`;
-        }
-        html += `<div style="position:absolute; bottom:10mm; right:15mm; font-size:12px;">পৃষ্ঠা: ${Math.floor(p/perPage)+1}</div></div>`;
-    }
-    document.getElementById("printArea").innerHTML = html;
-}
-
-function downloadBackup() {
-    const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `BFIDC_Backup.json`; a.click();
-}
-
-function importData(event) {
-    const reader = new FileReader();
-    reader.onload = (e) => { items = JSON.parse(e.target.result); localStorage.setItem("bfidc_data", JSON.stringify(items)); render(); updatePiece(); alert("ডাটা ইমপোর্ট হয়েছে!"); };
-    reader.readAsText(event.target.files[0]);
-}
-
-function newWork() { if(confirm("সব ডাটা ডিলিট করবেন?")) { items = []; localStorage.removeItem("bfidc_data"); render(); updatePiece(); } }
-
-if(sessionStorage.getItem("activeUser")) start();
-</script>
-</body>
+if(sessionStorage.getItem('active'))handleLogin();
+</script></body>
 </html>
