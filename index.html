@@ -1,238 +1,244 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BFIDC WOOD HISAB ELITE</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><style>
-body{
-margin:0;
-font-family:Poppins;
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-color:white;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BFIDC WOOD HISAB ELITE</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body{ margin:0; font-family:Poppins, sans-serif; background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); color:white; min-height:100vh; } 
+        .container{padding:20px} 
+        .card{ background:rgba(255,255,255,0.08); padding:20px; border-radius:18px; backdrop-filter:blur(12px); margin-bottom:20px; box-shadow:0 10px 30px rgba(0,0,0,.3); } 
+        input,select,button{ width:100%; padding:12px; margin-top:10px; border-radius:10px; border:none; font-size:15px; box-sizing: border-box; } 
+        button{ background:#00ffd5; font-weight:600; cursor:pointer; color: #0f2027; } 
+        .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px} 
+        .stat{background:rgba(255,255,255,.12);padding:15px;border-radius:14px;text-align:center} 
+        #appArea, #adminPanel, #thickInput{display:none} 
+        .error{color:#ff8080;margin-top:10px; text-align:center; font-weight: bold;}
+    </style>
+</head>
+<body>
 
-.container{padding:20px}
-.card{
-background:rgba(255,255,255,0.08);
-padding:20px;
-border-radius:18px;
-backdrop-filter:blur(12px);
-margin-bottom:20px;
-box-shadow:0 10px 30px rgba(0,0,0,.3);
-}
+<div class="container">
+    <div id="loginLayer" class="card">
+        <h2>BFIDC Login</h2>
+        <input type="email" id="emailInput" placeholder="Email (lpcfahad7@gmail.com)">
+        <input type="password" id="passwordInput" placeholder="Password (547087)">
+        <button onclick="handleAuth()">LOGIN</button>
+        <div id="msg" class="error"></div>
+    </div>
 
-input,select,button{
-width:100%;
-padding:12px;
-margin-top:10px;
-border-radius:10px;
-border:none;
-font-size:15px;
-}
+    <div id="appArea">
+        <div class="stats card">
+            <div class="stat"><small>Trees</small><br><b id="treeStat">0</b></div>
+            <div class="stat"><small>Pieces</small><br><b id="pieceStat">0</b></div>
+            <div class="stat"><small>Total CFT</small><br><b id="cftStat">0</b></div>
+        </div>
 
-button{
-background:#00ffd5;
-font-weight:600;
-cursor:pointer;
-}
+        <div class="card">
+            <h3>Add Wood</h3>
+            <select id="typeInput" onchange="toggleInputs()">
+                <option value="log">Round Log</option>
+                <option value="sawn">Sawn Wood</option>
+            </select>
+            <input type="number" id="treeInput" placeholder="Tree No">
+            <input type="number" id="pieceInput" placeholder="Piece No" readonly>
+            <input type="number" id="v1Input" placeholder="Girth / Width (inch)">
+            <input type="number" id="thickInput" placeholder="Thickness (inch)">
+            <input type="number" id="v2Input" placeholder="Length (feet)">
+            <button onclick="addItem()">SAVE</button>
+        </div>
 
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.stat{background:rgba(255,255,255,.12);padding:15px;border-radius:14px;text-align:center}
+        <canvas id="chart" class="card"></canvas>
 
-#appArea{display:none}
-#adminPanel{display:none}
-.error{color:#ff8080;margin-top:10px}
-</style></head>
-<body><!-- LOGIN --><div id="loginLayer" class="container">
-<div class="card">
-<h2>BFIDC Login</h2>
-<input id="emailInput" placeholder="Email">
-<input id="passwordInput" type="password" placeholder="Password">
-<button onclick="handleAuth()">LOGIN</button>
-<div id="msg" class="error"></div>
+        <div class="card">
+            <button onclick="backup()" style="background:#ffcc00">Backup JSON</button>
+            <button onclick="exportExcel()" style="background:#ffffff">Export Excel</button>
+            <button onclick="logout()" style="background:#ff4d4d; color:white; margin-top:20px">Logout</button>
+        </div>
+
+        <div id="adminPanel" class="card" style="border: 2px solid #00ffd5;">
+            <h3>Admin Panel</h3>
+            <input type="email" id="newUserEmail" placeholder="New Staff Email">
+            <input type="password" id="newUserPass" placeholder="New Staff Password">
+            <button onclick="createUser()">Create Staff</button>
+            <button onclick="deleteUsers()" style="background:#ff8080; margin-top:10px">Delete All Staff</button>
+        </div>
+    </div>
 </div>
-</div><!-- APP --><div id="appArea" class="container"><div class="stats">
-<div class="stat">Trees<br><b id="treeStat">0</b></div>
-<div class="stat">Pieces<br><b id="pieceStat">0</b></div>
-<div class="stat">Total CFT<br><b id="cftStat">0</b></div>
-</div><div class="card">
-<h3>Add Wood</h3>
-<input id="treeInput" type="number" placeholder="Tree No">
-<input id="pieceInput" type="number" placeholder="Piece No" readonly><select id="typeInput" onchange="toggleInputs()">
-<option value="log">Round Log</option>
-<option value="sawn">Sawn Wood</option>
-</select><input id="v1Input" type="number" placeholder="Girth / Width">
-<input id="thickInput" type="number" placeholder="Thickness (sawn only)">
-<input id="v2Input" type="number" placeholder="Length"><button onclick="addItem()">SAVE</button>
 
-</div><div class="card">
-<canvas id="chart"></canvas>
-</div><div class="card">
-<button onclick="backup()">Backup JSON</button>
-<button onclick="exportExcel()">Export Excel</button>
-<button onclick="logout()">Logout</button>
-</div><!-- ADMIN --><div id="adminPanel" class="card">
-<h3>Admin Panel</h3>
-<input id="newUserEmail" placeholder="Staff Email">
-<input id="newUserPass" placeholder="Staff Password">
-<button onclick="createUser()">Create Staff</button>
-<button onclick="deleteUsers()">Delete All Staff</button>
-</div></div><script>
-/* SAFE ADMIN AUTO CREATE */
-function hash(p){let h=0;for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h&=h;}return h}
-
-function ensureAdmin(){
-let users=JSON.parse(localStorage.getItem('users')||'[]');
-
-// remove broken admins
-users=users.filter(u=>u.email!=="lpcfahad7@gmail.com");
-
-users.push({
-email:'lpcfahad7@gmail.com',
-pass:hash('547087'),
-role:'admin'
-});
-
-localStorage.setItem('users',JSON.stringify(users));
+<script>
+/* UTILS */
+function hash(p){
+    let h=0;
+    for(let i=0;i<p.length;i++){
+        h=((h<<5)-h)+p.charCodeAt(i);
+        h&=h;
+    }
+    return h.toString(); 
 }
-ensureAdmin();
 
 /* LOGIN SYSTEM */
-function handleAuth(){
-let users=JSON.parse(localStorage.getItem('users')||'[]');
-
-const email=document.getElementById('emailInput').value.trim().toLowerCase();
-const password=hash(document.getElementById('passwordInput').value.trim());
-
-let user=users.find(u=>u.email===email && u.pass===password);
-
-if(!user){
-document.getElementById('msg').innerText='Wrong email or password';
-return;
+function ensureAdmin(){
+    let users = JSON.parse(localStorage.getItem('users') || '[]');
+    // Check if admin already exists
+    let adminExists = users.some(u => u.email === 'lpcfahad7@gmail.com');
+    
+    if(!adminExists){
+        users.push({
+            email: 'lpcfahad7@gmail.com',
+            pass: hash('547087'),
+            role: 'admin'
+        });
+        localStorage.setItem('users', JSON.stringify(users));
+    }
 }
 
-sessionStorage.setItem('user',JSON.stringify(user));
-startApp(user);
+function handleAuth(){
+    let users = JSON.parse(localStorage.getItem('users') || '[]');
+    const email = document.getElementById('emailInput').value.trim().toLowerCase();
+    const password = hash(document.getElementById('passwordInput').value.trim());
+    
+    let user = users.find(u => u.email === email && u.pass === password);
+    
+    if(!user){
+        document.getElementById('msg').innerText = 'Wrong email or password';
+        return;
+    }
+    
+    sessionStorage.setItem('user', JSON.stringify(user));
+    startApp(user);
 }
 
 function startApp(user){
-document.getElementById('loginLayer').style.display='none';
-document.getElementById('appArea').style.display='block';
-
-if(user.role==='admin')
-document.getElementById('adminPanel').style.display='block';
-
-render();
-drawChart();
+    document.getElementById('loginLayer').style.display = 'none';
+    document.getElementById('appArea').style.display = 'block';
+    if(user.role === 'admin'){
+        document.getElementById('adminPanel').style.display = 'block';
+    }
+    render();
+    drawChart();
 }
 
-window.onload=()=>{
-ensureAdmin();
-let user=sessionStorage.getItem('user');
-if(user) startApp(JSON.parse(user));
+window.onload = () => {
+    ensureAdmin();
+    let loggedInUser = sessionStorage.getItem('user');
+    if(loggedInUser) {
+        startApp(JSON.parse(loggedInUser));
+    }
 }
 
 function logout(){
-sessionStorage.clear();
-location.reload();
+    sessionStorage.clear();
+    location.reload();
 }
 
-/* USER CONTROL */
+/* ADMIN CONTROLS */
 function createUser(){
-let users=JSON.parse(localStorage.getItem('users')||'[]');
-let e=document.getElementById('newUserEmail').value.toLowerCase();
-let p=document.getElementById('newUserPass').value;
-
-if(!e||!p){alert('Enter email & password');return}
-
-if(users.find(u=>u.email===e)){
-alert('User exists');
-return;
-}
-
-users.push({email:e,pass:hash(p),role:'staff'});
-localStorage.setItem('users',JSON.stringify(users));
-alert('Staff Created');
+    let users = JSON.parse(localStorage.getItem('users') || '[]');
+    let e = document.getElementById('newUserEmail').value.toLowerCase().trim();
+    let p = document.getElementById('newUserPass').value.trim();
+    
+    if(!e || !p){ alert('Enter email & password'); return; }
+    if(users.find(u => u.email === e)){ alert('User exists'); return; }
+    
+    users.push({email: e, pass: hash(p), role: 'staff'});
+    localStorage.setItem('users', JSON.stringify(users));
+    alert('Staff Created');
 }
 
 function deleteUsers(){
-let users=JSON.parse(localStorage.getItem('users')||'[]');
-users=users.filter(u=>u.role==='admin');
-localStorage.setItem('users',JSON.stringify(users));
-alert('All Staff Deleted');
+    if(confirm('Are you sure you want to delete all staff?')){
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        users = users.filter(u => u.role === 'admin');
+        localStorage.setItem('users', JSON.stringify(users));
+        alert('All Staff Deleted');
+    }
 }
 
 /* DATA SYSTEM */
-let items=JSON.parse(localStorage.getItem('data')||'[]');
+let items = JSON.parse(localStorage.getItem('data') || '[]');
 
 function toggleInputs(){
-document.getElementById('thickInput').style.display=
-(typeInput.value==='log')?'none':'block';
+    const type = document.getElementById('typeInput').value;
+    document.getElementById('thickInput').style.display = (type === 'log') ? 'none' : 'block';
 }
 
-function updatePiece(){
-let t=treeInput.value;
-pieceInput.value=items.filter(i=>i.tree==t).length+1;
-}
-
-treeInput?.addEventListener('input',updatePiece);
+// Event Listener for automatic Piece No
+document.getElementById('treeInput').addEventListener('input', function(){
+    let t = this.value;
+    document.getElementById('pieceInput').value = items.filter(i => i.tree == t).length + 1;
+});
 
 function addItem(){
-let tree=+treeInput.value;
-let g=+v1Input.value;
-let len=+v2Input.value;
-let th=+thickInput.value||0;
+    let tree = document.getElementById('treeInput').value;
+    let g = +document.getElementById('v1Input').value;
+    let len = +document.getElementById('v2Input').value;
+    let type = document.getElementById('typeInput').value;
+    let th = +document.getElementById('thickInput').value || 0;
+    let pNo = document.getElementById('pieceInput').value;
 
-if(!tree||!g||!len)return;
+    if(!tree || !g || !len){ alert('Please fill all fields'); return; }
 
-let cft= typeInput.value==='log'
-? ((g/4)**2*len)/144
-: (g*th*len)/144;
-
-items.push({tree,piece:pieceInput.value,cft:+cft.toFixed(2),type:typeInput.value});
-
-localStorage.setItem('data',JSON.stringify(items));
-
-render();
-drawChart();
-updatePiece();
+    let cft = (type === 'log') ? ((g/4)**2 * len)/144 : (g * th * len)/144;
+    
+    items.push({tree, piece: pNo, cft: +cft.toFixed(2), type: type});
+    localStorage.setItem('data', JSON.stringify(items));
+    
+    render();
+    drawChart();
+    // Reset piece number for next entry
+    document.getElementById('pieceInput').value = items.filter(i => i.tree == tree).length + 1;
 }
 
 function render(){
-treeStat.innerText=new Set(items.map(i=>i.tree)).size;
-pieceStat.innerText=items.length;
-cftStat.innerText=items.reduce((s,i)=>s+i.cft,0).toFixed(2);
+    document.getElementById('treeStat').innerText = new Set(items.map(i => i.tree)).size;
+    document.getElementById('pieceStat').innerText = items.length;
+    document.getElementById('cftStat').innerText = items.reduce((s, i) => s + i.cft, 0).toFixed(2);
 }
 
 /* CHART */
 let chart;
 function drawChart(){
-let map={};
-items.forEach(i=>map[i.tree]=(map[i.tree]||0)+i.cft);
-
-if(chart) chart.destroy();
-
-chart=new Chart(document.getElementById('chart'),{
-type:'bar',
-data:{labels:Object.keys(map),datasets:[{label:'CFT per Tree',data:Object.values(map)}]}
-});
+    let map = {};
+    items.forEach(i => map[i.tree] = (map[i.tree] || 0) + i.cft);
+    
+    const ctx = document.getElementById('chart').getContext('2d');
+    if(chart) chart.destroy();
+    chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(map),
+            datasets: [{
+                label: 'CFT per Tree',
+                data: Object.values(map),
+                backgroundColor: '#00ffd5'
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } } }
+        }
+    });
 }
 
-/* BACKUP */
+/* EXPORT & BACKUP */
 function backup(){
-let blob=new Blob([JSON.stringify(items)],{type:'application/json'});
-let a=document.createElement('a');
-a.href=URL.createObjectURL(blob);
-a.download='BFIDC_BACKUP.json';
-a.click();
+    let dataStr = JSON.stringify(items);
+    let blob = new Blob([dataStr], {type: 'application/json'});
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'BFIDC_BACKUP.json';
+    a.click();
 }
 
 function exportExcel(){
-let ws=XLSX.utils.json_to_sheet(items);
-let wb=XLSX.utils.book_new();
-XLSX.utils.book_append_sheet(wb,ws,'Data');
-XLSX.writeFile(wb,'BFIDC.xlsx');
+    let ws = XLSX.utils.json_to_sheet(items);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Data');
+    XLSX.writeFile(wb, 'BFIDC_Wood_Report.xlsx');
 }
-</script></body>
+</script>
+
+</body>
 </html>
