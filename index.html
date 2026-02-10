@@ -22,7 +22,7 @@
 
 <div class="container">
     <div id="loginLayer" class="card">
-        <h2>BFIDC Login</h2>
+        <h2 style="text-align:center">BFIDC Login</h2>
         <input type="email" id="emailInput" placeholder="Email (lpcfahad7@gmail.com)">
         <input type="password" id="passwordInput" placeholder="Password (547087)">
         <button onclick="handleAuth()">LOGIN</button>
@@ -69,64 +69,63 @@
 </div>
 
 <script>
-/* UTILS */
+/* SECURE HASH */
 function hash(p){
     let h=0;
     for(let i=0;i<p.length;i++){
         h=((h<<5)-h)+p.charCodeAt(i);
         h&=h;
     }
-    return h.toString(); 
+    return String(h); 
 }
 
-/* LOGIN SYSTEM */
+/* FORCE SETUP ADMIN */
 function ensureAdmin(){
-    let users = JSON.parse(localStorage.getItem('users') || '[]');
-    // Check if admin already exists
-    let adminExists = users.some(u => u.email === 'lpcfahad7@gmail.com');
+    // Clearing any old broken user data and setting fresh admin
+    let users = [];
+    users.push({
+        email: 'lpcfahad7@gmail.com',
+        pass: hash('547087'),
+        role: 'admin'
+    });
+    // Staff গুলোকে আগের ডাটা থেকে ফিরিয়ে আনা (যদি থাকে)
+    let oldUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    oldUsers.forEach(u => {
+        if(u.email !== 'lpcfahad7@gmail.com') users.push(u);
+    });
     
-    if(!adminExists){
-        users.push({
-            email: 'lpcfahad7@gmail.com',
-            pass: hash('547087'),
-            role: 'admin'
-        });
-        localStorage.setItem('users', JSON.stringify(users));
-    }
+    localStorage.setItem('users', JSON.stringify(users));
 }
 
+/* AUTH SYSTEM */
 function handleAuth(){
-    let users = JSON.parse(localStorage.getItem('users') || '[]');
     const email = document.getElementById('emailInput').value.trim().toLowerCase();
-    const password = hash(document.getElementById('passwordInput').value.trim());
+    const passInput = document.getElementById('passwordInput').value.trim();
+    const hashedPass = hash(passInput);
     
-    let user = users.find(u => u.email === email && u.pass === password);
+    let users = JSON.parse(localStorage.getItem('users') || '[]');
+    let user = users.find(u => u.email === email && u.pass === hashedPass);
     
-    if(!user){
-        document.getElementById('msg').innerText = 'Wrong email or password';
-        return;
+    if(user){
+        sessionStorage.setItem('user', JSON.stringify(user));
+        startApp(user);
+    } else {
+        document.getElementById('msg').innerText = 'Invalid Email or Password!';
     }
-    
-    sessionStorage.setItem('user', JSON.stringify(user));
-    startApp(user);
 }
 
 function startApp(user){
-    document.getElementById('loginLayer').style.display = 'none';
-    document.getElementById('appArea').style.display = 'block';
-    if(user.role === 'admin'){
-        document.getElementById('adminPanel').style.display = 'block';
-    }
+    document.getElementById('loginLayer').style.display='none';
+    document.getElementById('appArea').style.display='block';
+    if(user.role==='admin') document.getElementById('adminPanel').style.display='block';
     render();
     drawChart();
 }
 
 window.onload = () => {
-    ensureAdmin();
-    let loggedInUser = sessionStorage.getItem('user');
-    if(loggedInUser) {
-        startApp(JSON.parse(loggedInUser));
-    }
+    ensureAdmin(); // Always refresh admin on load
+    let savedUser = sessionStorage.getItem('user');
+    if(savedUser) startApp(JSON.parse(savedUser));
 }
 
 function logout(){
@@ -134,41 +133,39 @@ function logout(){
     location.reload();
 }
 
-/* ADMIN CONTROLS */
+/* ADMIN PANEL FUNCTIONS */
 function createUser(){
-    let users = JSON.parse(localStorage.getItem('users') || '[]');
+    let users = JSON.parse(localStorage.getItem('users')||'[]');
     let e = document.getElementById('newUserEmail').value.toLowerCase().trim();
     let p = document.getElementById('newUserPass').value.trim();
-    
-    if(!e || !p){ alert('Enter email & password'); return; }
-    if(users.find(u => u.email === e)){ alert('User exists'); return; }
-    
-    users.push({email: e, pass: hash(p), role: 'staff'});
+    if(!e || !p) { alert('Fill all fields'); return; }
+    users.push({email:e, pass:hash(p), role:'staff'});
     localStorage.setItem('users', JSON.stringify(users));
     alert('Staff Created');
+    document.getElementById('newUserEmail').value='';
+    document.getElementById('newUserPass').value='';
 }
 
 function deleteUsers(){
-    if(confirm('Are you sure you want to delete all staff?')){
-        let users = JSON.parse(localStorage.getItem('users') || '[]');
+    if(confirm('Delete all staff?')){
+        let users = JSON.parse(localStorage.getItem('users')||'[]');
         users = users.filter(u => u.role === 'admin');
         localStorage.setItem('users', JSON.stringify(users));
-        alert('All Staff Deleted');
+        alert('Done');
     }
 }
 
-/* DATA SYSTEM */
-let items = JSON.parse(localStorage.getItem('data') || '[]');
+/* DATA LOGIC */
+let items = JSON.parse(localStorage.getItem('data')||'[]');
 
 function toggleInputs(){
-    const type = document.getElementById('typeInput').value;
-    document.getElementById('thickInput').style.display = (type === 'log') ? 'none' : 'block';
+    let type = document.getElementById('typeInput').value;
+    document.getElementById('thickInput').style.display = (type==='log') ? 'none' : 'block';
 }
 
-// Event Listener for automatic Piece No
 document.getElementById('treeInput').addEventListener('input', function(){
     let t = this.value;
-    document.getElementById('pieceInput').value = items.filter(i => i.tree == t).length + 1;
+    document.getElementById('pieceInput').value = items.filter(i=>i.tree == t).length + 1;
 });
 
 function addItem(){
@@ -177,68 +174,51 @@ function addItem(){
     let len = +document.getElementById('v2Input').value;
     let type = document.getElementById('typeInput').value;
     let th = +document.getElementById('thickInput').value || 0;
-    let pNo = document.getElementById('pieceInput').value;
-
-    if(!tree || !g || !len){ alert('Please fill all fields'); return; }
-
-    let cft = (type === 'log') ? ((g/4)**2 * len)/144 : (g * th * len)/144;
     
-    items.push({tree, piece: pNo, cft: +cft.toFixed(2), type: type});
+    if(!tree || !g || !len) return;
+
+    let cft = (type==='log') ? ((g/4)**2 * len)/144 : (g * th * len)/144;
+    items.push({tree, piece: document.getElementById('pieceInput').value, cft: +cft.toFixed(2), type});
     localStorage.setItem('data', JSON.stringify(items));
-    
     render();
     drawChart();
-    // Reset piece number for next entry
-    document.getElementById('pieceInput').value = items.filter(i => i.tree == tree).length + 1;
+    document.getElementById('pieceInput').value = items.filter(i=>i.tree == tree).length + 1;
 }
 
 function render(){
-    document.getElementById('treeStat').innerText = new Set(items.map(i => i.tree)).size;
+    document.getElementById('treeStat').innerText = new Set(items.map(i=>i.tree)).size;
     document.getElementById('pieceStat').innerText = items.length;
-    document.getElementById('cftStat').innerText = items.reduce((s, i) => s + i.cft, 0).toFixed(2);
+    document.getElementById('cftStat').innerText = items.reduce((s,i)=>s+i.cft,0).toFixed(2);
 }
 
-/* CHART */
 let chart;
 function drawChart(){
     let map = {};
-    items.forEach(i => map[i.tree] = (map[i.tree] || 0) + i.cft);
-    
-    const ctx = document.getElementById('chart').getContext('2d');
+    items.forEach(i=> map[i.tree] = (map[i.tree]||0) + i.cft);
     if(chart) chart.destroy();
-    chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(map),
-            datasets: [{
-                label: 'CFT per Tree',
-                data: Object.values(map),
-                backgroundColor: '#00ffd5'
-            }]
-        },
-        options: {
-            scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } } }
+    chart = new Chart(document.getElementById('chart'), {
+        type:'bar',
+        data:{
+            labels:Object.keys(map),
+            datasets:[{label:'Total CFT', data:Object.values(map), backgroundColor:'#00ffd5'}]
         }
     });
 }
 
-/* EXPORT & BACKUP */
 function backup(){
-    let dataStr = JSON.stringify(items);
-    let blob = new Blob([dataStr], {type: 'application/json'});
+    let blob = new Blob([JSON.stringify(items)], {type:'application/json'});
     let a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'BFIDC_BACKUP.json';
+    a.download = 'BFIDC_DATA.json';
     a.click();
 }
 
 function exportExcel(){
     let ws = XLSX.utils.json_to_sheet(items);
     let wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Data');
-    XLSX.writeFile(wb, 'BFIDC_Wood_Report.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, "Data");
+    XLSX.writeFile(wb, "BFIDC_Wood_Report.xlsx");
 }
 </script>
-
 </body>
 </html>
