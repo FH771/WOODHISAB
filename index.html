@@ -3,106 +3,174 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDCWOODHISAB v2 Pro Max Login</title>
+<title>BFIDCWOODHISAB ELITE</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-:root{--primary:#22c55e;--secondary:#10b981;--danger:#ef4444;--dark:#020617;--card:#0f172a;--font:'Kalpurush',sans-serif;}
-@font-face{font-family:'Kalpurush'; src:url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype');}
-body{margin:0;font-family:var(--font);background:linear-gradient(135deg,#020617,#0f172a);color:white;}
-#loginLayer{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.85);backdrop-filter:blur(10px);z-index:10000;}
-.login-box{background:rgba(15,23,42,0.85);padding:40px;border-radius:20px;width:340px;text-align:center;border:1px solid var(--primary);backdrop-filter:blur(10px);}
-input,button{width:100%;padding:12px;margin-top:12px;border-radius:12px;border:none;font-size:16px;box-sizing:border-box;background:rgba(15,23,42,0.7);color:white;border:1px solid #334155;}
-input:focus{outline:2px solid var(--primary);}
-button{background:var(--primary);cursor:pointer;font-weight:bold;transition:.2s;}
-button:hover{transform:scale(1.05);}
-.toggle{margin-top:10px;color:var(--secondary);cursor:pointer;font-size:14px;}
-.msg{margin-top:10px;font-size:13px;color:var(--danger);}
+:root{--primary:#22c55e;--danger:#ef4444;--dark:#020617;--card:#0f172a;}
+body{margin:0;font-family:sans-serif;background:linear-gradient(135deg,#020617,#0f172a);color:white}
+#loginLayer{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#020617}
+.login-box{background:#0f172a;padding:40px;border-radius:20px;width:340px;text-align:center;border:1px solid var(--primary)}
+input,select,button{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:none;background:#020617;color:white;border:1px solid #334155}
+button{background:var(--primary);font-weight:bold;cursor:pointer}
+#appArea{display:none}
+header{display:flex;justify-content:space-between;padding:10px 20px;background:#020617;border-bottom:1px solid var(--primary)}
+.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;padding:15px}
+.stat{background:#0f172a;padding:15px;border-radius:15px;text-align:center}
+.card{margin:15px;padding:20px;background:#0f172a;border-radius:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.admin-panel{margin:15px;padding:15px;border:1px solid var(--primary);border-radius:15px}
 </style>
 </head>
 <body>
 
 <div id="loginLayer">
-  <div class="login-box">
-    <h2>BFIDCWOODHISAB v2 Pro Max</h2>
-    <input type="email" id="emailInput" placeholder="Email">
-    <input type="password" id="passwordInput" placeholder="Password" onkeydown="if(event.key==='Enter') handleAuth()">
-    <button id="mainBtn" onclick="handleAuth()">Register</button>
-    <div class="toggle" id="toggleText" onclick="toggleMode()">Already have account? Login</div>
-    <div class="msg" id="msg"></div>
-  </div>
+<div class="login-box">
+<h2>BFIDCWOODHISAB ELITE</h2>
+<input id="emailInput" placeholder="Email">
+<input id="passwordInput" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')handleAuth()">
+<button onclick="handleAuth()" id="authBtn">Login</button>
+<div id="msg"></div>
+</div>
 </div>
 
-<div id="appArea" style="display:none;">
-  <h2 style="text-align:center; margin-top:50px;">Welcome to BFIDCWOODHISAB</h2>
+<div id="appArea">
+<header>
+<div><b>BFIDCWOODHISAB ELITE</b></div>
+<div>
+<button onclick="backup()">Backup</button>
+<button onclick="exportExcel()">Excel</button>
+<button onclick="logout()" style="background:var(--danger)">Logout</button>
+</div>
+</header>
+
+<div class="dashboard">
+<div class="stat"><h2 id="treeStat">0</h2><p>Trees</p></div>
+<div class="stat"><h2 id="pieceStat">0</h2><p>Pieces</p></div>
+<div class="stat"><h2 id="cftStat">0</h2><p>CFT</p></div>
+</div>
+
+<div class="card">
+<div class="grid">
+<input id="treeInput" type="number" placeholder="Tree" oninput="updatePiece()">
+<select id="typeInput" onchange="toggleInputs()">
+<option value="log">Round Log</option>
+<option value="size">Sawn Wood</option>
+</select>
+<input id="pieceInput" readonly placeholder="Piece">
+<input id="v1Input" placeholder="Girth / Width">
+<input id="thickInput" placeholder="Thickness">
+<input id="v2Input" placeholder="Length">
+<button onclick="addItem()">SAVE</button>
+</div>
+</div>
+
+<div class="admin-panel" id="adminPanel" style="display:none">
+<h3>SUPER ADMIN PANEL</h3>
+<input id="newUserEmail" placeholder="New User Email">
+<input id="newUserPass" placeholder="Password">
+<button onclick="createUser()">Create User</button>
+<button onclick="deleteUsers()" style="background:var(--danger)">Delete All Staff</button>
+</div>
+
+<canvas id="chart"></canvas>
+<div id="printArea"></div>
 </div>
 
 <script>
-// Initial setup
-let mode='register';
-const mainBtn=document.getElementById('mainBtn');
-const toggleText=document.getElementById('toggleText');
-const msg=document.getElementById('msg');
-const emailInput=document.getElementById('emailInput');
-const passwordInput=document.getElementById('passwordInput');
+/* USERS + ADMIN */
+function hash(p){let h=0;for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h&=h;}return h}
 
-// Hash function (simple for demo)
-function hashPwd(pwd){
-  let hash=0;
-  for(let i=0;i<pwd.length;i++){hash=((hash<<5)-hash)+pwd.charCodeAt(i);hash=hash & hash;}
-  return hash;
-}
-
-// Pre-add admin if not exists
-let users=JSON.parse(localStorage.getItem('bfidc_users')||'[]');
+let users=JSON.parse(localStorage.getItem('users')||'[]');
 if(!users.find(u=>u.email==='lpcfahad7@gmail.com')){
-  users.push({email:'lpcfahad7@gmail.com', pwd:hashPwd('547087')});
-  localStorage.setItem('bfidc_users', JSON.stringify(users));
-}
-
-function toggleMode(){
-  if(mode==='register'){
-    mode='login';
-    mainBtn.textContent='Login';
-    toggleText.textContent='No account? Register';
-    msg.textContent='';
-  } else {
-    mode='register';
-    mainBtn.textContent='Register';
-    toggleText.textContent='Already have account? Login';
-    msg.textContent='';
-  }
-}
+users.push({email:'lpcfahad7@gmail.com',pass:hash('547087'),role:'admin'});
+localStorage.setItem('users',JSON.stringify(users));}
 
 function handleAuth(){
-  const email=emailInput.value.trim().toLowerCase();
-  const pwd=passwordInput.value.trim();
-  if(!email || !pwd){msg.textContent='Fill all fields'; return;}
-  if(pwd.length<6){msg.textContent='Password must be 6+ characters'; return;}
-  
-  users=JSON.parse(localStorage.getItem('bfidc_users')||'[]');
-  
-  if(mode==='register'){
-    if(users.find(u=>u.email===email)){msg.textContent='Email already exists'; return;}
-    users.push({email, pwd:hashPwd(pwd)});
-    localStorage.setItem('bfidc_users', JSON.stringify(users));
-    sessionStorage.setItem('loggedIn', email);
-    showApp();
-  } else { // login
-    let user=users.find(u=>u.email===email && u.pwd===hashPwd(pwd));
-    if(user){sessionStorage.setItem('loggedIn', email); showApp();}
-    else msg.textContent='Wrong email or password';
-  }
+let e=emailInput.value.toLowerCase();
+let p=hash(passwordInput.value);
+let u=users.find(x=>x.email===e&&x.pass===p);
+if(!u){msg.innerText='Wrong login';return}
+
+sessionStorage.setItem('user',JSON.stringify(u));
+loginLayer.style.display='none';
+appArea.style.display='block';
+
+if(u.role==='admin') adminPanel.style.display='block';
+
+render();drawChart();}
+
+function createUser(){
+let e=newUserEmail.value.toLowerCase();
+let p=hash(newUserPass.value);
+users.push({email:e,pass:p,role:'staff'});
+localStorage.setItem('users',JSON.stringify(users));
+alert('Staff created');}
+
+function deleteUsers(){
+users=users.filter(u=>u.role==='admin');
+localStorage.setItem('users',JSON.stringify(users));
+alert('All staff deleted');}
+
+function logout(){sessionStorage.clear();location.reload()}
+
+window.onload=()=>{if(sessionStorage.getItem('user')){loginLayer.style.display='none';appArea.style.display='block';let u=JSON.parse(sessionStorage.getItem('user'));if(u.role==='admin')adminPanel.style.display='block';render();drawChart();}}
+
+/* DATA SYSTEM */
+let items=JSON.parse(localStorage.getItem('data')||'[]');
+
+function toggleInputs(){thickInput.style.display=typeInput.value==='log'?'none':'block'}
+
+function updatePiece(){pieceInput.value=items.filter(i=>i.tree==treeInput.value).length+1}
+
+function addItem(){
+let t=+treeInput.value;
+let v1=+v1Input.value;
+let v2=+v2Input.value;
+let th=+thickInput.value||0;
+if(!t||!v1||!v2)return;
+
+let cft=typeInput.value==='log'?((v1/4)**2*v2)/144:(v1*th*v2)/144;
+
+items.push({tree:t,piece:updatePiece(),cft:+cft.toFixed(2),type:typeInput.value});
+localStorage.setItem('data',JSON.stringify(items));
+render();drawChart();}
+
+function render(){
+let trees=new Set(items.map(i=>i.tree)).size;
+let pieces=items.length;
+let cft=items.reduce((s,i)=>s+i.cft,0).toFixed(2);
+
+treeStat.innerText=trees;
+pieceStat.innerText=pieces;
+cftStat.innerText=cft;
 }
 
-function showApp(){
-  document.getElementById('loginLayer').style.display='none';
-  document.getElementById('appArea').style.display='block';
-}
+/* CHART */
+let chart;
+function drawChart(){
+let map={};
+items.forEach(i=>map[i.tree]=(map[i.tree]||0)+i.cft);
 
-// Auto-login if session exists
-window.onload=function(){
-  let logged=sessionStorage.getItem('loggedIn');
-  if(logged){showApp();}
-}
+if(chart)chart.destroy();
+chart=new Chart(document.getElementById('chart'),{
+type:'bar',
+data:{labels:Object.keys(map),datasets:[{label:'CFT per Tree',data:Object.values(map)}]}
+});}
+
+/* BACKUP CLOUD STYLE (FILE EXPORT) */
+function backup(){
+let blob=new Blob([JSON.stringify(items)],{type:'application/json'});
+let a=document.createElement('a');
+a.href=URL.createObjectURL(blob);
+a.download='BFIDC_ELITE_BACKUP.json';
+a.click();}
+
+function exportExcel(){
+let ws=XLSX.utils.json_to_sheet(items);
+let wb=XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(wb,ws,'Data');
+XLSX.writeFile(wb,'BFIDC_ELITE.xlsx');}
 </script>
 </body>
 </html>
