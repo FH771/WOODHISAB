@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDCWOODHISAB TITANIUM</title>
+<title>BFIDCWOODHISAB TITANIUM PRO</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{ --primary:#22c55e; --dark:#020617; --card:#0f172a; }
@@ -23,43 +23,32 @@ button:hover{transform:scale(1.03)}
 
 /* APP AREA */
 #appArea{display:none}
-header{ display:flex; justify-content:space-between; align-items:center; padding:10px 25px; background:#020617; border-bottom:1px solid #22c55e33; position:sticky; top:0; z-index:999; }
-.logo-area{ display:flex; align-items:center; gap:12px; }
-.header-logo{ height: 35px; width: 35px; border-radius: 6px; object-fit: cover; border: 1px solid var(--primary); }
-.logo{ font-size:22px; font-weight:900; color:var(--primary); letter-spacing:1px; }
+header{ display:flex; justify-content:space-between; align-items:center; padding:10px 15px; background:#020617; border-bottom:1px solid #22c55e33; position:sticky; top:0; z-index:999; flex-wrap: wrap; gap: 10px; }
+.logo-area{ display:flex; align-items:center; gap:8px; }
+.header-logo{ height: 30px; width: 30px; border-radius: 5px; border: 1px solid var(--primary); }
+.logo{ font-size:16px; font-weight:900; color:var(--primary); letter-spacing:1px; }
 
-.dashboard{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:15px; padding:20px; }
-.stat{ background:rgba(15,23,42,.8); padding:20px; border-radius:18px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,.5); border-bottom: 3px solid var(--primary); }
-.stat h2{margin:0;color:#22c55e; font-size: 30px;}
+.btn-group { display:flex; gap:5px; flex-wrap: wrap; }
+.action-btn{ padding:6px 10px; border-radius:6px; font-size:11px; width:auto; color: white; border: none; cursor: pointer; background: #334155; }
 
-.card{ margin:20px; padding:20px; border-radius:20px; background:var(--card); box-shadow:0 10px 30px rgba(0,0,0,.6); border: 1px solid #334155; }
-.grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+.top-search-container { padding: 10px 20px; }
+.search-input { background: #0f172a; border: 1px solid #334155; color: white; padding: 10px; border-radius: 8px; font-size: 14px; }
 
-/* রিপোর্ট প্রিন্ট স্টাইল */
-.report-page { 
-    background: white; color: black; width: 210mm; min-height: 296mm; margin: 20px auto; 
-    padding: 10mm 15mm; position: relative; page-break-after: always; box-sizing: border-box;
-}
-.watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; opacity: 0.08; z-index: 0; pointer-events: none; }
-.report-header { text-align: center; font-family: 'Kalpurush', sans-serif; border-bottom: 2px solid black; margin-bottom: 15px; position: relative; z-index: 1; }
-.content-wrapper { display: flex; gap: 20px; position: relative; z-index: 1; }
-.col { flex: 1; }
+.dashboard{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; padding:0 20px; }
+.stat{ background:rgba(15,23,42,.8); padding:10px; border-radius:15px; text-align:center; border-bottom: 2px solid var(--primary); }
+.stat h2{margin:0;color:#22c55e; font-size: 20px;}
 
+.card{ margin:15px 20px; padding:15px; border-radius:20px; background:var(--card); border: 1px solid #334155; }
+.grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; }
+
+/* REPORT */
+.report-page { background: white; color: black; width: 210mm; min-height: 296mm; margin: 20px auto; padding: 10mm 15mm; position: relative; page-break-after: always; box-sizing: border-box; }
+.watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; opacity: 0.08; z-index: 0; pointer-events: none; }
 table{ width:100%; border-collapse:collapse; margin-top:10px; font-family: 'Kalpurush', sans-serif; }
-th,td{ padding:6px; border:1px solid #000; text-align:center; font-size: 13px;}
-th{background:#f2f2f2 !important; color: black;}
+th,td{ padding:4px; border:1px solid #000; text-align:center; font-size: 12px;}
+th{background:#f2f2f2 !important;}
 
-.action-btn{ padding:6px 10px; border-radius:6px; font-size:12px; width:auto; color: white; border: none; cursor: pointer; }
-.edit{background:#3b82f6; margin-right: 5px;}
-.delete{background:#ef4444}
-
-.search{ margin-top:10px; background:#020617; color: white; border:1px solid #334155; }
-
-@media print{ 
-    header, .no-print, .dashboard, .card, #loginLayer {display:none !important} 
-    body{background:white; margin: 0;}
-    .report-page { margin: 0; border: none; box-shadow: none; display: block !important;}
-}
+@media print{ header, .no-print, .dashboard, .card, #loginLayer {display:none !important} body{background:white; margin:0;} .report-page {margin:0; border:none; display:block !important;} }
 </style>
 </head>
 <body>
@@ -67,8 +56,7 @@ th{background:#f2f2f2 !important; color: black;}
 <div id="loginLayer">
     <div class="login-box">
         <h2 style="color:var(--primary)">BFIDCWOODHISAB</h2>
-        <p style="color:#94a3b8">TITANIUM Forestry System</p>
-        <input id="passInput" type="password" placeholder="Password (0000)" onkeydown="if(event.key==='Enter') handleLogin()">
+        <input id="passInput" type="password" placeholder="Password" onkeydown="if(event.key==='Enter') handleLogin()">
         <button onclick="handleLogin()">LOGIN</button>
     </div>
 </div>
@@ -79,32 +67,38 @@ th{background:#f2f2f2 !important; color: black;}
             <img src="logo.jpg" class="header-logo" alt="L">
             <div class="logo">BFIDCWOODHISAB</div>
         </div>
-        <div style="display:flex; gap:10px">
-            <button class="action-btn" onclick="backup()" style="background:#6366f1">Backup</button>
+        <div class="btn-group">
+            <button class="action-btn" onclick="document.getElementById('importFile').click()">Upload</button>
+            <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+            <button class="action-btn" onclick="changePass()">Change</button>
             <button class="action-btn" onclick="exportExcel()" style="background:#10b981">Excel</button>
-            <button class="action-btn" onclick="window.print()" style="background:#f59e0b">Print</button>
-            <button class="action-btn delete" onclick="logout()">Logout</button>
+            <button class="action-btn" onclick="exportWord()" style="background:#3b82f6">Word</button>
+            <button class="action-btn" onclick="backup()" style="background:var(--primary)">Save</button>
         </div>
     </header>
 
+    <div class="top-search-container no-print">
+        <input id="searchInput" class="search-input" placeholder="Search Tree No..." oninput="render()">
+    </div>
+
     <div class="dashboard no-print">
-        <div class="stat"><h2><span id="treeStat">0</span></h2><p>Trees</p></div>
-        <div class="stat"><h2><span id="pieceStat">0</span></h2><p>Pieces</p></div>
-        <div class="stat"><h2><span id="cftStat">0.00</span></h2><p>Total CFT</p></div>
+        <div class="stat"><h2><span id="treeStat">0</span></h2><p style="margin:0; font-size:11px">Trees</p></div>
+        <div class="stat"><h2><span id="pieceStat">0</span></h2><p style="margin:0; font-size:11px">Pieces</p></div>
+        <div class="stat"><h2><span id="cftStat">0.00</span></h2><p style="margin:0; font-size:11px">Total CFT</p></div>
     </div>
 
     <div class="card no-print">
         <div class="grid">
             <div>গাছ নং<input id="treeInput" type="number" value="1" oninput="updatePiece()"></div>
-            <div>পিস নং<input id="pieceInput" readonly style="opacity:0.6"></div>
             <div>টাইপ
                 <select id="typeInput" onchange="toggleInputs()">
-                    <option value="log">Round Log (গোল)</option>
-                    <option value="size">Sawn Wood (সাইজ)</option>
+                    <option value="log">Round Log</option>
+                    <option value="size">Sawn Wood</option>
                 </select>
             </div>
+            <div>পিস নং<input id="pieceInput" readonly style="opacity:0.6"></div>
         </div>
-        <div class="grid" style="margin-top:15px">
+        <div class="grid" style="margin-top:10px">
             <div id="girthBox">বেড় (ইঞ্চি)<input id="v1Input" type="number" step="any"></div>
             <div id="thickBox" style="display:none">
                 <div style="display:flex; gap:5px">
@@ -117,7 +111,6 @@ th{background:#f2f2f2 !important; color: black;}
                 <button id="saveBtn" onclick="addItem()" style="height:45px">SAVE (ENTER)</button>
             </div>
         </div>
-        <input id="searchInput" class="search" placeholder="Search by Tree No..." oninput="render()">
     </div>
 
     <div id="printArea"></div>
@@ -128,28 +121,26 @@ let items = JSON.parse(localStorage.getItem('bfidc_data') || '[]');
 let editIndex = null;
 const logoFile = "logo.jpg";
 
-// 🎯 Smart Navigation
-document.addEventListener('keydown', function(e) {
+// 🎯 Keyboard Nav
+document.addEventListener('keydown', (e) => {
     const active = document.activeElement;
     if (e.key === 'ArrowRight') {
-        if (active.id === 'treeInput') {
-            if (typeInput.value === 'log') v1Input.focus(); else widthInput.focus();
-        } else if (active.id === 'v1Input' || active.id === 'thickInput') {
-            v2Input.focus();
-        }
+        if (active.id === 'treeInput') (typeInput.value === 'log' ? v1Input : widthInput).focus();
+        else if (active.id === 'v1Input' || active.id === 'thickInput') v2Input.focus();
     }
     if (e.key === 'Enter' && active.id === 'v2Input') addItem();
 });
 
 function handleLogin(){
-    if(passInput.value === '0000'){
-        loginLayer.style.display = 'none';
-        appArea.style.display = 'block';
-        render(); updatePiece();
-    } else alert('Wrong Password');
+    let savedPass = localStorage.getItem('bfidc_pass') || '0000';
+    if(passInput.value === savedPass){ loginLayer.style.display = 'none'; appArea.style.display = 'block'; render(); updatePiece(); } 
+    else alert('Wrong Password');
 }
 
-function logout(){ location.reload(); }
+function changePass(){
+    let newP = prompt("Enter New Password:");
+    if(newP) { localStorage.setItem('bfidc_pass', newP); alert("Password Changed!"); }
+}
 
 function toggleInputs(){
     let isSize = typeInput.value === 'size';
@@ -157,124 +148,73 @@ function toggleInputs(){
     girthBox.style.display = isSize ? 'none' : 'block';
 }
 
-function updatePiece(){
-    pieceInput.value = items.filter(i => i.tree == treeInput.value && i.type === typeInput.value).length + 1;
-}
+function updatePiece(){ pieceInput.value = items.filter(i => i.tree == treeInput.value && i.type === typeInput.value).length + 1; }
 
 function addItem(){
-    let t = parseInt(treeInput.value);
-    let v2v = parseFloat(v2Input.value);
-    let cft, v1v, th, wd;
-
+    let t = parseInt(treeInput.value), v2v = parseFloat(v2Input.value), cft, v1v, th, wd;
     if(typeInput.value === 'log'){
-        v1v = parseFloat(v1Input.value);
-        if(!t || !v1v || !v2v) return;
+        v1v = parseFloat(v1Input.value); if(!t || !v1v || !v2v) return;
         cft = ((v1v/4)**2 * v2v)/144;
     } else {
-        wd = parseFloat(widthInput.value);
-        th = parseFloat(thickInput.value);
-        if(!t || !wd || !th || !v2v) return;
-        v1v = wd;
-        cft = (wd * th * v2v)/144;
+        wd = parseFloat(widthInput.value); th = parseFloat(thickInput.value); if(!t || !wd || !th || !v2v) return;
+        v1v = wd; cft = (wd * th * v2v)/144;
     }
-
-    let obj = {
-        tree: t,
-        piece: editIndex !== null ? items[editIndex].piece : items.filter(i => i.tree == t && i.type === typeInput.value).length + 1,
-        type: typeInput.value,
-        v1: v1v,
-        v2: v2v,
-        thick: th || 0,
-        cft: parseFloat(cft.toFixed(2))
-    };
-
-    if(editIndex !== null){
-        items[editIndex] = obj;
-        editIndex = null;
-        saveBtn.innerText = "SAVE (ENTER)";
-    } else {
-        items.push(obj);
-    }
-
-    localStorage.setItem('bfidc_data', JSON.stringify(items));
+    let obj = { tree: t, piece: items.filter(i => i.tree == t && i.type === typeInput.value).length + 1, type: typeInput.value, v1: v1v, v2: v2v, thick: th || 0, cft: parseFloat(cft.toFixed(2)) };
+    items.push(obj); localStorage.setItem('bfidc_data', JSON.stringify(items));
     v1Input.value = v2Input.value = thickInput.value = widthInput.value = '';
     render(); updatePiece(); treeInput.select();
-}
-
-function editItem(i){
-    let d = items[i];
-    editIndex = i;
-    treeInput.value = d.tree;
-    typeInput.value = d.type;
-    toggleInputs();
-    if(d.type === 'log') v1Input.value = d.v1;
-    else { widthInput.value = d.v1; thickInput.value = d.thick; }
-    v2Input.value = d.v2;
-    saveBtn.innerText = "UPDATE";
-    window.scrollTo({top:0, behavior:'smooth'});
-}
-
-function deleteItem(i){
-    if(confirm('Delete item?')){
-        items.splice(i, 1);
-        localStorage.setItem('bfidc_data', JSON.stringify(items));
-        render(); updatePiece();
-    }
 }
 
 function render(){
     let keyword = searchInput.value?.toLowerCase() || '';
     let filtered = items.filter(i => i.tree.toString().includes(keyword));
-    
     treeStat.innerText = new Set(filtered.map(i => i.tree)).size;
     pieceStat.innerText = filtered.length;
     cftStat.innerText = filtered.reduce((s, i) => s + i.cft, 0).toFixed(2);
 
-    const perPage = 76;
-    let html = "";
+    const perPage = 76; let html = "";
     for (let p = 0; p < filtered.length; p += perPage) {
         let pageData = filtered.slice(p, p + perPage);
-        let left = pageData.slice(0, 38);
-        let right = pageData.slice(38);
-
+        let left = pageData.slice(0, 38); let right = pageData.slice(38);
         html += `<div class="report-page">
             <img class="watermark" src="${logoFile}">
             <div class="report-header">
-                <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন (BFIDC)</h3>
-                <h3 style="font-size:14px">রাবার কাঠ সংগ্রহের সাইজ লিস্ট (টাইটানিয়াম সিস্টেম)</h3>
+                <h3 style="margin:2px">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন (BFIDC)</h3>
+                <h3 style="margin:2px; font-size:14px">রাবার কাঠ সংগ্রহের সাইজ লিস্ট</h3>
             </div>
-            <div class="content-wrapper">
-                <div class="col">
-                    <table><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th><th class="no-print">অ্যাকশন</th></tr>
-                    ${left.map(i => {
-                        let idx = items.indexOf(i);
-                        return `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='size'?i.v1+'"x'+i.thick+'"x'+i.v2+"'":i.v1+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="action-btn edit" onclick="editItem(${idx})">E</button><button class="action-btn delete" onclick="deleteItem(${idx})">D</button></td></tr>`
-                    }).join('')}</table>
-                </div>
-                <div class="col">
-                    <table><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th><th class="no-print">অ্যাকশন</th></tr>
-                    ${right.map(i => {
-                        let idx = items.indexOf(i);
-                        return `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='size'?i.v1+'"x'+i.thick+'"x'+i.v2+"'":i.v1+'"x'+i.v2+"'"}</td><td>${i.cft}</td><td class="no-print"><button class="action-btn edit" onclick="editItem(${idx})">E</button><button class="action-btn delete" onclick="deleteItem(${idx})">D</button></td></tr>`
-                    }).join('')}</table>
-                </div>
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1"><table><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>
+                    ${left.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='size'?i.v1+'"x'+i.thick+'"x'+i.v2+"'":i.v1+'"x'+i.v2+"'"}</td><td>${i.cft}</td></tr>`).join('')}</table></div>
+                <div style="flex:1"><table><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>
+                    ${right.map(i => `<tr><td>${i.tree}/${i.piece}</td><td>${i.type==='size'?i.v1+'"x'+i.thick+'"x'+i.v2+"'":i.v1+'"x'+i.v2+"'"}</td><td>${i.cft}</td></tr>`).join('')}</table></div>
             </div>
-            <div style="position:absolute; bottom:10mm; right:15mm;">পৃষ্ঠা: ${Math.floor(p/perPage)+1}</div>
         </div>`;
     }
     printArea.innerHTML = html;
 }
 
-function backup(){
-    let blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
-    let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'BFIDC_TITANIUM_Backup.json'; a.click();
+function exportExcel(){
+    let ws = XLSX.utils.json_to_sheet(items);
+    let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data");
+    XLSX.writeFile(wb, "BFIDC_Data.xlsx");
 }
 
-function exportExcel(){
-    let wb = XLSX.utils.book_new();
-    let ws = XLSX.utils.json_to_sheet(items);
-    XLSX.utils.book_append_sheet(wb, ws, 'ForestData');
-    XLSX.writeFile(wb, 'BFIDCWOODHISAB_TITANIUM.xlsx');
+function exportWord(){
+    let content = document.getElementById('printArea').innerHTML;
+    let blob = new Blob(['<html><head><meta charset="UTF-8"></head><body>' + content + '</body></html>'], { type: 'application/msword' });
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a'); a.href = url; a.download = 'BFIDC_Report.doc'; a.click();
+}
+
+function backup(){
+    let blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
+    let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'BFIDC_Backup.json'; a.click();
+}
+
+function importData(event) {
+    const reader = new FileReader();
+    reader.onload = (e) => { items = JSON.parse(e.target.result); localStorage.setItem('bfidc_data', JSON.stringify(items)); render(); updatePiece(); alert("Data Uploaded!"); };
+    reader.readAsText(event.target.files[0]);
 }
 </script>
 </body>
