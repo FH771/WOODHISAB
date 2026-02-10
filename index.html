@@ -1,115 +1,93 @@
-<!DOCTYPE html><html lang="bn">
+<!DOCTYPE html>
+<html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<title>BFIDCWOODHISAB v2 Pro Max</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BFIDCWOODHISAB v2 Pro Max Login</title>
 <style>
-:root {
-  --primary:#22c55e;
-  --secondary:#10b981;
-  --danger:#ef4444;
-  --info:#3b82f6;
-  --dark:#020617;
-  --card:#0f172a;
-  --font:'Kalpurush',sans-serif;
-}
+:root{--primary:#22c55e;--secondary:#10b981;--danger:#ef4444;--dark:#020617;--card:#0f172a;--font:'Kalpurush',sans-serif;}
 @font-face{font-family:'Kalpurush'; src:url('https://cdn.jsdelivr.net/gh/at-shovo/bangla-fonts/Kalpurush/Kalpurush.ttf') format('truetype');}
-body{margin:0;font-family:var(--font);background:linear-gradient(135deg,#020617,#0f172a);color:white;-webkit-print-color-adjust:exact;}
-/* Glassmorphic Login */
-#loginLayer{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(2,6,23,0.85); backdrop-filter: blur(10px); z-index:10000;}
-.login-box{background:rgba(15,23,42,0.85); padding:40px; border-radius:20px; width:340px; box-shadow:0 25px 60px rgba(0,0,0,0.6); text-align:center; border:1px solid var(--primary); backdrop-filter: blur(10px);}
-input,select,button{width:100%; padding:12px; margin-top:12px; border-radius:12px; border:none; font-size:16px; box-sizing:border-box; background:rgba(15,23,42,0.7); color:white; border:1px solid #334155;}
-input:focus{outline:2px solid var(--primary); background:rgba(15,23,42,0.9);}
-button{background:var(--primary); color:white; font-weight:bold; cursor:pointer; transition:0.2s;}
+body{margin:0;font-family:var(--font);background:linear-gradient(135deg,#020617,#0f172a);color:white;}
+#loginLayer{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.85);backdrop-filter:blur(10px);z-index:10000;}
+.login-box{background:rgba(15,23,42,0.85);padding:40px;border-radius:20px;width:340px;text-align:center;border:1px solid var(--primary);backdrop-filter:blur(10px);}
+input,button{width:100%;padding:12px;margin-top:12px;border-radius:12px;border:none;font-size:16px;box-sizing:border-box;background:rgba(15,23,42,0.7);color:white;border:1px solid #334155;}
+input:focus{outline:2px solid var(--primary);}
+button{background:var(--primary);cursor:pointer;font-weight:bold;transition:.2s;}
 button:hover{transform:scale(1.05);}
-/* Header */
-header{display:flex; justify-content:space-between; align-items:center; padding:10px 20px; background: rgba(2,6,23,0.85); border-bottom:1px solid var(--primary); backdrop-filter: blur(10px); position:sticky; top:0; z-index:999; border-radius:0 0 15px 15px;}
-.header-logo{height:40px;width:40px;border-radius:10px;border:1px solid var(--primary);}
-.logo{font-size:18px;font-weight:900;color:var(--primary);letter-spacing:1px;}
-.btn-group{display:flex; gap:8px; flex-wrap:wrap;}
-.action-btn{padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;transition:0.2s; border:none; background:#334155; color:white;}
-.action-btn:hover{transform:scale(1.05);}
-/* Dashboard */
-.dashboard{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:15px; padding:15px;}
-.stat{background: rgba(15,23,42,0.75); padding:15px; border-radius:20px; text-align:center; box-shadow:0 8px 20px rgba(0,0,0,0.3); border-top:3px solid var(--primary); transition:0.2s;}
-.stat:hover{transform:scale(1.03);}
-.stat h2{margin:0;color:var(--secondary); font-size:22px;}
-.stat p{margin:2px;font-size:12px; color:#ccc;}
-/* Input Card */
-.card{margin:15px 20px; padding:20px; border-radius:25px; background:rgba(15,23,42,0.85); border:1px solid #334155; box-shadow:0 10px 30px rgba(0,0,0,0.4);}
-.card input, .card select{border-radius:10px; background:rgba(15,23,42,0.7);}
-/* Charts */
-.chart-card{background:rgba(15,23,42,0.85); padding:15px; border-radius:20px; margin:10px 20px; box-shadow:0 8px 25px rgba(0,0,0,0.3);}
-/* Reports */
-.report-page{background:white;color:black;width:210mm;min-height:296mm;margin:20px auto;padding:10mm 15mm;position:relative;page-break-after:always;box-sizing:border-box;}
-.watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:70%;opacity:0.08;z-index:0;pointer-events:none;}
-table{width:100%; border-collapse:collapse; margin-top:10px; font-family: 'Kalpurush', sans-serif;}
-th,td{padding:4px;border:1px solid #000;text-align:center;font-size:12px;}
-th{background:#f2f2f2 !important;}
-.summary-box{margin-top:20px;border:2px solid black;padding:10px;display:flex;justify-content:space-around;font-family: 'Kalpurush', sans-serif;font-weight:bold;font-size:14px;}
-@media print{header,.no-print,.dashboard,.card,#loginLayer{display:none !important;} body{background:white;margin:0;} .report-page{margin:0;border:none;display:block !important;}}
+.toggle{margin-top:10px;color:var(--secondary);cursor:pointer;font-size:14px;}
+.msg{margin-top:10px;font-size:13px;color:var(--danger);}
 </style>
 </head>
 <body>
-<!-- LOGIN -->
+
 <div id="loginLayer">
   <div class="login-box">
     <h2>BFIDCWOODHISAB v2 Pro Max</h2>
-    <input id="email" type="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password" onkeydown="if(event.key==='Enter') handleAuth()">
-    <button onclick="handleAuth()" id="mainBtn">Create Admin</button>
-    <div class="toggle" onclick="toggleMode()" id="toggleText"></div>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password" onkeydown="if(event.key==='Enter') handleAuth()">
+    <button id="mainBtn" onclick="handleAuth()">Register</button>
+    <div class="toggle" id="toggleText" onclick="toggleMode()">Already have account? Login</div>
     <div class="msg" id="msg"></div>
   </div>
-</div><!-- APP AREA --><div id="appArea">
-  <header>
-    <div class="logo-area">
-      <img src="logo.jpg" class="header-logo" alt="L">
-      <div class="logo">BFIDCWOODHISAB</div>
-    </div>
-    <div class="btn-group">
-      <button class="action-btn" onclick="document.getElementById('importFile').click()">Upload</button>
-      <input type="file" id="importFile" style="display:none" onchange="importData(event)">
-      <button class="action-btn" onclick="changePass()">Change</button>
-      <button class="action-btn" onclick="exportExcel()" style="background:var(--secondary)">Excel</button>
-      <button class="action-btn" onclick="exportWord()" style="background:var(--info)">Word</button>
-      <button class="action-btn" onclick="backup()" style="background:var(--primary)">Save</button>
-      <button class="action-btn" onclick="logout()" style="background:var(--danger)">Logout</button>
-    </div>
-  </header>
-  <div class="top-search-container no-print">
-    <input id="searchInput" class="search-input" placeholder="Search Tree No..." oninput="render()">
-  </div>
-  <div class="dashboard no-print">
-    <div class="stat"><h2><span id="treeStat">0</span></h2><p>Trees</p></div>
-    <div class="stat"><h2><span id="pieceStat">0</span></h2><p>Pieces</p></div>
-    <div class="stat"><h2><span id="cftStat">0.00</span></h2><p>Total CFT</p></div>
-  </div>
-  <div class="card no-print">
-    <div class="grid">
-      <div>গাছ নং<input id="treeInput" type="number" value="1" oninput="updatePiece()"></div>
-      <div>টাইপ<select id="typeInput" onchange="toggleInputs()"><option value="log">Round Log</option><option value="size">Sawn Wood</option></select></div>
-      <div>পিস নং<input id="pieceInput" readonly style="opacity:0.6"></div>
-    </div>
-    <div class="grid" style="margin-top:10px">
-      <div id="girthBox">বেড় (ইঞ্চি)<input id="v1Input" type="number" step="any"></div>
-      <div id="thickBox" style="display:none">
-        <div style="display:flex; gap:5px"><div style="flex:1">চওড়া<input id="widthInput" type="number" step="any"></div><div style="flex:1">পুরুত্ব<input id="thickInput" type="number" step="any"></div></div>
-      </div>
-      <div>লম্বা (ফুট)<input id="v2Input" type="number" step="any"></div>
-      <div style="display:flex; align-items:flex-end"><button id="saveBtn" onclick="addItem()" style="height:45px">SAVE (ENTER)</button></div>
-    </div>
-  </div>
-  <div id="chartsContainer" class="no-print">
-    <div class="chart-card"><canvas id="cftChart"></canvas></div>
-    <div class="chart-card"><canvas id="typeChart"></canvas></div>
-  </div>
-  <div id="printArea"></div>
 </div>
+
+<div id="appArea" style="display:none;">
+  <!-- App header and full BFIDCWOODHISAB content goes here -->
+  <h2 style="text-align:center; margin-top:50px;">Welcome to BFIDCWOODHISAB</h2>
+</div>
+
 <script>
-// JS logic: Login, Multi-user, Wood system, render, charts, export, backup (previous code) stays exactly the same
+// Mode: register or login
+let mode = 'register';
+function toggleMode(){
+  if(mode==='register'){
+    mode='login';
+    mainBtn.textContent='Login';
+    toggleText.textContent='No account? Register';
+    msg.textContent='';
+  } else {
+    mode='register';
+    mainBtn.textContent='Register';
+    toggleText.textContent='Already have account? Login';
+    msg.textContent='';
+  }
+}
+
+// Helper: simple hash function (for demo, not crypto-secure)
+function hashPwd(pwd){
+  let hash=0; for(let i=0;i<pwd.length;i++){hash=((hash<<5)-hash)+pwd.charCodeAt(i);hash=hash & hash;} return hash;
+}
+
+function handleAuth(){
+  const email=emailInput.value.trim().toLowerCase();
+  const pwd=passwordInput.value.trim();
+  if(!email || !pwd){msg.textContent='Fill all fields'; return;}
+  if(pwd.length<6){msg.textContent='Password must be 6+ characters'; return;}
+  let users=JSON.parse(localStorage.getItem('bfidc_users')||'[]');
+  if(mode==='register'){
+    if(users.find(u=>u.email===email)){msg.textContent='Email already exists'; return;}
+    users.push({email, pwd:hashPwd(pwd)});
+    localStorage.setItem('bfidc_users', JSON.stringify(users));
+    sessionStorage.setItem('loggedIn', email);
+    showApp();
+  } else { // login
+    let user=users.find(u=>u.email===email && u.pwd===hashPwd(pwd));
+    if(user){sessionStorage.setItem('loggedIn', email); showApp();}
+    else msg.textContent='Wrong email or password';
+  }
+}
+
+function showApp(){
+  loginLayer.style.display='none';
+  appArea.style.display='block';
+  // Here you can init the full BFIDCWOODHISAB app logic
+}
+
+// Auto login if session exists
+window.onload=function(){
+  let logged=sessionStorage.getItem('loggedIn');
+  if(logged){showApp();}
+}
 </script>
 </body>
 </html>
