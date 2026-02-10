@@ -33,7 +33,6 @@
             padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         }
 
-        /* White 3D Buttons */
         .btn-3d {
             background: var(--btn-white); color: #000; border: none;
             padding: 10px 15px; border-radius: 12px; font-weight: 700;
@@ -42,7 +41,7 @@
             display: inline-flex; align-items: center; justify-content: center;
         }
         .btn-3d:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,255,255,0.2); }
-        .btn-danger { background: #ff4d4d; color: white; }
+        .btn-danger { background: #ff4d4d !important; color: white !important; }
 
         input, select {
             width: 100%; padding: 12px; margin-top: 10px; border-radius: 12px;
@@ -75,10 +74,24 @@
     <div class="glass-card" style="width: 310px; text-align: center;">
         <img src="logo.jpg" style="width:75px; border-radius:50%; border: 2px solid white; margin-bottom:10px;">
         <h2 id="authTitle" style="margin:0;">LOGIN</h2>
-        <input type="email" id="emailIn" placeholder="Email Address">
-        <input type="password" id="passIn" placeholder="Password">
-        <button class="btn-3d" style="width:100%; margin-top:20px;" onclick="processAuth()">ENTER SYSTEM</button>
-        <p style="font-size:11px; margin-top:15px; cursor:pointer;" onclick="toggleAuthMode()">New? Create Account</p>
+        
+        <div id="authContent">
+            <input type="email" id="emailIn" placeholder="Email Address">
+            <input type="password" id="passIn" placeholder="Password">
+            <button class="btn-3d" style="width:100%; margin-top:20px;" onclick="processAuth()">ENTER SYSTEM</button>
+            <p style="font-size:11px; margin-top:15px; color:#aaa;">
+                <span onclick="toggleAuthMode()" style="cursor:pointer; color:var(--primary);">Create Account</span> | 
+                <span onclick="showForgot()" style="cursor:pointer; color:#ff4d4d;">Forgot Password?</span>
+            </p>
+        </div>
+
+        <div id="forgotBox" style="display:none;">
+            <p style="font-size:12px;">আপনার ইমেইল দিন, পাসওয়ার্ড নিচে দেখাবে।</p>
+            <input type="email" id="fEmail" placeholder="Registered Email">
+            <div id="passRecovered" style="margin-top:10px; color:gold; font-weight:bold;"></div>
+            <button class="btn-3d" style="width:100%; margin-top:15px;" onclick="recoverPass()">GET PASSWORD</button>
+            <button class="btn-3d btn-danger" style="width:100%; margin-top:10px;" onclick="hideForgot()">BACK</button>
+        </div>
     </div>
 </div>
 
@@ -116,7 +129,7 @@
         </div>
         <div style="display: flex; gap: 10px; margin-top: 8px;">
             <input type="number" id="pieceInput" placeholder="Pc" readonly style="flex:0.6; opacity:0.7">
-            <input type="number" id="v1Input" placeholder="Girth" style="flex:1">
+            <input type="number" id="v1Input" placeholder="Girth/Width" style="flex:1">
             <input type="number" id="thickInput" placeholder="Thick" style="flex:1; display:none">
             <input type="number" id="v2Input" placeholder="Length" style="flex:1">
         </div>
@@ -124,37 +137,36 @@
     </div>
 
     <div class="glass-card">
-        <input type="text" id="gardenName" placeholder="বাগানের নাম লিখুন..." style="text-align:center; border:none; border-bottom:1px solid white; background:none; margin-bottom:15px;">
+        <input type="text" id="gardenName" placeholder="বাগানের নাম..." style="text-align:center; border:none; border-bottom:1px solid white; background:none; margin-bottom:15px;">
         <input type="text" id="searchInput" placeholder="🔍 Search tree..." oninput="render()">
         <table class="data-table"><tbody id="tableBody"></tbody></table>
     </div>
 </div>
 
 <div id="adminArea">
-    <div class="glass-card">
-        <button class="btn-3d" onclick="closeAdmin()">Back</button>
-        <div id="adminContent" style="margin-top:20px;"></div>
-    </div>
+    <div class="glass-card"><button class="btn-3d" onclick="closeAdmin()">Back</button><div id="adminContent"></div></div>
 </div>
 
 <div id="printArea">
     <center>
         <img src="logo.jpg" style="width:55px;">
         <h2 style="margin:0;">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h2>
-        <h3 id="prGardenDisplay" style="margin:5px;"></h3>
-        <p style="font-size:12px;">বিএফআইডিসি, এলপিসি প্রেরণের জন্য কাঠের সাইজ লিস্ট। তারিখ: <span id="prDate"></span></p>
+        <p style="margin:5px; font-size:14px; line-height:1.4;">
+            <span id="prGardenDisplay" style="font-weight:bold;">..........</span> রাবার বাগান হতে বিএফআইডিসি, এলপিসি প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।
+        </p>
+        <p style="margin:0; font-size:12px;">তারিখ: <span id="prDate"></span></p>
     </center>
     <div id="prContent" style="display:flex; justify-content:space-between; gap:10px; margin-top:15px;"></div>
     <div id="prFooter" style="margin-top:15px; font-weight:bold; border-top:1px solid black; padding-top:5px; font-size:12px;"></div>
 </div>
 
 <script>
-let users = JSON.parse(localStorage.getItem('bfidc_final_db') || '[]');
+let users = JSON.parse(localStorage.getItem('bfidc_v9_db') || '[]');
 let currentUser = JSON.parse(sessionStorage.getItem('active_user') || 'null');
 let items = [];
 let editId = null;
 
-// --- KEYBOARD CONTROLS (Enter & Arrows) ---
+// --- CONTROLS ---
 const inputIds = ['treeInput', 'v1Input', 'thickInput', 'v2Input'];
 inputIds.forEach((id, idx) => {
     document.getElementById(id).addEventListener('keydown', (e) => {
@@ -171,6 +183,15 @@ inputIds.forEach((id, idx) => {
 });
 
 function toggleInputs(){ thickInput.style.display = (typeInput.value === 'size') ? 'block' : 'none'; }
+function showForgot(){ authContent.style.display='none'; forgotBox.style.display='block'; }
+function hideForgot(){ authContent.style.display='block'; forgotBox.style.display='none'; }
+
+function recoverPass() {
+    let email = fEmail.value.toLowerCase().trim();
+    let found = users.find(u => u.email === email);
+    if(found) passRecovered.innerText = "Password: " + found.pass;
+    else alert("Email not found!");
+}
 
 function processAuth() {
     let email = emailIn.value.toLowerCase().trim(), pass = passIn.value.trim();
@@ -187,8 +208,9 @@ function processAuth() {
 function toggleAuthMode() {
     let email = emailIn.value.toLowerCase().trim(), pass = passIn.value.trim();
     if(!email || !pass) return alert("Fill fields");
+    if(users.find(u => u.email === email)) return alert("Exists!");
     users.push({ email, pass, data: [] });
-    localStorage.setItem('bfidc_final_db', JSON.stringify(users));
+    localStorage.setItem('bfidc_v9_db', JSON.stringify(users));
     alert("Created!");
 }
 
@@ -203,7 +225,6 @@ function addItem() {
     let t = treeInput.value, v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0, type = typeInput.value;
     if(!t || !v1 || !v2) return;
     let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
-    
     if(editId) {
         items = items.map(i => i.id === editId ? {...i, tree:t, v1, v2, th, type, cft:+cft.toFixed(2)} : i);
         editId = null; saveBtn.innerText = "SAVE DATA";
@@ -236,12 +257,12 @@ function editItem(id) {
 function deleteItem(id) { if(confirm("Delete?")) { items = items.filter(i => i.id !== id); sync(); render(); } }
 function sync() {
     users = users.map(u => u.email === currentUser.email ? {...u, data: items} : u);
-    localStorage.setItem('bfidc_final_db', JSON.stringify(users));
+    localStorage.setItem('bfidc_v9_db', JSON.stringify(users));
 }
 
 function triggerPrint() {
     prDate.innerText = new Date().toLocaleDateString();
-    prGardenDisplay.innerText = (gardenName.value || "..........") + " রাবার বাগান";
+    prGardenDisplay.innerText = gardenName.value || "..........";
     let max = 35; 
     let col1 = items.slice(0, max);
     let col2 = items.slice(max, max*2);
