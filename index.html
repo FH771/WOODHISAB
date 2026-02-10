@@ -1,149 +1,208 @@
-<!DOCTYPE html>
-<html lang="bn">
+<!DOCTYPE html><html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BFIDCWOODHISAB ELITE</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BFIDC WOOD HISAB ELITE</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-:root{--primary:#22c55e;--danger:#ef4444;--dark:#020617;--card:#0f172a;}
-body{margin:0;font-family:sans-serif;background:linear-gradient(135deg,#020617,#0f172a);color:white}
-#loginLayer{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#020617}
-.login-box{background:#0f172a;padding:40px;border-radius:20px;width:340px;text-align:center;border:1px solid var(--primary)}
-input,select,button{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:none;background:#020617;color:white;border:1px solid #334155}
-button{background:var(--primary);font-weight:bold;cursor:pointer}
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><style>
+body{
+margin:0;
+font-family:Poppins;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+}
+
+.container{padding:20px}
+.card{
+background:rgba(255,255,255,0.08);
+padding:20px;
+border-radius:18px;
+backdrop-filter:blur(12px);
+margin-bottom:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.3);
+}
+
+input,select,button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:10px;
+border:none;
+font-size:15px;
+}
+
+button{
+background:#00ffd5;
+font-weight:600;
+cursor:pointer;
+}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:rgba(255,255,255,.12);padding:15px;border-radius:14px;text-align:center}
+
 #appArea{display:none}
-header{display:flex;justify-content:space-between;padding:10px 20px;background:#020617;border-bottom:1px solid var(--primary)}
-.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;padding:15px}
-.stat{background:#0f172a;padding:15px;border-radius:15px;text-align:center}
-.card{margin:15px;padding:20px;background:#0f172a;border-radius:20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
-.admin-panel{margin:15px;padding:15px;border:1px solid var(--primary);border-radius:15px}
-</style>
-</head>
-<body>
-
-<div id="loginLayer">
-<div class="login-box">
-<h2>BFIDCWOODHISAB ELITE</h2>
-<input id="emailInput" placeholder="Email">
-<input id="passwordInput" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')handleAuth()">
-<button onclick="handleAuth()" id="authBtn">Login</button>
-<div id="msg"></div>
-</div>
-</div>
-
-<div id="appArea">
-<header>
-<div><b>BFIDCWOODHISAB ELITE</b></div>
-<div>
-<button onclick="backup()">Backup</button>
-<button onclick="exportExcel()">Excel</button>
-<button onclick="logout()" style="background:var(--danger)">Logout</button>
-</div>
-</header>
-
-<div class="dashboard">
-<div class="stat"><h2 id="treeStat">0</h2><p>Trees</p></div>
-<div class="stat"><h2 id="pieceStat">0</h2><p>Pieces</p></div>
-<div class="stat"><h2 id="cftStat">0</h2><p>CFT</p></div>
-</div>
-
+#adminPanel{display:none}
+.error{color:#ff8080;margin-top:10px}
+</style></head>
+<body><!-- LOGIN --><div id="loginLayer" class="container">
 <div class="card">
-<div class="grid">
-<input id="treeInput" type="number" placeholder="Tree" oninput="updatePiece()">
-<select id="typeInput" onchange="toggleInputs()">
+<h2>BFIDC Login</h2>
+<input id="emailInput" placeholder="Email">
+<input id="passwordInput" type="password" placeholder="Password">
+<button onclick="handleAuth()">LOGIN</button>
+<div id="msg" class="error"></div>
+</div>
+</div><!-- APP --><div id="appArea" class="container"><div class="stats">
+<div class="stat">Trees<br><b id="treeStat">0</b></div>
+<div class="stat">Pieces<br><b id="pieceStat">0</b></div>
+<div class="stat">Total CFT<br><b id="cftStat">0</b></div>
+</div><div class="card">
+<h3>Add Wood</h3>
+<input id="treeInput" type="number" placeholder="Tree No">
+<input id="pieceInput" type="number" placeholder="Piece No" readonly><select id="typeInput" onchange="toggleInputs()">
 <option value="log">Round Log</option>
-<option value="size">Sawn Wood</option>
-</select>
-<input id="pieceInput" readonly placeholder="Piece">
-<input id="v1Input" placeholder="Girth / Width">
-<input id="thickInput" placeholder="Thickness">
-<input id="v2Input" placeholder="Length">
-<button onclick="addItem()">SAVE</button>
-</div>
-</div>
+<option value="sawn">Sawn Wood</option>
+</select><input id="v1Input" type="number" placeholder="Girth / Width">
+<input id="thickInput" type="number" placeholder="Thickness (sawn only)">
+<input id="v2Input" type="number" placeholder="Length"><button onclick="addItem()">SAVE</button>
 
-<div class="admin-panel" id="adminPanel" style="display:none">
-<h3>SUPER ADMIN PANEL</h3>
-<input id="newUserEmail" placeholder="New User Email">
-<input id="newUserPass" placeholder="Password">
-<button onclick="createUser()">Create User</button>
-<button onclick="deleteUsers()" style="background:var(--danger)">Delete All Staff</button>
-</div>
-
+</div><div class="card">
 <canvas id="chart"></canvas>
-<div id="printArea"></div>
-</div>
-
-<script>
-/* USERS + ADMIN */
+</div><div class="card">
+<button onclick="backup()">Backup JSON</button>
+<button onclick="exportExcel()">Export Excel</button>
+<button onclick="logout()">Logout</button>
+</div><!-- ADMIN --><div id="adminPanel" class="card">
+<h3>Admin Panel</h3>
+<input id="newUserEmail" placeholder="Staff Email">
+<input id="newUserPass" placeholder="Staff Password">
+<button onclick="createUser()">Create Staff</button>
+<button onclick="deleteUsers()">Delete All Staff</button>
+</div></div><script>
+/* SAFE ADMIN AUTO CREATE */
 function hash(p){let h=0;for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h&=h;}return h}
 
+function ensureAdmin(){
 let users=JSON.parse(localStorage.getItem('users')||'[]');
-if(!users.find(u=>u.email==='lpcfahad7@gmail.com')){
-users.push({email:'lpcfahad7@gmail.com',pass:hash('547087'),role:'admin'});
-localStorage.setItem('users',JSON.stringify(users));}
 
-function handleAuth(){
-let e=emailInput.value.toLowerCase();
-let p=hash(passwordInput.value);
-let u=users.find(x=>x.email===e&&x.pass===p);
-if(!u){msg.innerText='Wrong login';return}
+// remove broken admins
+users=users.filter(u=>u.email!=="lpcfahad7@gmail.com");
 
-sessionStorage.setItem('user',JSON.stringify(u));
-loginLayer.style.display='none';
-appArea.style.display='block';
+users.push({
+email:'lpcfahad7@gmail.com',
+pass:hash('547087'),
+role:'admin'
+});
 
-if(u.role==='admin') adminPanel.style.display='block';
-
-render();drawChart();}
-
-function createUser(){
-let e=newUserEmail.value.toLowerCase();
-let p=hash(newUserPass.value);
-users.push({email:e,pass:p,role:'staff'});
 localStorage.setItem('users',JSON.stringify(users));
-alert('Staff created');}
+}
+ensureAdmin();
+
+/* LOGIN SYSTEM */
+function handleAuth(){
+let users=JSON.parse(localStorage.getItem('users')||'[]');
+
+const email=document.getElementById('emailInput').value.trim().toLowerCase();
+const password=hash(document.getElementById('passwordInput').value.trim());
+
+let user=users.find(u=>u.email===email && u.pass===password);
+
+if(!user){
+document.getElementById('msg').innerText='Wrong email or password';
+return;
+}
+
+sessionStorage.setItem('user',JSON.stringify(user));
+startApp(user);
+}
+
+function startApp(user){
+document.getElementById('loginLayer').style.display='none';
+document.getElementById('appArea').style.display='block';
+
+if(user.role==='admin')
+document.getElementById('adminPanel').style.display='block';
+
+render();
+drawChart();
+}
+
+window.onload=()=>{
+ensureAdmin();
+let user=sessionStorage.getItem('user');
+if(user) startApp(JSON.parse(user));
+}
+
+function logout(){
+sessionStorage.clear();
+location.reload();
+}
+
+/* USER CONTROL */
+function createUser(){
+let users=JSON.parse(localStorage.getItem('users')||'[]');
+let e=document.getElementById('newUserEmail').value.toLowerCase();
+let p=document.getElementById('newUserPass').value;
+
+if(!e||!p){alert('Enter email & password');return}
+
+if(users.find(u=>u.email===e)){
+alert('User exists');
+return;
+}
+
+users.push({email:e,pass:hash(p),role:'staff'});
+localStorage.setItem('users',JSON.stringify(users));
+alert('Staff Created');
+}
 
 function deleteUsers(){
+let users=JSON.parse(localStorage.getItem('users')||'[]');
 users=users.filter(u=>u.role==='admin');
 localStorage.setItem('users',JSON.stringify(users));
-alert('All staff deleted');}
-
-function logout(){sessionStorage.clear();location.reload()}
-
-window.onload=()=>{if(sessionStorage.getItem('user')){loginLayer.style.display='none';appArea.style.display='block';let u=JSON.parse(sessionStorage.getItem('user'));if(u.role==='admin')adminPanel.style.display='block';render();drawChart();}}
+alert('All Staff Deleted');
+}
 
 /* DATA SYSTEM */
 let items=JSON.parse(localStorage.getItem('data')||'[]');
 
-function toggleInputs(){thickInput.style.display=typeInput.value==='log'?'none':'block'}
+function toggleInputs(){
+document.getElementById('thickInput').style.display=
+(typeInput.value==='log')?'none':'block';
+}
 
-function updatePiece(){pieceInput.value=items.filter(i=>i.tree==treeInput.value).length+1}
+function updatePiece(){
+let t=treeInput.value;
+pieceInput.value=items.filter(i=>i.tree==t).length+1;
+}
+
+treeInput?.addEventListener('input',updatePiece);
 
 function addItem(){
-let t=+treeInput.value;
-let v1=+v1Input.value;
-let v2=+v2Input.value;
+let tree=+treeInput.value;
+let g=+v1Input.value;
+let len=+v2Input.value;
 let th=+thickInput.value||0;
-if(!t||!v1||!v2)return;
 
-let cft=typeInput.value==='log'?((v1/4)**2*v2)/144:(v1*th*v2)/144;
+if(!tree||!g||!len)return;
 
-items.push({tree:t,piece:updatePiece(),cft:+cft.toFixed(2),type:typeInput.value});
+let cft= typeInput.value==='log'
+? ((g/4)**2*len)/144
+: (g*th*len)/144;
+
+items.push({tree,piece:pieceInput.value,cft:+cft.toFixed(2),type:typeInput.value});
+
 localStorage.setItem('data',JSON.stringify(items));
-render();drawChart();}
+
+render();
+drawChart();
+updatePiece();
+}
 
 function render(){
-let trees=new Set(items.map(i=>i.tree)).size;
-let pieces=items.length;
-let cft=items.reduce((s,i)=>s+i.cft,0).toFixed(2);
-
-treeStat.innerText=trees;
-pieceStat.innerText=pieces;
-cftStat.innerText=cft;
+treeStat.innerText=new Set(items.map(i=>i.tree)).size;
+pieceStat.innerText=items.length;
+cftStat.innerText=items.reduce((s,i)=>s+i.cft,0).toFixed(2);
 }
 
 /* CHART */
@@ -152,25 +211,28 @@ function drawChart(){
 let map={};
 items.forEach(i=>map[i.tree]=(map[i.tree]||0)+i.cft);
 
-if(chart)chart.destroy();
+if(chart) chart.destroy();
+
 chart=new Chart(document.getElementById('chart'),{
 type:'bar',
 data:{labels:Object.keys(map),datasets:[{label:'CFT per Tree',data:Object.values(map)}]}
-});}
+});
+}
 
-/* BACKUP CLOUD STYLE (FILE EXPORT) */
+/* BACKUP */
 function backup(){
 let blob=new Blob([JSON.stringify(items)],{type:'application/json'});
 let a=document.createElement('a');
 a.href=URL.createObjectURL(blob);
-a.download='BFIDC_ELITE_BACKUP.json';
-a.click();}
+a.download='BFIDC_BACKUP.json';
+a.click();
+}
 
 function exportExcel(){
 let ws=XLSX.utils.json_to_sheet(items);
 let wb=XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb,ws,'Data');
-XLSX.writeFile(wb,'BFIDC_ELITE.xlsx');}
-</script>
-</body>
+XLSX.writeFile(wb,'BFIDC.xlsx');
+}
+</script></body>
 </html>
