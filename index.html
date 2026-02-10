@@ -8,7 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-        
         :root { --primary: #00ffd5; --glass: rgba(255, 255, 255, 0.1); }
         
         body { 
@@ -17,11 +16,11 @@
             color: white; overflow-x: hidden; position: relative;
         }
 
-        /* Background Watermark */
+        /* Watermark Background */
         body::before {
             content: ""; position: fixed; inset: 0;
             background: url('logo.jpg') no-repeat center center;
-            background-size: 60%; opacity: 0.1; z-index: -1;
+            background-size: 50%; opacity: 0.08; z-index: -1;
         }
 
         .glass-card {
@@ -30,16 +29,15 @@
             padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
 
-        /* Login & Auth UI */
         #authLayer { 
             position:fixed; inset:0; display:flex; align-items:center; justify-content:center; 
-            background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); z-index: 10000;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); z-index: 10000;
         }
 
         #appArea, #adminArea { display:none; padding: 15px; max-width: 950px; margin: auto; }
         
         header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--primary); margin-bottom: 15px; }
-        .app-logo { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; }
+        .app-logo { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--primary); }
 
         input, select {
             width: 100%; padding: 12px; margin-top: 10px; border-radius: 12px;
@@ -64,7 +62,6 @@
         .data-table th { color: var(--primary); text-align: left; padding: 10px; border-bottom: 1px solid var(--primary); }
         .data-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 13px; }
 
-        #printArea { display: none; }
         @media print {
             body::before { display: none; }
             #appArea, #authLayer { display: none !important; }
@@ -79,13 +76,11 @@
 <div id="authLayer">
     <div class="glass-card" style="width: 320px; text-align: center;">
         <img src="logo.jpg" style="width:70px; border-radius:50%; margin-bottom:10px;">
-        <h2 id="authTitle" style="color: var(--primary); margin-top:0;">LOGIN</h2>
-        <div id="loginFields">
-            <input type="email" id="emailIn" placeholder="Enter Email">
-            <input type="password" id="passIn" placeholder="Enter Password">
-            <button class="btn btn-main" onclick="processAuth()">ENTER SYSTEM</button>
-            <p style="font-size:12px; margin-top:15px; cursor:pointer;" onclick="toggleAuthMode()">New here? Create Account</p>
-        </div>
+        <h2 id="authTitle" style="color: var(--primary);">LOGIN</h2>
+        <input type="email" id="emailIn" placeholder="Enter Email">
+        <input type="password" id="passIn" placeholder="Enter Password">
+        <button class="btn btn-main" onclick="processAuth()">ENTER SYSTEM</button>
+        <p id="toggleText" style="font-size:12px; margin-top:15px; cursor:pointer; color:var(--primary);" onclick="toggleAuthMode()">New here? Create Account</p>
     </div>
 </div>
 
@@ -96,7 +91,7 @@
             <div style="font-size:18px; font-weight:900; color:var(--primary);">WOODHISAB</div>
         </div>
         <div style="display:flex; gap:5px;">
-            <button id="adminBtn" class="btn" style="background:gold; color:black; display:none;" onclick="showAdmin()">Admin</button>
+            <button id="adminBtn" class="btn" style="background:gold; color:black; display:none;" onclick="showAdmin()">Admin Panel</button>
             <button class="btn btn-danger" onclick="logout()">Logout</button>
         </div>
     </header>
@@ -139,7 +134,7 @@
             <h3 style="margin:0; color:var(--primary);">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h3>
             <p style="font-size:12px;">
                 <input type="text" id="gardenName" class="garden-input" placeholder="বাগানের নাম"> 
-                রাবার বাগান হতে কর্তনকৃত কাঠের সাইজ লিস্ট।
+                রাবার বাগান হতে বিএফআইডিসি, এলপিসি প্রেরণের জন্য কাঠের সাইজ লিস্ট।
             </p>
         </div>
         <input type="text" id="searchInput" placeholder="🔍 Search tree no..." oninput="render()" style="margin-bottom:15px; border-color: var(--primary);">
@@ -154,57 +149,58 @@
 
 <div id="adminArea">
     <div class="glass-card">
-        <div style="display:flex; justify-content:space-between;">
-            <h2 style="color:gold;">ADMIN PANEL</h2>
-            <button class="btn" onclick="closeAdmin()" style="background:white; color:black;">Back</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 style="color:gold; margin:0;">ADMIN: ALL USERS DATA</h2>
+            <button class="btn" onclick="closeAdmin()" style="background:white; color:black;">Back to App</button>
         </div>
-        <div id="allUsersData"></div>
-    </div>
-</div>
-
-<div id="printArea">
-    <center>
-        <img src="logo.jpg" style="width:60px;">
-        <h2>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h2>
-        <h4 id="prGarden"></h4>
-        <p>বিএফআইডিসি, এলপিসি প্রেরণের জন্য কাঠের সাইজ লিস্ট। তারিখ: <span id="prDate"></span></p>
-    </center>
-    <div id="prContent" style="display:flex; justify-content:space-between; gap:10px;"></div>
-    <div style="margin-top:20px; border-top:1px solid black; padding-top:10px; font-weight:bold;">
-        Total Tree: <span id="prTree"></span> | Total Piece: <span id="prPiece"></span> | Total CFT: <span id="prCft"></span>
+        <div id="adminContent"></div>
     </div>
 </div>
 
 <script>
-let users = JSON.parse(localStorage.getItem('bfidc_users') || '[]');
-let currentUser = JSON.parse(sessionStorage.getItem('active_user') || 'null');
+let users = JSON.parse(localStorage.getItem('bfidc_db_v2') || '[]');
+let currentUser = JSON.parse(sessionStorage.getItem('active_session') || 'null');
 let items = [];
 let isSignUp = false;
 let editId = null;
 
-// --- Auth System ---
 function toggleAuthMode() {
     isSignUp = !isSignUp;
-    document.getElementById('authTitle').innerText = isSignUp ? "CREATE ACCOUNT" : "LOGIN";
+    authTitle.innerText = isSignUp ? "CREATE ACCOUNT" : "LOGIN";
+    toggleText.innerText = isSignUp ? "Already have account? Login" : "New here? Create Account";
 }
 
 function processAuth() {
-    let email = emailIn.value.toLowerCase(), pass = passIn.value;
-    if(!email || !pass) return alert("Fill all fields");
+    let email = emailIn.value.toLowerCase().trim(), pass = passIn.value.trim();
+    if(!email || !pass) return alert("Please enter both email and password!");
+
+    // Special Admin Bypass for Fahad Bro
+    if(email === "lpcfahad7@gmail.com" && pass === "547087") {
+        let adminUser = users.find(u => u.email === email);
+        if(!adminUser) {
+            adminUser = { email, pass, data: [] };
+            users.push(adminUser);
+            localStorage.setItem('bfidc_db_v2', JSON.stringify(users));
+        }
+        currentUser = adminUser;
+        sessionStorage.setItem('active_session', JSON.stringify(currentUser));
+        initApp();
+        return;
+    }
 
     if(isSignUp) {
         if(users.find(u => u.email === email)) return alert("User already exists!");
         users.push({ email, pass, data: [] });
-        localStorage.setItem('bfidc_users', JSON.stringify(users));
-        alert("Account Created! Please Login.");
+        localStorage.setItem('bfidc_db_v2', JSON.stringify(users));
+        alert("Account created successfully! Now Login.");
         toggleAuthMode();
     } else {
-        let user = users.find(u => u.email === email && u.pass === pass);
-        if(user) {
-            currentUser = user;
-            sessionStorage.setItem('active_user', JSON.stringify(user));
+        let found = users.find(u => u.email === email && u.pass === pass);
+        if(found) {
+            currentUser = found;
+            sessionStorage.setItem('active_session', JSON.stringify(currentUser));
             initApp();
-        } else alert("Wrong Credentials!");
+        } else alert("Wrong Credentials! Please try again.");
     }
 }
 
@@ -216,94 +212,58 @@ function initApp() {
     render();
 }
 
-function logout() { sessionStorage.clear(); location.reload(); }
+function sync() {
+    users = users.map(u => u.email === currentUser.email ? {...u, data: items} : u);
+    localStorage.setItem('bfidc_db_v2', JSON.stringify(users));
+}
 
-// --- App Functions ---
-function toggleInputs(){ thickInput.style.display = (typeInput.value === 'size') ? 'block' : 'none'; }
-function updatePiece(){ pieceInput.value = items.filter(i => i.tree == treeInput.value).length + 1; }
-
-function addItem(){
+function addItem() {
     let t = treeInput.value, v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0, type = typeInput.value;
     if(!t || !v1 || !v2) return;
     let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
-    
     if(editId) {
         items = items.map(i => i.id === editId ? {...i, tree:t, v1, v2, th, type, cft:+cft.toFixed(2)} : i);
         editId = null; saveBtn.innerText = "SAVE DATA (ENTER)";
     } else {
         items.push({ id: Date.now(), tree:t, piece: pieceInput.value, v1, v2, th, type, cft: +cft.toFixed(2) });
     }
-    syncData();
-    v1Input.value = v2Input.value = thickInput.value = "";
-    render(); updatePiece(); v1Input.focus();
+    sync(); render(); updatePiece(); v1Input.value = v2Input.value = thickInput.value = ""; v1Input.focus();
 }
 
-function syncData() {
-    users = users.map(u => u.email === currentUser.email ? {...u, data: items} : u);
-    localStorage.setItem('bfidc_users', JSON.stringify(users));
-}
-
-function clearAllData() {
-    if(confirm("Are you sure? All measurements will be deleted!")) {
-        items = [];
-        syncData();
-        render();
-        updatePiece();
-    }
-}
-
-function render(){
+function render() {
     let kw = searchInput.value.toLowerCase();
     let filtered = items.filter(i => i.tree.toString().includes(kw));
     tableBody.innerHTML = filtered.slice().reverse().map(i => `
-        <tr>
-            <td>${i.tree}/${i.piece}</td>
-            <td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td>
-            <td>${i.cft}</td>
-            <td>
-                <button onclick="editItem(${i.id})" style="background:orange; border:none; border-radius:4px; padding:3px;">Edit</button>
-                <button onclick="deleteItem(${i.id})" style="background:red; color:white; border:none; border-radius:4px; padding:3px;">Del</button>
-            </td>
-        </tr>`).join('');
-    
+        <tr><td>${i.tree}/${i.piece}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td>
+        <td><button onclick="editItem(${i.id})" style="background:orange;border:none;padding:3px;border-radius:4px;">Edit</button>
+        <button onclick="deleteItem(${i.id})" style="background:red;color:white;border:none;padding:3px;border-radius:4px;">Del</button></td></tr>
+    `).join('');
     treeStat.innerText = new Set(items.map(i => i.tree)).size;
     pieceStat.innerText = items.length;
     cftStat.innerText = items.reduce((s,i) => s + i.cft, 0).toFixed(2);
 }
 
-// --- Admin Logic ---
 function showAdmin() {
-    appArea.style.display = 'none';
-    adminArea.style.display = 'block';
-    allUsersData.innerHTML = users.map(u => `
-        <div class="glass-card" style="margin-bottom:10px;">
+    appArea.style.display = 'none'; adminArea.style.display = 'block';
+    adminContent.innerHTML = users.map(u => `
+        <div class="glass-card">
             <b>User: ${u.email}</b><br>
-            <small>Total Entries: ${u.data.length} | Total CFT: ${u.data.reduce((s,i)=>s+i.cft,0).toFixed(2)}</small>
+            <small>Total Entry: ${u.data.length} | Total CFT: ${u.data.reduce((s,i)=>s+i.cft,0).toFixed(2)}</small>
         </div>
     `).join('');
 }
 function closeAdmin() { adminArea.style.display = 'none'; appArea.style.display = 'block'; }
-
-// --- Standard Features ---
-function editItem(id) { 
-    let i = items.find(x => x.id === id); 
-    treeInput.value = i.tree; v1Input.value = i.v1; v2Input.value = i.v2; thickInput.value = i.th; typeInput.value = i.type; 
-    toggleInputs(); editId = id; saveBtn.innerText = "UPDATE DATA";
-}
-function deleteItem(id) { if(confirm('Delete?')) { items = items.filter(i => i.id !== id); syncData(); render(); } }
+function clearAllData() { if(confirm("Delete everything?")) { items = []; sync(); render(); updatePiece(); } }
+function logout() { sessionStorage.clear(); location.reload(); }
+function toggleInputs(){ thickInput.style.display = (typeInput.value === 'size') ? 'block' : 'none'; }
+function updatePiece(){ pieceInput.value = items.filter(i => i.tree == treeInput.value).length + 1; }
+function editItem(id) { let i = items.find(x => x.id === id); treeInput.value = i.tree; v1Input.value = i.v1; v2Input.value = i.v2; thickInput.value = i.th; typeInput.value = i.type; toggleInputs(); editId = id; saveBtn.innerText = "UPDATE DATA"; }
+function deleteItem(id) { if(confirm('Delete?')) { items = items.filter(i => i.id !== id); sync(); render(); } }
 function saveToFile() { const blob = new Blob([JSON.stringify(items)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Backup.json`; a.click(); }
-function openFromFile(event) { const r = new FileReader(); r.onload = (e) => { items = JSON.parse(e.target.result); syncData(); render(); }; r.readAsText(event.target.files[0]); }
+function openFromFile(event) { const r = new FileReader(); r.onload = (e) => { items = JSON.parse(e.target.result); sync(); render(); }; r.readAsText(event.target.files[0]); }
 function exportExcel() { const ws = XLSX.utils.json_to_sheet(items); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data"); XLSX.writeFile(wb, "Wood_Report.xlsx"); }
-function exportPDF() { preparePrint(); const el = document.getElementById('printArea'); el.style.display = 'block'; html2pdf().from(el).save().then(()=>el.style.display='none'); }
-function triggerPrint() { preparePrint(); window.print(); }
-function preparePrint() {
-    prDate.innerText = new Date().toLocaleDateString();
-    prGarden.innerText = gardenName.value || "................";
-    let mid = Math.ceil(items.length / 2);
-    const tbl = (d) => `<table class="print-table"><tr><th>Tree/Pc</th><th>Size</th><th>CFT</th></tr>${d.map(i=>`<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table>`;
-    prContent.innerHTML = `<div style="width:49%">${tbl(items.slice(0,mid))}</div><div style="width:49%">${tbl(items.slice(mid))}</div>`;
-    prTree.innerText = treeStat.innerText; prPiece.innerText = pieceStat.innerText; prCft.innerText = cftStat.innerText;
-}
+function exportPDF() { window.print(); }
+function triggerPrint() { window.print(); }
 window.onload = () => { if(currentUser) initApp(); };
 </script>
 </body>
