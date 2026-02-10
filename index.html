@@ -43,18 +43,24 @@
         .btn { padding: 10px 15px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 11px; text-transform: uppercase; }
         .btn-main { background: linear-gradient(45deg, #00ffd5, #008cff); color: #000; width: 100%; margin-top: 15px; font-size: 14px;}
         
-        /* Control Groups */
+        /* Buttons */
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
         .btn-save-file { background: #8e44ad; color: white; }
         .btn-open-file { background: #2980b9; color: white; }
-        .btn-excel { background: #217346; color: white; }
-        .btn-pdf { background: #e74c3c; color: white; }
 
         .stat-box { background: var(--glass); padding: 12px; border-radius: 15px; text-align: center; border-bottom: 3px solid var(--primary); }
         .stat-box b { font-size: 20px; color: var(--primary); }
 
-        .btn-edit { background: #ffcc00; color: #000; padding: 4px 8px; border-radius: 5px; }
-        .btn-del { background: #ff4d4d; color: #fff; padding: 4px 8px; border-radius: 5px; margin-left: 3px; }
+        /* Official Header Style inside Glass */
+        .official-header-glass {
+            text-align: center; margin-bottom: 20px; padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 255, 213, 0.3);
+        }
+        .official-header-glass h3 { margin: 0; color: var(--primary); font-size: 18px; }
+        .official-header-glass p { margin: 5px 0; font-size: 13px; opacity: 0.9; line-height: 1.4; }
+
+        .btn-edit { background: #ffcc00; color: #000; padding: 4px 8px; border-radius: 5px; cursor:pointer; }
+        .btn-del { background: #ff4d4d; color: #fff; padding: 4px 8px; border-radius: 5px; margin-left: 3px; cursor:pointer; }
 
         .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .data-table th { color: var(--primary); text-align: left; padding: 10px; border-bottom: 1px solid var(--primary); }
@@ -65,7 +71,9 @@
         @media print {
             body { background: white !important; color: black !important; }
             #appArea, #loginLayer { display: none !important; }
-            #printArea { display: block !important; }
+            #printArea { display: block !important; padding: 10mm; }
+            .print-table { width: 100%; border-collapse: collapse; }
+            .print-table th, .print-table td { border: 1px solid black; padding: 5px; text-align: center; font-size: 12px; color: black; }
         }
     </style>
 </head>
@@ -87,11 +95,11 @@
     </header>
 
     <div class="btn-group">
-        <button class="btn btn-save-file" onclick="saveToFile()">Save File (.json)</button>
+        <button class="btn btn-save-file" onclick="saveToFile()">Save Backup</button>
         <button class="btn btn-open-file" onclick="document.getElementById('fileInput').click()">Open File</button>
         <input type="file" id="fileInput" style="display:none" onchange="openFromFile(event)">
-        <button class="btn btn-excel" onclick="exportExcel()">Excel</button>
-        <button class="btn btn-pdf" onclick="exportPDF()">PDF</button>
+        <button class="btn" onclick="exportExcel()" style="background:#217346; color:white">Excel</button>
+        <button class="btn" onclick="exportPDF()" style="background:#e74c3c; color:white">PDF</button>
         <button class="btn" onclick="triggerPrint()" style="background:white; color:black">Print</button>
     </div>
 
@@ -119,11 +127,17 @@
     </div>
 
     <div class="glass-card">
-        <input type="text" id="searchInput" placeholder="🔍 Search by Tree Number or Size..." oninput="render()" style="margin-bottom:10px; border-color: var(--primary);">
+        <div class="official-header-glass">
+            <h3>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h3>
+            <p>....................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</p>
+        </div>
+        
+        <input type="text" id="searchInput" placeholder="🔍 Search tree number..." oninput="render()" style="margin-bottom:15px; border-color: var(--primary);">
+        
         <div style="overflow-x: auto;">
             <table class="data-table">
                 <thead>
-                    <tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th>Action</th></tr>
+                    <tr><th>Tree/Pc</th><th>Measurement</th><th>CFT</th><th>Action</th></tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
             </table>
@@ -131,23 +145,27 @@
     </div>
 </div>
 
-<div id="printArea" style="color:black; padding: 20px; font-family: 'Kalpurush', sans-serif;">
-    <center>
-        <h2>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, রউিজান রাবার বাগান</h2>
-        <p>কর্তনকৃত রাবার কাঠের সাইজ লিস্ট</p>
-    </center>
-    <div id="pContent" style="display:flex; justify-content: space-between;"></div>
+<div id="printArea" style="color:black; font-family: 'Arial', sans-serif;">
+    <div style="text-align: center;">
+        <h2 style="margin:0;">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h2>
+        <p style="margin:5px 0; font-size:14px;">....................... রাবার বাগান হতে বিএফআইডিসি, এলপিসি প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।</p>
+        <p>তারিখ: <span id="pDate"></span></p>
+    </div>
+    <div id="pContent" style="display:flex; justify-content: space-between; gap:10px; margin-top:15px;"></div>
+    <div style="margin-top:20px; font-weight:bold; border-top:1px solid black; padding-top:10px;">
+        মোট গাছ: <span id="pTreeSum"></span> | মোট পিস: <span id="pPieceSum"></span> | মোট সিএফটি: <span id="pCftSum"></span>
+    </div>
 </div>
 
 <script>
-let items = JSON.parse(localStorage.getItem('bfidc_f_bro_data') || '[]');
+let items = JSON.parse(localStorage.getItem('bfidc_fahad_vfinal') || '[]');
 let editId = null;
 
 function handleLogin(){
     if(emailInput.value === "lpcfahad7@gmail.com" && passInput.value === "547087"){
-        sessionStorage.setItem('f_auth', 'ok');
+        sessionStorage.setItem('f_login', 'true');
         init();
-    } else alert("Wrong Password!");
+    } else alert("Access Denied!");
 }
 
 function init(){
@@ -156,7 +174,7 @@ function init(){
     render(); updatePiece();
 }
 
-window.onload = () => { if(sessionStorage.getItem('f_auth')) init(); };
+window.onload = () => { if(sessionStorage.getItem('f_login')) init(); };
 
 function toggleInputs(){ thickInput.style.display = (typeInput.value === 'size') ? 'block' : 'none'; }
 function updatePiece(){ pieceInput.value = items.filter(i => i.tree == treeInput.value).length + 1; }
@@ -172,7 +190,7 @@ function addItem(){
     } else {
         items.push({ id: Date.now(), tree:t, piece: pieceInput.value, v1, v2, th, type, cft: +cft.toFixed(2) });
     }
-    localStorage.setItem('bfidc_f_bro_data', JSON.stringify(items));
+    localStorage.setItem('bfidc_fahad_vfinal', JSON.stringify(items));
     v1Input.value = v2Input.value = thickInput.value = "";
     render(); updatePiece(); v1Input.focus();
 }
@@ -186,12 +204,11 @@ function editItem(id){
 function deleteItem(id){
     if(confirm('Delete?')){
         items = items.filter(i => i.id !== id);
-        localStorage.setItem('bfidc_f_bro_data', JSON.stringify(items));
+        localStorage.setItem('bfidc_fahad_vfinal', JSON.stringify(items));
         render();
     }
 }
 
-// --- NEW FILE SYSTEM ---
 function saveToFile() {
     const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
     const a = document.createElement('a');
@@ -204,21 +221,15 @@ function openFromFile(event) {
     const reader = new FileReader();
     reader.onload = (e) => {
         items = JSON.parse(e.target.result);
-        localStorage.setItem('bfidc_f_bro_data', JSON.stringify(items));
-        render();
-        alert("File Loaded Successfully!");
+        localStorage.setItem('bfidc_fahad_vfinal', JSON.stringify(items));
+        render(); alert("File Opened!");
     };
     reader.readAsText(event.target.files[0]);
 }
 
-// --- SEARCH & RENDER ---
 function render(){
     let kw = searchInput.value.toLowerCase();
-    let filtered = items.filter(i => 
-        i.tree.toString().includes(kw) || 
-        (i.v1 + "x" + i.v2).includes(kw)
-    );
-    
+    let filtered = items.filter(i => i.tree.toString().includes(kw));
     tableBody.innerHTML = filtered.slice().reverse().map(i => `
         <tr>
             <td>${i.tree}/${i.piece}</td>
@@ -236,31 +247,19 @@ function render(){
     cftStat.innerText = items.reduce((s,i) => s + i.cft, 0).toFixed(2);
 }
 
-// --- EXPORTS ---
-function exportExcel() {
-    const ws = XLSX.utils.json_to_sheet(items);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Data");
-    XLSX.writeFile(wb, "BFIDC_Data.xlsx");
-}
-
-function exportPDF() {
-    prepareReport();
-    const element = document.getElementById('printArea');
-    element.style.display = 'block';
-    html2pdf().from(element).save().then(()=> element.style.display='none');
-}
-
-function prepareReport() {
+function preparePrint() {
+    pDate.innerText = new Date().toLocaleDateString();
     let mid = Math.ceil(items.length / 2);
-    const tbl = (data) => `<table border="1" style="width:100%; border-collapse:collapse; margin-bottom:10px;">
-        <tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>
-        ${data.map(i=>`<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}
-    </table>`;
+    const tbl = (data) => `<table class="print-table"><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>${data.map(i=>`<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table>`;
     document.getElementById('pContent').innerHTML = `<div style="width:48%">${tbl(items.slice(0,mid))}</div><div style="width:48%">${tbl(items.slice(mid))}</div>`;
+    document.getElementById('pTreeSum').innerText = treeStat.innerText;
+    document.getElementById('pPieceSum').innerText = pieceStat.innerText;
+    document.getElementById('pCftSum').innerText = cftStat.innerText;
 }
 
-function triggerPrint() { prepareReport(); window.print(); }
+function triggerPrint() { preparePrint(); window.print(); }
+function exportExcel() { const ws = XLSX.utils.json_to_sheet(items); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data"); XLSX.writeFile(wb, "BFIDC_Data.xlsx"); }
+function exportPDF() { preparePrint(); const element = document.getElementById('printArea'); element.style.display = 'block'; html2pdf().from(element).save().then(()=>element.style.display='none'); }
 function logout(){ sessionStorage.clear(); location.reload(); }
 </script>
 </body>
