@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDCWOODHISAB</title>
+    <title>BFIDCWOODHISAB - FAHAD BRO</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         
@@ -12,178 +13,166 @@
         
         body { 
             margin:0; font-family: 'Poppins', sans-serif; 
-            min-height: 100vh; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            min-height: 100vh; background: linear-gradient(135deg, #051923, #003554, #006494);
             color: white; overflow-x: hidden;
         }
 
-        /* LOGIN LAYER */
-        #loginLayer { 
-            position:fixed; inset:0; display:flex; align-items:center; justify-content:center; 
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 10000;
-        }
+        /* 3D Glassy UI */
         .glass-card {
             background: var(--glass); backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px;
-            padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px;
+            padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
 
-        /* APP LAYOUT */
-        #appArea { display:none; padding: 15px; max-width: 900px; margin: auto; }
+        #loginLayer { 
+            position:fixed; inset:0; display:flex; align-items:center; justify-content:center; 
+            background: rgba(0,0,0,0.92); backdrop-filter: blur(20px); z-index: 10000;
+        }
+
+        #appArea { display:none; padding: 15px; max-width: 950px; margin: auto; }
         
-        header { 
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;
-        }
-        .logo { font-size: 22px; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--primary); margin-bottom: 15px; }
+        .logo { font-size: 22px; font-weight: 900; color: var(--primary); text-shadow: 0 0 10px var(--primary); }
 
-        .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: var(--glass); padding: 15px; border-radius: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .stat-box b { display: block; font-size: 20px; color: var(--primary); }
-
-        /* INPUTS */
         input, select {
             width: 100%; padding: 12px; margin-top: 10px; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3);
-            color: #fff; outline: none; box-sizing: border-box;
+            border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.4);
+            color: #fff; outline: none; box-sizing: border-box; font-size: 14px;
         }
-        .btn {
-            padding: 12px 20px; border-radius: 12px; border: none; font-weight: 700;
-            cursor: pointer; transition: 0.3s; text-transform: uppercase;
-        }
-        .btn-main { background: linear-gradient(45deg, #00ffd5, #008cff); color: #000; width: 100%; margin-top: 15px; }
-        .btn-edit { background: #f1c40f; color: #000; padding: 4px 8px; font-size: 11px; border-radius: 5px; }
-        .btn-del { background: #ff4d4d; color: #fff; padding: 4px 8px; font-size: 11px; border-radius: 5px; margin-left: 5px; }
 
-        /* TABLE */
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .data-table th { text-align: left; color: var(--primary); padding: 12px; border-bottom: 1px solid var(--primary); }
-        .data-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+        .btn { padding: 10px 15px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 11px; text-transform: uppercase; }
+        .btn-main { background: linear-gradient(45deg, #00ffd5, #008cff); color: #000; width: 100%; margin-top: 15px; font-size: 14px;}
+        
+        /* Control Groups */
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
+        .btn-save-file { background: #8e44ad; color: white; }
+        .btn-open-file { background: #2980b9; color: white; }
+        .btn-excel { background: #217346; color: white; }
+        .btn-pdf { background: #e74c3c; color: white; }
 
-        /* PRINT STYLE */
+        .stat-box { background: var(--glass); padding: 12px; border-radius: 15px; text-align: center; border-bottom: 3px solid var(--primary); }
+        .stat-box b { font-size: 20px; color: var(--primary); }
+
+        .btn-edit { background: #ffcc00; color: #000; padding: 4px 8px; border-radius: 5px; }
+        .btn-del { background: #ff4d4d; color: #fff; padding: 4px 8px; border-radius: 5px; margin-left: 3px; }
+
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .data-table th { color: var(--primary); text-align: left; padding: 10px; border-bottom: 1px solid var(--primary); }
+        .data-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 13px; }
+
+        /* Print Area */
         #printArea { display: none; }
         @media print {
             body { background: white !important; color: black !important; }
             #appArea, #loginLayer { display: none !important; }
-            #printArea { display: block !important; padding: 20px; }
-            .print-header { text-align: center; margin-bottom: 15px; }
-            .two-column { display: flex; gap: 20px; }
-            .col { width: 50%; }
-            table { width: 100%; border-collapse: collapse; font-size: 12px; }
-            th, td { border: 1px solid black; padding: 4px; text-align: center; }
-            .watermark { position: fixed; top: 35%; left: 25%; font-size: 80px; opacity: 0.05; transform: rotate(-35deg); }
+            #printArea { display: block !important; }
         }
     </style>
 </head>
 <body>
 
 <div id="loginLayer">
-    <div class="glass-card" style="width: 320px; text-align: center;">
+    <div class="glass-card" style="width: 300px; text-align: center;">
         <h2 style="color: var(--primary);">BFIDC LOGIN</h2>
-        <input type="email" id="emailInput" placeholder="Email (lpcfahad7@gmail.com)">
-        <input type="password" id="passInput" placeholder="Password (547087)">
-        <button class="btn btn-main" onclick="handleLogin()">ACCESS SYSTEM</button>
+        <input type="email" id="emailInput" placeholder="Email">
+        <input type="password" id="passInput" placeholder="Password">
+        <button class="btn btn-main" onclick="handleLogin()">LOGIN</button>
     </div>
 </div>
 
 <div id="appArea">
     <header>
         <div class="logo">BFIDCWOODHISAB</div>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn" onclick="triggerPrint()" style="background: #fff; color: #000; padding: 8px 15px; font-size: 12px;">PRINT</button>
-            <button class="btn" onclick="logout()" style="background: #ff4d4d; color: #fff; padding: 8px 15px; font-size: 12px;">LOGOUT</button>
-        </div>
+        <button class="btn" onclick="logout()" style="background:#ff4d4d; color:#fff;">LOGOUT</button>
     </header>
 
-    <div class="dashboard">
-        <div class="stat-box"><small>TREES</small><b id="treeStat">0</b></div>
-        <div class="stat-box"><small>PIECES</small><b id="pieceStat">0</b></div>
-        <div class="stat-box"><small>TOTAL CFT</small><b id="cftStat">0.00</b></div>
+    <div class="btn-group">
+        <button class="btn btn-save-file" onclick="saveToFile()">Save File (.json)</button>
+        <button class="btn btn-open-file" onclick="document.getElementById('fileInput').click()">Open File</button>
+        <input type="file" id="fileInput" style="display:none" onchange="openFromFile(event)">
+        <button class="btn btn-excel" onclick="exportExcel()">Excel</button>
+        <button class="btn btn-pdf" onclick="exportPDF()">PDF</button>
+        <button class="btn" onclick="triggerPrint()" style="background:white; color:black">Print</button>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:20px;">
+        <div class="stat-box"><small>TREES</small><br><b id="treeStat">0</b></div>
+        <div class="stat-box"><small>PIECES</small><br><b id="pieceStat">0</b></div>
+        <div class="stat-box"><small>TOTAL CFT</small><br><b id="cftStat">0.00</b></div>
     </div>
 
     <div class="glass-card">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <select id="typeInput" onchange="toggleInputs()">
+        <div style="display: flex; gap: 10px;">
+            <select id="typeInput" onchange="toggleInputs()" style="flex:1.5">
                 <option value="log">Round Log (গোল)</option>
                 <option value="size">Sawn Wood (সাইজ)</option>
             </select>
-            <input type="number" id="treeInput" placeholder="Tree No" oninput="updatePiece()">
+            <input type="number" id="treeInput" placeholder="Tree No" oninput="updatePiece()" style="flex:1">
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px;">
-            <input type="number" id="pieceInput" placeholder="Pc No" readonly style="opacity: 0.6;">
-            <input type="number" id="v1Input" placeholder="Girth/Width">
-            <input type="number" id="thickInput" placeholder="Thick" style="display: none;">
-            <input type="number" id="v2Input" placeholder="Length">
+        <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <input type="number" id="pieceInput" placeholder="Pc" readonly style="flex:0.6; opacity:0.7">
+            <input type="number" id="v1Input" placeholder="Girth/Width" style="flex:1">
+            <input type="number" id="thickInput" placeholder="Thick" style="flex:1; display:none">
+            <input type="number" id="v2Input" placeholder="Length" style="flex:1">
         </div>
         <button class="btn btn-main" id="saveBtn" onclick="addItem()">SAVE DATA (ENTER)</button>
     </div>
 
-    <div class="glass-card" style="overflow-x: auto;">
-        <input type="text" id="searchInput" placeholder="Search Tree Number..." oninput="render()" style="margin-bottom: 15px; background: rgba(0,0,0,0.5);">
-        <table class="data-table">
-            <thead>
-                <tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th>Action</th></tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
+    <div class="glass-card">
+        <input type="text" id="searchInput" placeholder="🔍 Search by Tree Number or Size..." oninput="render()" style="margin-bottom:10px; border-color: var(--primary);">
+        <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Tree/Pc</th><th>Size</th><th>CFT</th><th>Action</th></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<div id="printArea">
-    <div class="watermark">BFIDC</div>
-    <div class="print-header">
-        <h2 style="margin:0;">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন (BFIDC)</h2>
-        <p style="margin:5px 0;">প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের লিস্ট।</p>
-        <p>তারিখ: <span id="pDate"></span> | মোট সিএফটি: <b id="pTotal">0.00</b></p>
-    </div>
-    <div class="two-column" id="pBody"></div>
+<div id="printArea" style="color:black; padding: 20px; font-family: 'Kalpurush', sans-serif;">
+    <center>
+        <h2>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন, রউিজান রাবার বাগান</h2>
+        <p>কর্তনকৃত রাবার কাঠের সাইজ লিস্ট</p>
+    </center>
+    <div id="pContent" style="display:flex; justify-content: space-between;"></div>
 </div>
 
 <script>
-let items = JSON.parse(localStorage.getItem('bfidc_data') || '[]');
+let items = JSON.parse(localStorage.getItem('bfidc_f_bro_data') || '[]');
 let editId = null;
 
-// Login Logic
 function handleLogin(){
     if(emailInput.value === "lpcfahad7@gmail.com" && passInput.value === "547087"){
-        sessionStorage.setItem('isLoggedIn', 'true');
-        loginLayer.style.display = 'none';
-        appArea.style.display = 'block';
-        render(); updatePiece();
-    } else alert('Wrong Credentials!');
+        sessionStorage.setItem('f_auth', 'ok');
+        init();
+    } else alert("Wrong Password!");
 }
 
-window.onload = () => {
-    if(sessionStorage.getItem('isLoggedIn') === 'true') {
-        loginLayer.style.display = 'none';
-        appArea.style.display = 'block';
-        render(); updatePiece();
-    }
+function init(){
+    loginLayer.style.display = 'none';
+    appArea.style.display = 'block';
+    render(); updatePiece();
 }
 
-// UI Logic
-function toggleInputs(){
-    thickInput.style.display = (typeInput.value === 'size') ? 'block' : 'none';
-}
+window.onload = () => { if(sessionStorage.getItem('f_auth')) init(); };
 
-function updatePiece(){ 
-    pieceInput.value = items.filter(i => i.tree == treeInput.value && i.type === typeInput.value).length + 1; 
-}
+function toggleInputs(){ thickInput.style.display = (typeInput.value === 'size') ? 'block' : 'none'; }
+function updatePiece(){ pieceInput.value = items.filter(i => i.tree == treeInput.value).length + 1; }
 
-// Add/Edit Logic
 function addItem(){
-    let tree = treeInput.value, v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0, type = typeInput.value;
-    if(!tree || !v1 || !v2) return;
-
+    let t = treeInput.value, v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0, type = typeInput.value;
+    if(!t || !v1 || !v2) return;
     let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
     
     if(editId){
-        items = items.map(i => i.id === editId ? {...i, tree, v1, v2, th, type, cft: +cft.toFixed(2)} : i);
+        items = items.map(i => i.id === editId ? {...i, tree:t, v1, v2, th, type, cft:+cft.toFixed(2)} : i);
         editId = null; saveBtn.innerText = "SAVE DATA (ENTER)";
     } else {
-        items.push({ id: Date.now(), tree, piece: pieceInput.value, v1, v2, th, type, cft: +cft.toFixed(2) });
+        items.push({ id: Date.now(), tree:t, piece: pieceInput.value, v1, v2, th, type, cft: +cft.toFixed(2) });
     }
-    
-    localStorage.setItem('bfidc_data', JSON.stringify(items));
+    localStorage.setItem('bfidc_f_bro_data', JSON.stringify(items));
     v1Input.value = v2Input.value = thickInput.value = "";
     render(); updatePiece(); v1Input.focus();
 }
@@ -192,31 +181,48 @@ function editItem(id){
     let i = items.find(x => x.id === id);
     treeInput.value = i.tree; v1Input.value = i.v1; v2Input.value = i.v2; thickInput.value = i.th; typeInput.value = i.type;
     toggleInputs(); editId = id; saveBtn.innerText = "UPDATE DATA";
-    window.scrollTo(0,0);
 }
 
 function deleteItem(id){
-    if(confirm('Delete this record?')){
+    if(confirm('Delete?')){
         items = items.filter(i => i.id !== id);
-        localStorage.setItem('bfidc_data', JSON.stringify(items));
+        localStorage.setItem('bfidc_f_bro_data', JSON.stringify(items));
         render();
     }
 }
 
-// Keyboard Nav
-document.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter' && document.activeElement.id === 'v2Input') addItem();
-});
+// --- NEW FILE SYSTEM ---
+function saveToFile() {
+    const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `BFIDC_Backup_${new Date().toLocaleDateString()}.json`;
+    a.click();
+}
 
-// Render & Stats
+function openFromFile(event) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        items = JSON.parse(e.target.result);
+        localStorage.setItem('bfidc_f_bro_data', JSON.stringify(items));
+        render();
+        alert("File Loaded Successfully!");
+    };
+    reader.readAsText(event.target.files[0]);
+}
+
+// --- SEARCH & RENDER ---
 function render(){
     let kw = searchInput.value.toLowerCase();
-    let filtered = items.filter(i => i.tree.toString().includes(kw));
+    let filtered = items.filter(i => 
+        i.tree.toString().includes(kw) || 
+        (i.v1 + "x" + i.v2).includes(kw)
+    );
     
     tableBody.innerHTML = filtered.slice().reverse().map(i => `
         <tr>
             <td>${i.tree}/${i.piece}</td>
-            <td>${i.v1}${i.th?'x'+i.th:''}'x${i.v2}"</td>
+            <td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td>
             <td>${i.cft}</td>
             <td>
                 <button class="btn-edit" onclick="editItem(${i.id})">Edit</button>
@@ -224,21 +230,37 @@ function render(){
             </td>
         </tr>
     `).join('');
-
+    
     treeStat.innerText = new Set(items.map(i => i.tree)).size;
     pieceStat.innerText = items.length;
     cftStat.innerText = items.reduce((s,i) => s + i.cft, 0).toFixed(2);
 }
 
-function triggerPrint() {
-    pDate.innerText = new Date().toLocaleDateString();
-    pTotal.innerText = cftStat.innerText;
-    let mid = Math.ceil(items.length / 2);
-    const tbl = (data) => `<table><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>${data.map(i=>`<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table>`;
-    pBody.innerHTML = `<div class="col">${tbl(items.slice(0,mid))}</div><div class="col">${tbl(items.slice(mid))}</div>`;
-    window.print();
+// --- EXPORTS ---
+function exportExcel() {
+    const ws = XLSX.utils.json_to_sheet(items);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Data");
+    XLSX.writeFile(wb, "BFIDC_Data.xlsx");
 }
 
+function exportPDF() {
+    prepareReport();
+    const element = document.getElementById('printArea');
+    element.style.display = 'block';
+    html2pdf().from(element).save().then(()=> element.style.display='none');
+}
+
+function prepareReport() {
+    let mid = Math.ceil(items.length / 2);
+    const tbl = (data) => `<table border="1" style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+        <tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>
+        ${data.map(i=>`<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}
+    </table>`;
+    document.getElementById('pContent').innerHTML = `<div style="width:48%">${tbl(items.slice(0,mid))}</div><div style="width:48%">${tbl(items.slice(mid))}</div>`;
+}
+
+function triggerPrint() { prepareReport(); window.print(); }
 function logout(){ sessionStorage.clear(); location.reload(); }
 </script>
 </body>
