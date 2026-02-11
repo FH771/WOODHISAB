@@ -123,3 +123,187 @@
         </div>
         <button class="btn-web btn-primary" id="saveBtn" style="width:100%; margin-top:15px;" onclick="addItem()">SAVE DATA</button>
     </div>
+    <div class="glass-card">
+        <input type="text" id="gardenName" placeholder="বাগানের নাম..." style="text-align:center; border:none; border-bottom:1px solid white; background:none; margin-bottom:15px;">
+        <input type="text" id="searchInput" placeholder="🔍 Search tree..." oninput="render()">
+        <table class="data-table"><tbody id="tableBody"></tbody></table>
+    </div>
+</div>
+
+<div id="adminArea">
+    <div class="glass-card">
+        <button class="btn-web btn-danger" onclick="closeAdmin()">Back</button>
+        <div id="adminContent" style="margin-top:15px;"></div>
+    </div>
+</div>
+
+<div id="printArea">
+    <center>
+        <img src="logo.jpg" style="width:55px;">
+        <h2 style="margin:0;">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h2>
+        <p style="margin:5px; font-size:13px; line-height:1.4; color:black;">
+            <span id="prGardenDisplay" style="font-weight:bold;">..........</span> রাবার বাগান হতে বিএফআইডিসি, এলপিসি প্রেরণের জন্য কর্তনকৃত জীবনচক্র হারানো রাবার কাঠের সাইজ লিস্ট।
+        </p>
+        <p style="margin:0; font-size:11px;">তারিখ: <span id="prDate"></span></p>
+    </center>
+    <div id="prContent" style="display:flex; justify-content:space-between; gap:10px; margin-top:10px;"></div>
+    <div id="prFooter" style="margin-top:10px; font-weight:bold; border-top:1px solid black; padding-top:5px; font-size:11px; color:black;"></div>
+</div>
+
+<script>
+let users = JSON.parse(localStorage.getItem('bfidc_v14_db') || '[]');
+let currentUser = JSON.parse(sessionStorage.getItem('active_user') || 'null');
+let items = [];
+let editId = null;
+
+// --- SMART KEYBOARD & PIECE UPDATE (Fahad Bro Special) ---
+const inputIds = ['treeInput', 'v1Input', 'thickInput', 'v2Input'];
+inputIds.forEach((id, idx) => {
+    document.getElementById(id).addEventListener('keydown', (e) => {
+        const isLog = typeInput.value === 'log';
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (id === 'v2Input') addItem();
+            else {
+                let next = (id === 'v1Input' && isLog) ? 'v2Input' : inputIds[idx + 1];
+                document.getElementById(next).focus();
+                document.getElementById(next).select();
+            }
+        }
+        if (e.key === 'ArrowRight') {
+            let next = (id === 'v1Input' && isLog) ? 'v2Input' : inputIds[idx + 1];
+            if(next) { document.getElementById(next).focus(); document.getElementById(next).select(); }
+        }
+        if (e.key === 'ArrowLeft') {
+            let prev = (id === 'v2Input' && isLog) ? 'v1Input' : inputIds[idx - 1];
+            if(prev) { document.getElementById(prev).focus(); document.getElementById(prev).select(); }
+        }
+    });
+});
+
+function updatePiece() {
+    let tNo = treeInput.value;
+    if(!tNo) { pieceInput.value = ""; return; }
+    let count = items.filter(i => i.tree == tNo).length;
+    pieceInput.value = count + 1;
+}
+
+function toggleInputs(){ thickInput.style.display = (typeInput.value === 'size') ? 'block' : 'none'; }
+
+function addItem() {
+    let t = treeInput.value, v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0, type = typeInput.value;
+    if(!t || !v1 || !v2) return;
+    let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
+    if(editId) {
+        items = items.map(i => i.id === editId ? {...i, tree:t, v1, v2, th, type, cft:+cft.toFixed(2)} : i);
+        editId = null; saveBtn.innerText = "SAVE DATA";
+    } else {
+        items.push({ id: Date.now(), tree:t, piece: +pieceInput.value, v1, v2, th, type, cft: +cft.toFixed(2) });
+    }
+    sync(); render(); v1Input.value = v2Input.value = thickInput.value = ""; treeInput.focus(); treeInput.select(); updatePiece();
+}
+
+// --- BACKUP & FILES ---
+function openBackupModal() { backupModal.style.display = 'flex'; backupFileName.value = "Wood_Backup_" + new Date().toLocaleDateString(); backupFileName.focus(); }
+function closeBackupModal() { backupModal.style.display = 'none'; }
+function confirmBackup() {
+    let name = backupFileName.value.trim() || "Wood_Backup";
+    const blob = new Blob([JSON.stringify(items)], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name + ".json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    closeBackupModal();
+}
+
+function openFromFile(event) {
+    const r = new FileReader();
+    r.onload = (e) => { items = JSON.parse(e.target.result); sync(); render(); updatePiece(); };
+    r.readAsText(event.target.files[0]);
+}
+
+function render() {
+    let kw = searchInput.value.toLowerCase();
+    tableBody.innerHTML = items.filter(i => i.tree.includes(kw)).slice().reverse().map(i => `
+        <tr><td>${i.tree}/${i.piece}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td>
+        <td>
+            <button onclick="editItem(${i.id})" style="background:orange;border:none;border-radius:4px;padding:3px;font-size:10px;cursor:pointer;">Edit</button>
+            <button onclick="deleteItem(${i.id})" style="background:red;color:white;border:none;border-radius:4px;padding:3px;font-size:10px;cursor:pointer;">Del</button>
+        </td></tr>
+    `).join('');
+    treeStat.innerText = new Set(items.map(i => i.tree)).size;
+    pieceStat.innerText = items.length;
+    cftStat.innerText = items.reduce((s,i) => s + i.cft, 0).toFixed(2);
+}
+
+function sync() {
+    users = users.map(u => u.email === currentUser.email ? {...u, data: items} : u);
+    localStorage.setItem('bfidc_v14_db', JSON.stringify(users));
+}
+
+function triggerPrint() {
+    prDate.innerText = new Date().toLocaleDateString();
+    prGardenDisplay.innerText = gardenName.value || "..........";
+    let max = 35; 
+    let col1 = items.slice(0, max);
+    let col2 = items.slice(max, max*2);
+    const tbl = (d) => d.length ? `<table class="print-table"><tr><th>গাছ/পিস</th><th>মাপ</th><th>CFT</th></tr>${d.map(i=>`<tr><td>${i.tree}/${i.piece}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td></tr>`).join('')}</table>` : '';
+    prContent.innerHTML = `<div style="width:48%">${tbl(col1)}</div><div style="width:48%">${tbl(col2)}</div>`;
+    prFooter.innerHTML = `Total Tree: ${treeStat.innerText} | Pieces: ${pieceStat.innerText} | Total CFT: ${cftStat.innerText}`;
+    window.print();
+}
+
+function exportExcel() {
+    const ws = XLSX.utils.json_to_sheet(items);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "WoodReport");
+    XLSX.writeFile(wb, "WoodHisab.xlsx");
+}
+
+function processAuth() {
+    let email = emailIn.value.toLowerCase().trim(), pass = passIn.value.trim();
+    if(email === "lpcfahad7@gmail.com" && pass === "547087") {
+        currentUser = { email, pass, data: [] };
+        sessionStorage.setItem('active_user', JSON.stringify(currentUser));
+        initApp(); return;
+    }
+    let found = users.find(u => u.email === email && u.pass === pass);
+    if(found) { currentUser = found; sessionStorage.setItem('active_user', JSON.stringify(found)); initApp(); }
+    else alert("ভুল লগইন!");
+}
+
+function showForgot(){ authContent.style.display='none'; forgotBox.style.display='block'; }
+function hideForgot(){ authContent.style.display='block'; forgotBox.style.display='none'; }
+function recoverPass() {
+    let email = fEmail.value.toLowerCase().trim();
+    let found = users.find(u => u.email === email);
+    if(found) passRecovered.innerText = "পাসওয়ার্ড: " + found.pass;
+    else alert("ইমেইল পাওয়া যায়নি!");
+}
+function toggleAuthMode() {
+    let email = emailIn.value.toLowerCase().trim(), pass = passIn.value.trim();
+    if(!email || !pass) return alert("সব ঘর পূরণ করুন");
+    users.push({ email, pass, data: [] });
+    localStorage.setItem('bfidc_v14_db', JSON.stringify(users));
+    alert("অ্যাকাউন্ট তৈরি হয়েছে!");
+}
+function initApp() {
+    authLayer.style.display = 'none'; appArea.style.display = 'block';
+    items = currentUser.data || [];
+    if(currentUser.email === "lpcfahad7@gmail.com") adminBtn.style.display = 'block';
+    render();
+}
+function deleteItem(id) { if(confirm("মুছবেন?")) { items = items.filter(i => i.id !== id); sync(); render(); updatePiece(); } }
+function editItem(id) {
+    let i = items.find(x => x.id === id);
+    treeInput.value = i.tree; pieceInput.value = i.piece; v1Input.value = i.v1; v2Input.value = i.v2; thickInput.value = i.th; typeInput.value = i.type;
+    toggleInputs(); editId = id; saveBtn.innerText = "UPDATE DATA";
+}
+function showAdmin() { appArea.style.display='none'; adminArea.style.display='block'; adminContent.innerHTML = users.map(u => `<div class="glass-card" style="font-size:12px; margin-bottom:5px;">${u.email} - ${u.data.length} Pcs</div>`).join(''); }
+function closeAdmin() { adminArea.style.display='none'; appArea.style.display='block'; }
+function logout() { sessionStorage.clear(); location.reload(); }
+function clearAllData() { if(confirm("সব ডাটা মুছে যাবে!")) { items = []; sync(); render(); updatePiece(); } }
+window.onload = () => { if(currentUser) initApp(); };
+</script>
+</body>
+</html>
