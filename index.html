@@ -27,21 +27,19 @@
         #authLayer { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: #00121d; z-index: 10000; }
         #appArea { display:none; padding: 15px; max-width: 900px; margin: auto; }
         .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .data-table th { background: rgba(255,255,255,0.1); padding: 10px; font-size: 11px; text-align: left; }
         .data-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
+        #backupModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:11000; align-items:center; justify-content:center; }
         
-        /* Print Styles */
         @media print {
-            @page { size: portrait; margin: 1cm; }
-            #bgLogo, #appArea, #authLayer, .glass-card button { display: none !important; }
-            #printArea { display: block !important; color: black !important; background: white !important; padding: 0; }
-            .print-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            .print-table th, .print-table td { border: 1px solid black !important; padding: 6px; text-align: center; font-size: 12px; color: black !important; }
-            .print-header { text-align: center; margin-bottom: 15px; }
-            .print-header h2 { margin: 0; font-size: 18px; }
+            #bgLogo, #appArea, #authLayer { display: none !important; }
+            #printArea { display: block !important; color: black !important; }
+            .print-table { width: 100%; border-collapse: collapse; border: 1px solid black !important; }
+            .print-table th, .print-table td { border: 1px solid black !important; padding: 4px; text-align: center; font-size: 10px; color: black !important; }
         }
         #printArea { display: none; }
-    </style><body>
+    </style>
+</head>
+<body>
 <div id="bgLogo"></div>
 <div id="authLayer">
     <div class="glass-card" style="width: 310px; text-align: center;">
@@ -53,12 +51,26 @@
     </div>
 </div>
 
+<div id="backupModal">
+    <div class="glass-card" style="width:280px; text-align:center;">
+        <h3>SAVE BACKUP</h3>
+        <input type="text" id="backupFileName" placeholder="File name...">
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-web btn-primary" style="flex:1" onclick="confirmBackup()">Save</button>
+            <button class="btn-web btn-danger" style="flex:1" onclick="closeBackupModal()">X</button>
+        </div>
+    </div>
+</div>
+
 <div id="appArea">
-    <header id="mainHeader" style="text-align:center; margin-bottom:15px; display:none;">
+    <header id="mainHeader" style="text-align:center; margin-bottom:15px; display:block;">
         <h3 style="margin:0; color:var(--primary); font-size: 16px;">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h3>
     </header>
     
     <div class="glass-card" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+        <button class="btn-web btn-white" onclick="openBackupModal()">Backup</button>
+        <button class="btn-web btn-white" onclick="document.getElementById('fileInput').click()">Open</button>
+        <input type="file" id="fileInput" style="display:none" onchange="openFromFile(event)">
         <button class="btn-web btn-white" onclick="exportExcel()">Excel</button>
         <button class="btn-web btn-white" onclick="triggerPrint()">Print</button>
         <button class="btn-web btn-danger" onclick="clearAllData()">Clear All</button>
@@ -96,19 +108,16 @@
 
     <div class="glass-card">
         <input type="text" id="gardenName" placeholder="বাগানের নাম..." style="text-align:center; border:none; border-bottom:1px solid white; background:none; margin-bottom:15px; color: var(--primary);">
-        <table class="data-table">
-            <thead><tr><th>ID/PC</th><th>Measurement</th><th>CFT</th><th>Action</th></tr></thead>
-            <tbody id="tableBody"></tbody>
-        </table>
+        <table class="data-table"><tbody id="tableBody"></tbody></table>
     </div>
 </div>
-
 <div id="printArea"></div>
 
 <script>
-let items = JSON.parse(localStorage.getItem('fahad_final_v5') || '[]');
+let items = JSON.parse(localStorage.getItem('fahad_final_fixed') || '[]');
 let currentUser = JSON.parse(sessionStorage.getItem('active_user') || 'null');
 
+// Arrow Key Navigation
 document.addEventListener('keydown', e => {
     const inputs = Array.from(document.querySelectorAll('.nav-input:not([style*="display: none"]):not([readonly])'));
     const idx = inputs.indexOf(document.activeElement);
@@ -121,7 +130,7 @@ function processAuth() {
     if(emailIn.value === "lpcfahad7@gmail.com" && passIn.value === "547087") {
         currentUser = { email: emailIn.value }; sessionStorage.setItem('active_user', JSON.stringify(currentUser));
         initApp();
-    } else alert("Failed!");
+    } else alert("Error!");
 }
 
 function initApp() { authLayer.style.display = 'none'; appArea.style.display = 'block'; toggleInputs(); render(); }
@@ -133,7 +142,6 @@ function toggleInputs(){
     kominkContainer.style.display = isSize ? 'block' : 'none';
     pcContainer.style.display = isSize ? 'none' : 'block';
     mainHeader.style.display = isSize ? 'none' : 'block';
-    slLabel.innerText = isSize ? "TOTAL SL" : "TOTAL TREE";
     if(isSize) kominkInput.value = items.filter(i => i.type === 'size').length + 1;
     render();
 }
@@ -151,17 +159,16 @@ function addItem() {
     if(!tree || !v1 || !v2) return;
     let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
     items.push({ id: Date.now(), tree, pc, v1, v2, th, type, cft: +cft.toFixed(2) });
-    localStorage.setItem('fahad_final_v5', JSON.stringify(items));
+    localStorage.setItem('fahad_final_fixed', JSON.stringify(items));
     v1Input.value = v2Input.value = thickInput.value = "";
-    if(type === 'log') { treeInput.focus(); updatePiece(); } 
-    else { kominkInput.value = items.filter(i => i.type === 'size').length + 1; v1Input.focus(); }
+    if(type === 'log') { treeInput.focus(); updatePiece(); } else { v1Input.focus(); toggleInputs(); }
     render();
 }
 
 function render() {
-    const currentType = typeInput.value, filtered = items.filter(i => i.type === currentType);
+    const type = typeInput.value, filtered = items.filter(i => i.type === type);
     tableBody.innerHTML = filtered.slice().reverse().map(i => `
-        <tr><td>${i.type==='log' ? i.tree+'/'+i.pc : 'SL:'+i.tree}</td>
+        <tr><td>${i.type==='log'?i.tree+'/'+i.pc:'SL:'+i.tree}</td>
         <td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td>
         <td><button onclick="deleteItem(${i.id})" style="color:red; background:none; border:none;">X</button></td></tr>
     `).join('');
@@ -170,31 +177,33 @@ function render() {
     cftStat.innerText = filtered.reduce((s,i) => s + i.cft, 0).toFixed(2);
 }
 
+function deleteItem(id) { if(confirm("Delete?")) { items = items.filter(i => i.id !== id); localStorage.setItem('fahad_final_fixed', JSON.stringify(items)); render(); } }
+function clearAllData() { if(confirm("Clear?")) { items = []; localStorage.setItem('fahad_final_fixed', JSON.stringify(items)); render(); } }
+function openBackupModal() { backupModal.style.display = 'flex'; }
+function closeBackupModal() { backupModal.style.display = 'none'; }
+function confirmBackup() {
+    let blob = new Blob([JSON.stringify(items)], {type: "application/json"});
+    let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup.json"; a.click();
+    closeBackupModal();
+}
+function openFromFile(e) {
+    let r = new FileReader(); r.onload = (ev) => { items = JSON.parse(ev.target.result); render(); };
+    r.readAsText(e.target.files[0]);
+}
 function triggerPrint() {
-    const type = typeInput.value, filtered = items.filter(i => i.type === type);
-    let html = `<div class="print-header">`;
-    if(type === 'log') html += `<h2>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h2><p>গোল কাঠের পরিমাপ তালিকা</p>`;
-    else html += `<h2>সাইজ কাঠের পরিমাপ তালিকা</h2>`;
-    html += `<p>বাগানের নাম: ${gardenName.value || 'N/A'}</p></div>`;
-    html += `<table class="print-table"><thead><tr><th>SL/Tree</th><th>Measurement</th><th>CFT</th></tr></thead><tbody>`;
-    filtered.forEach(i => {
-        html += `<tr><td>${i.type==='log' ? i.tree+'/'+i.pc : i.tree}</td><td>${i.v1}${i.th?'x'+i.th:''}" x ${i.v2}'</td><td>${i.cft}</td></tr>`;
+    let html = `<div style="text-align:center;"><h2>${typeInput.value==='log'?'বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন':'সাইজ কাঠের তালিকা'}</h2><p>বাগান: ${gardenName.value}</p></div><table class="print-table"><tr><th>SL</th><th>Size</th><th>CFT</th></tr>`;
+    items.filter(i => i.type === typeInput.value).forEach(i => {
+        html += `<tr><td>${i.type==='log'?i.tree+'/'+i.pc:i.tree}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td></tr>`;
     });
-    html += `<tr><td colspan="2"><b>Total</b></td><td><b>${cftStat.innerText}</b></td></tr></tbody></table>`;
+    html += `<tr><td colspan="2">Total</td><td>${cftStat.innerText}</td></tr></table>`;
     printArea.innerHTML = html; window.print();
 }
-
-function deleteItem(id) { if(confirm("Delete?")) { items = items.filter(i => i.id !== id); localStorage.setItem('fahad_final_v5', JSON.stringify(items)); render(); } }
-function clearAllData() { if(confirm("Clear All?")) { items = []; localStorage.setItem('fahad_final_v5', JSON.stringify(items)); render(); } }
 function exportExcel() {
     let ws = XLSX.utils.json_to_sheet(items.filter(i => i.type === typeInput.value));
-    let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "WoodData");
-    XLSX.writeFile(wb, (gardenName.value || "Data") + ".xlsx");
+    let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data");
+    XLSX.writeFile(wb, "Data.xlsx");
 }
-function logout() { sessionStorage.clear(); location.reload(); }
 if(currentUser) initApp();
 </script>
 </body>
 </html>
-
-</head>
