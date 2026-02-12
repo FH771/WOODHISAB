@@ -14,17 +14,8 @@
             --btn-danger-grad: linear-gradient(145deg, #ff4d4d, #b30000);
             --btn-white-grad: linear-gradient(145deg, #ffffff, #d1d1d1);
         }
-        body { 
-            margin:0; font-family: 'Poppins', sans-serif; min-height: 100vh; 
-            background: #00121d; color: white; overflow-x: hidden; position: relative;
-        }
-        #bgLogo {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 320px; height: 320px;
-            background-image: url('https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Bangladesh_Forest_Industries_Development_Corporation_logo.png/220px-Bangladesh_Forest_Industries_Development_Corporation_logo.png');
-            background-repeat: no-repeat; background-position: center; background-size: contain;
-            opacity: 0.12; z-index: -1; pointer-events: none;
-        }
+        body { margin:0; font-family: 'Poppins', sans-serif; min-height: 100vh; background: #00121d; color: white; overflow-x: hidden; position: relative; }
+        #bgLogo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; height: 320px; background-image: url('https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Bangladesh_Forest_Industries_Development_Corporation_logo.png/220px-Bangladesh_Forest_Industries_Development_Corporation_logo.png'); background-repeat: no-repeat; background-position: center; background-size: contain; opacity: 0.12; z-index: -1; pointer-events: none; }
         .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px; padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
         .btn-web { padding: 12px 18px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; transition: all 0.3s ease; font-size: 11px; text-transform: uppercase; display: inline-flex; align-items: center; justify-content: center; }
         .btn-primary { background: var(--btn-grad); color: #00121d; }
@@ -38,17 +29,19 @@
         .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .data-table th { background: rgba(255,255,255,0.1); padding: 10px; font-size: 11px; text-align: left; }
         .data-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
-        #backupModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:11000; align-items:center; justify-content:center; }
+        
+        /* Print Styles */
         @media print {
-            #bgLogo, #appArea, #authLayer { display: none !important; }
-            #printArea { display: block !important; color: black !important; }
-            .print-table { width: 100%; border-collapse: collapse; border: 1px solid black !important; }
-            .print-table th, .print-table td { border: 1px solid black !important; padding: 4px; text-align: center; font-size: 10px; color: black !important; }
+            @page { size: portrait; margin: 1cm; }
+            #bgLogo, #appArea, #authLayer, .glass-card button { display: none !important; }
+            #printArea { display: block !important; color: black !important; background: white !important; padding: 0; }
+            .print-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            .print-table th, .print-table td { border: 1px solid black !important; padding: 6px; text-align: center; font-size: 12px; color: black !important; }
+            .print-header { text-align: center; margin-bottom: 15px; }
+            .print-header h2 { margin: 0; font-size: 18px; }
         }
         #printArea { display: none; }
-    </style>
-</head>
-<body>
+    </style><body>
 <div id="bgLogo"></div>
 <div id="authLayer">
     <div class="glass-card" style="width: 310px; text-align: center;">
@@ -60,28 +53,14 @@
     </div>
 </div>
 
-<div id="backupModal">
-    <div class="glass-card" style="width:280px; text-align:center;">
-        <h3>SAVE BACKUP</h3>
-        <input type="text" id="backupFileName" placeholder="File name...">
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn-web btn-primary" style="flex:1" onclick="confirmBackup()">Save</button>
-            <button class="btn-web btn-danger" style="flex:1" onclick="closeBackupModal()">X</button>
-        </div>
-    </div>
-</div>
-
 <div id="appArea">
     <header id="mainHeader" style="text-align:center; margin-bottom:15px; display:none;">
         <h3 style="margin:0; color:var(--primary); font-size: 16px;">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h3>
     </header>
     
     <div class="glass-card" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
-        <button class="btn-web btn-white" onclick="openBackupModal()">Backup</button>
-        <button class="btn-web btn-white" onclick="document.getElementById('fileInput').click()">Open</button>
-        <input type="file" id="fileInput" style="display:none" onchange="openFromFile(event)">
         <button class="btn-web btn-white" onclick="exportExcel()">Excel</button>
-        <button class="btn-web btn-white" onclick="window.print()">Print</button>
+        <button class="btn-web btn-white" onclick="triggerPrint()">Print</button>
         <button class="btn-web btn-danger" onclick="clearAllData()">Clear All</button>
     </div>
 
@@ -124,37 +103,31 @@
     </div>
 </div>
 
+<div id="printArea"></div>
+
 <script>
-let items = JSON.parse(localStorage.getItem('fahad_data_final_v3') || '[]');
+let items = JSON.parse(localStorage.getItem('fahad_final_v5') || '[]');
 let currentUser = JSON.parse(sessionStorage.getItem('active_user') || 'null');
 
-// Arrow Key Navigation
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', e => {
     const inputs = Array.from(document.querySelectorAll('.nav-input:not([style*="display: none"]):not([readonly])'));
-    const index = inputs.indexOf(document.activeElement);
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-        if (index < inputs.length - 1) inputs[index + 1].focus();
-    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-        if (index > 0) inputs[index - 1].focus();
-    } else if (e.key === "Enter") {
-        if (index === inputs.length - 1) addItem();
-    }
+    const idx = inputs.indexOf(document.activeElement);
+    if(e.key === "ArrowRight" || e.key === "ArrowDown") { if(idx < inputs.length-1) inputs[idx+1].focus(); }
+    else if(e.key === "ArrowLeft" || e.key === "ArrowUp") { if(idx > 0) inputs[idx-1].focus(); }
+    else if(e.key === "Enter" && idx === inputs.length-1) addItem();
 });
 
 function processAuth() {
     if(emailIn.value === "lpcfahad7@gmail.com" && passIn.value === "547087") {
         currentUser = { email: emailIn.value }; sessionStorage.setItem('active_user', JSON.stringify(currentUser));
         initApp();
-    } else { alert("Login Failed!"); }
+    } else alert("Failed!");
 }
 
-function initApp() {
-    authLayer.style.display = 'none'; appArea.style.display = 'block'; toggleInputs(); render();
-}
+function initApp() { authLayer.style.display = 'none'; appArea.style.display = 'block'; toggleInputs(); render(); }
 
 function toggleInputs(){
-    const type = typeInput.value;
-    const isSize = (type === 'size');
+    const type = typeInput.value, isSize = (type === 'size');
     thickInput.style.display = isSize ? 'block' : 'none';
     treeContainer.style.display = isSize ? 'none' : 'block';
     kominkContainer.style.display = isSize ? 'block' : 'none';
@@ -172,58 +145,56 @@ function updatePiece() {
 }
 
 function addItem() {
-    let type = typeInput.value;
-    let v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0;
+    let type = typeInput.value, v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0;
     let tree = (type === 'log') ? treeInput.value : kominkInput.value;
     let pc = (type === 'log') ? pieceInput.value : 1;
     if(!tree || !v1 || !v2) return;
     let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
     items.push({ id: Date.now(), tree, pc, v1, v2, th, type, cft: +cft.toFixed(2) });
-    localStorage.setItem('fahad_data_final_v3', JSON.stringify(items));
+    localStorage.setItem('fahad_final_v5', JSON.stringify(items));
     v1Input.value = v2Input.value = thickInput.value = "";
-    if(type === 'log') { treeInput.focus(); updatePiece(); } else {
-        kominkInput.value = items.filter(i => i.type === 'size').length + 1;
-        v1Input.focus();
-    }
+    if(type === 'log') { treeInput.focus(); updatePiece(); } 
+    else { kominkInput.value = items.filter(i => i.type === 'size').length + 1; v1Input.focus(); }
     render();
 }
 
 function render() {
-    const currentType = typeInput.value;
-    const filtered = items.filter(i => i.type === currentType);
+    const currentType = typeInput.value, filtered = items.filter(i => i.type === currentType);
     tableBody.innerHTML = filtered.slice().reverse().map(i => `
-        <tr>
-            <td>${i.type==='log' ? i.tree+'/'+i.pc : 'SL:'+i.tree}</td>
-            <td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td>
-            <td>${i.cft}</td>
-            <td><button onclick="deleteItem(${i.id})" style="color:red; background:none; border:none;">X</button></td>
-        </tr>
+        <tr><td>${i.type==='log' ? i.tree+'/'+i.pc : 'SL:'+i.tree}</td>
+        <td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td>
+        <td><button onclick="deleteItem(${i.id})" style="color:red; background:none; border:none;">X</button></td></tr>
     `).join('');
     treeStat.innerText = new Set(filtered.map(i => i.tree)).size;
     pieceStat.innerText = filtered.length;
     cftStat.innerText = filtered.reduce((s,i) => s + i.cft, 0).toFixed(2);
 }
 
-function deleteItem(id) { if(confirm("Delete?")) { items = items.filter(i => i.id !== id); localStorage.setItem('fahad_data_final_v3', JSON.stringify(items)); render(); } }
-function clearAllData() { if(confirm("Clear All?")) { items = []; localStorage.setItem('fahad_data_final_v3', JSON.stringify(items)); render(); } }
-function logout() { sessionStorage.clear(); location.reload(); }
-function openBackupModal() { backupModal.style.display = 'flex'; }
-function closeBackupModal() { backupModal.style.display = 'none'; }
-function confirmBackup() {
-    let blob = new Blob([JSON.stringify(items)], {type: "application/json"});
-    let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (backupFileName.value || "backup") + ".json"; a.click();
-    closeBackupModal();
+function triggerPrint() {
+    const type = typeInput.value, filtered = items.filter(i => i.type === type);
+    let html = `<div class="print-header">`;
+    if(type === 'log') html += `<h2>বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h2><p>গোল কাঠের পরিমাপ তালিকা</p>`;
+    else html += `<h2>সাইজ কাঠের পরিমাপ তালিকা</h2>`;
+    html += `<p>বাগানের নাম: ${gardenName.value || 'N/A'}</p></div>`;
+    html += `<table class="print-table"><thead><tr><th>SL/Tree</th><th>Measurement</th><th>CFT</th></tr></thead><tbody>`;
+    filtered.forEach(i => {
+        html += `<tr><td>${i.type==='log' ? i.tree+'/'+i.pc : i.tree}</td><td>${i.v1}${i.th?'x'+i.th:''}" x ${i.v2}'</td><td>${i.cft}</td></tr>`;
+    });
+    html += `<tr><td colspan="2"><b>Total</b></td><td><b>${cftStat.innerText}</b></td></tr></tbody></table>`;
+    printArea.innerHTML = html; window.print();
 }
-function openFromFile(e) {
-    let r = new FileReader(); r.onload = (ev) => { items = JSON.parse(ev.target.result); render(); };
-    r.readAsText(e.target.files[0]);
-}
+
+function deleteItem(id) { if(confirm("Delete?")) { items = items.filter(i => i.id !== id); localStorage.setItem('fahad_final_v5', JSON.stringify(items)); render(); } }
+function clearAllData() { if(confirm("Clear All?")) { items = []; localStorage.setItem('fahad_final_v5', JSON.stringify(items)); render(); } }
 function exportExcel() {
     let ws = XLSX.utils.json_to_sheet(items.filter(i => i.type === typeInput.value));
     let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "WoodData");
     XLSX.writeFile(wb, (gardenName.value || "Data") + ".xlsx");
 }
+function logout() { sessionStorage.clear(); location.reload(); }
 if(currentUser) initApp();
 </script>
 </body>
 </html>
+
+</head>
