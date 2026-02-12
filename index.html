@@ -18,9 +18,9 @@
             margin:0; font-family: 'Poppins', sans-serif; min-height: 100vh; 
             background: #00121d; color: white; overflow-x: hidden; position: relative;
         }
-        /* Background Logo Styling */
-        body::before {
-            content: ""; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        /* Background Logo Fixed */
+        #bgLogo {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 320px; height: 320px;
             background-image: url('https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Bangladesh_Forest_Industries_Development_Corporation_logo.png/220px-Bangladesh_Forest_Industries_Development_Corporation_logo.png');
             background-repeat: no-repeat; background-position: center; background-size: contain;
@@ -37,11 +37,11 @@
         #authLayer { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: #00121d; z-index: 10000; }
         #appArea { display:none; padding: 15px; max-width: 900px; margin: auto; }
         .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .data-table th { background: rgba(255,255,255,0.1); padding: 10px; font-size: 12px; text-align: left; }
         .data-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
         #backupModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:11000; align-items:center; justify-content:center; }
         @media print {
-            body::before { display: none !important; }
-            #appArea, #authLayer { display: none !important; }
+            #bgLogo, #appArea, #authLayer { display: none !important; }
             #printArea { display: block !important; color: black !important; }
             .print-table { width: 100%; border-collapse: collapse; border: 1px solid black !important; }
             .print-table th, .print-table td { border: 1px solid black !important; padding: 4px; text-align: center; font-size: 10px; color: black !important; }
@@ -50,6 +50,7 @@
     </style>
 </head>
 <body>
+<div id="bgLogo"></div>
 <div id="authLayer">
     <div class="glass-card" style="width: 310px; text-align: center;">
         <img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Bangladesh_Forest_Industries_Development_Corporation_logo.png/220px-Bangladesh_Forest_Industries_Development_Corporation_logo.png" style="width: 70px; margin-bottom: 15px;">
@@ -72,9 +73,8 @@
 </div>
 
 <div id="appArea">
-    <header style="display:flex; justify-content:flex-end; gap:10px; margin-bottom:10px;">
-        <button id="adminBtn" class="btn-web btn-white" style="display:none; background:gold;" onclick="showAdmin()">Admin</button>
-        <button class="btn-web btn-danger" onclick="logout()">Logout</button>
+    <header id="mainHeader" style="text-align:center; margin-bottom:15px; display:none;">
+        <h3 style="margin:0; color:var(--primary);">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h3>
     </header>
     
     <div class="glass-card" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
@@ -87,7 +87,7 @@
     </div>
 
     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:20px;">
-        <div class="stat-box"><small>TOTAL SL</small><br><b id="treeStat">0</b></div>
+        <div class="stat-box"><small id="slLabel">TOTAL SL</small><br><b id="treeStat">0</b></div>
         <div class="stat-box"><small>PIECES</small><br><b id="pieceStat">0</b></div>
         <div class="stat-box"><small>TOTAL CFT</small><br><b id="cftStat">0.00</b></div>
     </div>
@@ -99,109 +99,120 @@
                 <option value="size">Sawn Wood (সাইজ)</option>
             </select>
             <div id="treeContainer" style="flex:1">
-                <input type="number" id="treeInput" placeholder="Tree No" oninput="updatePiece()">
+                <input type="number" id="treeInput" class="nav-input" placeholder="Tree No">
             </div>
             <div id="kominkContainer" style="flex:1; display:none">
                 <input type="text" id="kominkInput" placeholder="SL No" readonly style="opacity:0.7">
             </div>
         </div>
         <div style="display: flex; gap: 10px; margin-top: 8px;">
-            <input type="number" id="pieceInput" placeholder="Pc" readonly style="flex:0.6; opacity:0.7">
-            <input type="number" id="v1Input" placeholder="Girth/Width" style="flex:1">
-            <input type="number" id="thickInput" placeholder="Thick" style="flex:1; display:none">
-            <input type="number" id="v2Input" placeholder="Length" style="flex:1">
+            <input type="number" id="v1Input" class="nav-input" placeholder="Girth/Width" style="flex:1">
+            <input type="number" id="thickInput" class="nav-input" placeholder="Thick" style="flex:1; display:none">
+            <input type="number" id="v2Input" class="nav-input" placeholder="Length" style="flex:1">
         </div>
         <button class="btn-web btn-primary" id="saveBtn" style="width:100%; margin-top:15px;" onclick="addItem()">SAVE DATA</button>
     </div>
 
     <div class="glass-card">
         <input type="text" id="gardenName" placeholder="বাগানের নাম..." style="text-align:center; border:none; border-bottom:1px solid white; background:none; margin-bottom:15px; color: var(--primary);">
-        <input type="text" id="searchInput" placeholder="🔍 Search Tree No..." oninput="render()">
-        <table class="data-table"><tbody id="tableBody"></tbody></table>
+        <table class="data-table">
+            <thead><tr><th>ID/Tree</th><th>Size</th><th>CFT</th><th>Action</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
     </div>
 </div>
 
 <script>
-let items = JSON.parse(localStorage.getItem('fahad_data_v2') || '[]');
+let items = JSON.parse(localStorage.getItem('fahad_data_final') || '[]');
 let currentUser = JSON.parse(sessionStorage.getItem('active_user') || 'null');
 
+// Arrow Key Navigation
+document.addEventListener('keydown', function(e) {
+    const inputs = Array.from(document.querySelectorAll('.nav-input:not([style*="display: none"])'));
+    const index = inputs.indexOf(document.activeElement);
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        if (index < inputs.length - 1) inputs[index + 1].focus();
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        if (index > 0) inputs[index - 1].focus();
+    } else if (e.key === "Enter") {
+        if (index === inputs.length - 1) addItem();
+    }
+});
+
 function processAuth() {
-    let email = emailIn.value.trim(), pass = passIn.value.trim();
-    if(email === "lpcfahad7@gmail.com" && pass === "547087") {
-        currentUser = { email }; sessionStorage.setItem('active_user', JSON.stringify(currentUser));
+    if(emailIn.value === "lpcfahad7@gmail.com" && passIn.value === "547087") {
+        currentUser = { email: emailIn.value }; sessionStorage.setItem('active_user', JSON.stringify(currentUser));
         initApp();
-    } else { alert("Login Failed!"); }
+    } else { alert("Failed!"); }
 }
 
 function initApp() {
-    authLayer.style.display = 'none'; appArea.style.display = 'block';
-    if(currentUser.email === "lpcfahad7@gmail.com") adminBtn.style.display = 'block';
-    render();
+    authLayer.style.display = 'none'; appArea.style.display = 'block'; toggleInputs(); render();
 }
 
 function toggleInputs(){
-    const isSize = typeInput.value === 'size';
+    const type = typeInput.value;
+    const isSize = (type === 'size');
     thickInput.style.display = isSize ? 'block' : 'none';
     treeContainer.style.display = isSize ? 'none' : 'block';
     kominkContainer.style.display = isSize ? 'block' : 'none';
-    if(isSize) kominkInput.value = items.length + 1;
-}
-
-function updatePiece() {
-    let tNo = treeInput.value;
-    let count = items.filter(i => i.tree == tNo && i.type === 'log').length;
-    pieceInput.value = tNo ? count + 1 : "";
+    mainHeader.style.display = isSize ? 'none' : 'block';
+    slLabel.innerText = isSize ? "TOTAL SL" : "TOTAL TREE";
+    if(isSize) kominkInput.value = items.filter(i => i.type === 'size').length + 1;
+    render();
 }
 
 function addItem() {
     let type = typeInput.value;
     let v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0;
     let tree = (type === 'log') ? treeInput.value : kominkInput.value;
-    if(!tree || !v1 || !v2) return alert("সব তথ্য দিন!");
+    if(!tree || !v1 || !v2) return;
     let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
     items.push({ id: Date.now(), tree, v1, v2, th, type, cft: +cft.toFixed(2) });
-    save(); render();
+    localStorage.setItem('fahad_data_final', JSON.stringify(items));
     v1Input.value = v2Input.value = thickInput.value = "";
-    if(type === 'log') updatePiece(); else kominkInput.value = items.length + 1;
+    if(type === 'log') treeInput.focus(); else {
+        kominkInput.value = items.filter(i => i.type === 'size').length + 1;
+        v1Input.focus();
+    }
+    render();
 }
 
 function render() {
-    let kw = searchInput.value.toLowerCase();
-    tableBody.innerHTML = items.filter(i => String(i.tree).includes(kw)).slice().reverse().map(i => `
+    const currentType = typeInput.value;
+    const filtered = items.filter(i => i.type === currentType);
+    tableBody.innerHTML = filtered.slice().reverse().map(i => `
         <tr>
-            <td>${i.type==='log'?'Tree:'+i.tree:'SL:'+i.tree}</td>
+            <td>${i.type==='log'?'T:'+i.tree:'SL:'+i.tree}</td>
             <td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td>
             <td>${i.cft}</td>
-            <td><button onclick="deleteItem(${i.id})" style="background:none; border:none; color:red; font-weight:bold;">X</button></td>
+            <td><button onclick="deleteItem(${i.id})" style="color:red; background:none; border:none;">X</button></td>
         </tr>
     `).join('');
-    treeStat.innerText = new Set(items.map(i => i.tree)).size;
-    pieceStat.innerText = items.length;
-    cftStat.innerText = items.reduce((s,i) => s + i.cft, 0).toFixed(2);
+    treeStat.innerText = new Set(filtered.map(i => i.tree)).size;
+    pieceStat.innerText = filtered.length;
+    cftStat.innerText = filtered.reduce((s,i) => s + i.cft, 0).toFixed(2);
 }
 
-function deleteItem(id) { if(confirm("Delete this entry?")) { items = items.filter(i => i.id !== id); save(); render(); } }
-function save() { localStorage.setItem('fahad_data_v2', JSON.stringify(items)); }
-function clearAllData() { if(confirm("সব ডাটা মুছে যাবে! আপনি কি নিশ্চিত?")) { items = []; save(); render(); } }
+function deleteItem(id) { if(confirm("Delete?")) { items = items.filter(i => i.id !== id); localStorage.setItem('fahad_data_final', JSON.stringify(items)); render(); } }
+function clearAllData() { if(confirm("Clear All?")) { items = []; localStorage.setItem('fahad_data_final', JSON.stringify(items)); render(); } }
+function logout() { sessionStorage.clear(); location.reload(); }
 function openBackupModal() { backupModal.style.display = 'flex'; }
 function closeBackupModal() { backupModal.style.display = 'none'; }
 function confirmBackup() {
-    let name = backupFileName.value || 'wood_backup';
     let blob = new Blob([JSON.stringify(items)], {type: "application/json"});
-    let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name + ".json"; a.click();
+    let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (backupFileName.value || "backup") + ".json"; a.click();
     closeBackupModal();
 }
 function openFromFile(e) {
-    let reader = new FileReader();
-    reader.onload = (event) => { items = JSON.parse(event.target.result); save(); render(); };
-    reader.readAsText(e.target.files[0]);
+    let r = new FileReader(); r.onload = (ev) => { items = JSON.parse(ev.target.result); render(); };
+    r.readAsText(e.target.files[0]);
 }
 function exportExcel() {
-    let ws = XLSX.utils.json_to_sheet(items);
-    let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data");
-    XLSX.writeFile(wb, (gardenName.value || "WoodData") + ".xlsx");
+    let ws = XLSX.utils.json_to_sheet(items.filter(i => i.type === typeInput.value));
+    let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "WoodData");
+    XLSX.writeFile(wb, (gardenName.value || "Data") + ".xlsx");
 }
-function logout() { sessionStorage.clear(); location.reload(); }
 if(currentUser) initApp();
 </script>
 </body>
