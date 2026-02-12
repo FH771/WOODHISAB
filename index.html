@@ -15,32 +15,17 @@
             --btn-white-grad: linear-gradient(145deg, #ffffff, #d1d1d1);
         }
         body { 
-            margin:0; 
-            font-family: 'Poppins', sans-serif; 
-            min-height: 100vh; 
-            background: #00121d; 
-            color: white; 
-            overflow-x: hidden;
-            position: relative;
+            margin:0; font-family: 'Poppins', sans-serif; min-height: 100vh; 
+            background: #00121d; color: white; overflow-x: hidden; position: relative;
         }
-        /* Background Logo Styling */
+        /* Background Logo */
         body::before {
-            content: "";
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px; /* লোগোর সাইজ এখান থেকে ছোট-বড় করতে পারবেন */
-            height: 300px;
+            content: ""; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 300px; height: 300px;
             background-image: url('https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Bangladesh_Forest_Industries_Development_Corporation_logo.png/220px-Bangladesh_Forest_Industries_Development_Corporation_logo.png');
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: contain;
-            opacity: 0.15; /* লোগো কতটুকু ঝাপসা হবে (0.1 থেকে 0.9) */
-            z-index: -1;
-            pointer-events: none;
+            background-repeat: no-repeat; background-position: center; background-size: contain;
+            opacity: 0.1; z-index: -1; pointer-events: none;
         }
-
         .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px; padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
         .btn-web { padding: 12px 18px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; transition: all 0.3s ease; font-size: 11px; text-transform: uppercase; display: inline-flex; align-items: center; justify-content: center; }
         .btn-primary { background: var(--btn-grad); color: #00121d; }
@@ -49,40 +34,35 @@
         input, select { width: 100%; padding: 12px; margin-top: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: #fff; outline: none; box-sizing: border-box; }
         .stat-box { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 15px; text-align: center; border-bottom: 3px solid var(--primary); }
         .stat-box b { font-size: 18px; color: var(--primary); }
-        #authLayer { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.95); z-index: 10000; }
-        #appArea, #adminArea { display:none; padding: 15px; max-width: 900px; margin: auto; }
+        #authLayer { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: #00121d; z-index: 10000; }
+        #appArea { display:none; padding: 15px; max-width: 900px; margin: auto; }
         .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .data-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
-        
-        @media print {
-            body::before { display: none !important; }
-            #appArea, #authLayer { display: none !important; }
-            #printArea { display: block !important; color: black !important; }
-            .print-table { width: 100%; border-collapse: collapse; border: 1px solid black !important; }
-            .print-table th, .print-table td { border: 1px solid black !important; padding: 4px; text-align: center; font-size: 10px; color: black !important; }
-        }
-        #printArea { display: none; }
     </style>
 </head>
 <body>
+
 <div id="authLayer">
     <div class="glass-card" style="width: 310px; text-align: center;">
-        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Bangladesh_Forest_Industries_Development_Corporation_logo.png/220px-Bangladesh_Forest_Industries_Development_Corporation_logo.png" style="width: 80px; margin-bottom: 10px;">
-        <h2 style="margin-top:0;">BFIDC LOGIN</h2>
-        <div id="authContent">
-            <input type="email" id="emailIn" placeholder="Email Address">
-            <input type="password" id="passIn" placeholder="Password">
-            <button class="btn-web btn-primary" style="width:100%; margin-top:20px;" onclick="processAuth()">ENTER SYSTEM</button>
-        </div>
+        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Bangladesh_Forest_Industries_Development_Corporation_logo.png/220px-Bangladesh_Forest_Industries_Development_Corporation_logo.png" style="width: 70px; margin-bottom: 15px;">
+        <h2 style="margin:0; font-size: 20px;">BFIDC LOGIN</h2>
+        <input type="email" id="emailIn" placeholder="Email Address">
+        <input type="password" id="passIn" placeholder="Password">
+        <button class="btn-web btn-primary" style="width:100%; margin-top:20px;" onclick="processAuth()">ENTER SYSTEM</button>
     </div>
 </div>
 
 <div id="appArea">
     <header style="display:flex; justify-content:flex-end; gap:10px; margin-bottom:10px;">
-        <button id="adminBtn" class="btn-web btn-white" style="display:none; background:gold;" onclick="showAdmin()">Admin</button>
         <button class="btn-web btn-danger" onclick="logout()">Logout</button>
     </header>
     
+    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:20px;">
+        <div class="stat-box"><small>TOTAL SL</small><br><b id="treeStat">0</b></div>
+        <div class="stat-box"><small>PIECES</small><br><b id="pieceStat">0</b></div>
+        <div class="stat-box"><small>TOTAL CFT</small><br><b id="cftStat">0.00</b></div>
+    </div>
+
     <div class="glass-card">
         <div style="display: flex; gap: 10px;">
             <select id="typeInput" onchange="toggleInputs()" style="flex:1.5">
@@ -96,20 +76,94 @@
                 <input type="text" id="kominkInput" placeholder="SL No" readonly style="opacity:0.7">
             </div>
         </div>
+        <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <input type="number" id="pieceInput" placeholder="Pc" readonly style="flex:0.6; opacity:0.7">
+            <input type="number" id="v1Input" placeholder="Girth/Width" style="flex:1">
+            <input type="number" id="thickInput" placeholder="Thick" style="flex:1; display:none">
+            <input type="number" id="v2Input" placeholder="Length" style="flex:1">
         </div>
+        <button class="btn-web btn-primary" id="saveBtn" style="width:100%; margin-top:15px;" onclick="addItem()">SAVE DATA</button>
     </div>
 
+    <div class="glass-card">
+        <input type="text" id="gardenName" placeholder="বাগানের নাম..." style="text-align:center; border:none; border-bottom:1px solid white; background:none; margin-bottom:15px; color: var(--primary);">
+        <table class="data-table"><tbody id="tableBody"></tbody></table>
+    </div>
+</div>
+
 <script>
-// Previous JS Logic from Part 2
-// Remember: komink No only for size wood
-function toggleInputs(){
-    const isSize = typeInput.value === 'size';
-    thickInput.style.display = isSize ? 'block' : 'none';
-    treeContainer.style.display = isSize ? 'none' : 'block';
-    kominkContainer.style.display = isSize ? 'block' : 'none';
-    if(isSize) kominkInput.value = items.length + 1;
+let items = JSON.parse(localStorage.getItem('fahad_data') || '[]');
+let currentUser = JSON.parse(sessionStorage.getItem('active_user') || 'null');
+
+function processAuth() {
+    let email = document.getElementById('emailIn').value.trim();
+    let pass = document.getElementById('passIn').value.trim();
+    if(email === "lpcfahad7@gmail.com" && pass === "547087") {
+        currentUser = { email };
+        sessionStorage.setItem('active_user', JSON.stringify(currentUser));
+        initApp();
+    } else {
+        alert("ভুল ইমেইল বা পাসওয়ার্ড!");
+    }
 }
-// ... Rest of the functions (addItem, render, sync, etc.)
+
+function initApp() {
+    document.getElementById('authLayer').style.display = 'none';
+    document.getElementById('appArea').style.display = 'block';
+    render();
+}
+
+function toggleInputs(){
+    const type = document.getElementById('typeInput').value;
+    document.getElementById('thickInput').style.display = (type === 'size') ? 'block' : 'none';
+    document.getElementById('treeContainer').style.display = (type === 'size') ? 'none' : 'block';
+    document.getElementById('kominkContainer').style.display = (type === 'size') ? 'block' : 'none';
+    if(type === 'size') document.getElementById('kominkInput').value = items.length + 1;
+}
+
+function updatePiece() {
+    let tNo = document.getElementById('treeInput').value;
+    let count = items.filter(i => i.tree == tNo && i.type === 'log').length;
+    document.getElementById('pieceInput').value = tNo ? count + 1 : "";
+}
+
+function addItem() {
+    let type = document.getElementById('typeInput').value;
+    let v1 = +document.getElementById('v1Input').value;
+    let v2 = +document.getElementById('v2Input').value;
+    let th = +document.getElementById('thickInput').value || 0;
+    let tree = (type === 'log') ? document.getElementById('treeInput').value : document.getElementById('kominkInput').value;
+
+    if(!tree || !v1 || !v2) return alert("সব ঘর পূরণ করুন!");
+
+    let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
+    items.push({ tree, v1, v2, th, type, cft: +cft.toFixed(2) });
+    
+    localStorage.setItem('fahad_data', JSON.stringify(items));
+    render();
+    
+    document.getElementById('v1Input').value = "";
+    document.getElementById('v2Input').value = "";
+    document.getElementById('thickInput').value = "";
+    if(type === 'log') updatePiece(); else document.getElementById('kominkInput').value = items.length + 1;
+}
+
+function render() {
+    document.getElementById('tableBody').innerHTML = items.slice().reverse().map(i => `
+        <tr>
+            <td>${i.type==='log' ? 'Tree:'+i.tree : 'SL:'+i.tree}</td>
+            <td>${i.v1}${i.th?'x'+i.th:''}" x ${i.v2}'</td>
+            <td>${i.cft} CFT</td>
+        </tr>
+    `).join('');
+    document.getElementById('treeStat').innerText = new Set(items.map(i => i.tree)).size;
+    document.getElementById('pieceStat').innerText = items.length;
+    document.getElementById('cftStat').innerText = items.reduce((s,i) => s + i.cft, 0).toFixed(2);
+}
+
+function logout() { sessionStorage.clear(); location.reload(); }
+if(currentUser) initApp();
 </script>
+
 </body>
 </html>
