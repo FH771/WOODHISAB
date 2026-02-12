@@ -21,10 +21,10 @@
         /* Background Logo */
         body::before {
             content: ""; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 300px; height: 300px;
+            width: 320px; height: 320px;
             background-image: url('https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Bangladesh_Forest_Industries_Development_Corporation_logo.png/220px-Bangladesh_Forest_Industries_Development_Corporation_logo.png');
             background-repeat: no-repeat; background-position: center; background-size: contain;
-            opacity: 0.1; z-index: -1; pointer-events: none;
+            opacity: 0.12; z-index: -1; pointer-events: none;
         }
         .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px; padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
         .btn-web { padding: 12px 18px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; transition: all 0.3s ease; font-size: 11px; text-transform: uppercase; display: inline-flex; align-items: center; justify-content: center; }
@@ -35,28 +35,57 @@
         .stat-box { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 15px; text-align: center; border-bottom: 3px solid var(--primary); }
         .stat-box b { font-size: 18px; color: var(--primary); }
         #authLayer { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: #00121d; z-index: 10000; }
-        #appArea { display:none; padding: 15px; max-width: 900px; margin: auto; }
+        #appArea, #adminArea { display:none; padding: 15px; max-width: 900px; margin: auto; }
         .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .data-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+        #backupModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:11000; align-items:center; justify-content:center; }
+        @media print {
+            body::before { display: none !important; }
+            #appArea, #authLayer { display: none !important; }
+            #printArea { display: block !important; color: black !important; }
+            .print-table { width: 100%; border-collapse: collapse; border: 1px solid black !important; }
+            .print-table th, .print-table td { border: 1px solid black !important; padding: 4px; text-align: center; font-size: 10px; color: black !important; }
+        }
+        #printArea { display: none; }
     </style>
 </head>
 <body>
-
 <div id="authLayer">
     <div class="glass-card" style="width: 310px; text-align: center;">
         <img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Bangladesh_Forest_Industries_Development_Corporation_logo.png/220px-Bangladesh_Forest_Industries_Development_Corporation_logo.png" style="width: 70px; margin-bottom: 15px;">
-        <h2 style="margin:0; font-size: 20px;">BFIDC LOGIN</h2>
+        <h2 style="margin:0;">BFIDC LOGIN</h2>
         <input type="email" id="emailIn" placeholder="Email Address">
         <input type="password" id="passIn" placeholder="Password">
         <button class="btn-web btn-primary" style="width:100%; margin-top:20px;" onclick="processAuth()">ENTER SYSTEM</button>
     </div>
 </div>
 
+<div id="backupModal">
+    <div class="glass-card" style="width:280px; text-align:center;">
+        <h3>SAVE BACKUP</h3>
+        <input type="text" id="backupFileName" placeholder="File name...">
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-web btn-primary" onclick="confirmBackup()">Save</button>
+            <button class="btn-web btn-danger" onclick="closeBackupModal()">X</button>
+        </div>
+    </div>
+</div>
+
 <div id="appArea">
     <header style="display:flex; justify-content:flex-end; gap:10px; margin-bottom:10px;">
+        <button id="adminBtn" class="btn-web btn-white" style="display:none; background:gold;" onclick="showAdmin()">Admin</button>
         <button class="btn-web btn-danger" onclick="logout()">Logout</button>
     </header>
     
+    <div class="glass-card" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+        <button class="btn-web btn-white" onclick="openBackupModal()">Backup</button>
+        <button class="btn-web btn-white" onclick="document.getElementById('fileInput').click()">Open</button>
+        <input type="file" id="fileInput" style="display:none" onchange="openFromFile(event)">
+        <button class="btn-web btn-white" onclick="exportExcel()">Excel</button>
+        <button class="btn-web btn-white" onclick="window.print()">Print</button>
+        <button class="btn-web btn-danger" onclick="clearAllData()">Clear</button>
+    </div>
+
     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:20px;">
         <div class="stat-box"><small>TOTAL SL</small><br><b id="treeStat">0</b></div>
         <div class="stat-box"><small>PIECES</small><br><b id="pieceStat">0</b></div>
@@ -87,83 +116,96 @@
 
     <div class="glass-card">
         <input type="text" id="gardenName" placeholder="বাগানের নাম..." style="text-align:center; border:none; border-bottom:1px solid white; background:none; margin-bottom:15px; color: var(--primary);">
+        <input type="text" id="searchInput" placeholder="🔍 Search..." oninput="render()">
         <table class="data-table"><tbody id="tableBody"></tbody></table>
     </div>
 </div>
 
 <script>
-let items = JSON.parse(localStorage.getItem('fahad_data') || '[]');
+let users = JSON.parse(localStorage.getItem('bfidc_users') || '[]');
 let currentUser = JSON.parse(sessionStorage.getItem('active_user') || 'null');
+let items = [];
 
 function processAuth() {
-    let email = document.getElementById('emailIn').value.trim();
-    let pass = document.getElementById('passIn').value.trim();
+    let email = emailIn.value.trim(), pass = passIn.value.trim();
     if(email === "lpcfahad7@gmail.com" && pass === "547087") {
-        currentUser = { email };
+        currentUser = { email, data: [] };
         sessionStorage.setItem('active_user', JSON.stringify(currentUser));
         initApp();
-    } else {
-        alert("ভুল ইমেইল বা পাসওয়ার্ড!");
-    }
+    } else { alert("Login Failed!"); }
 }
 
 function initApp() {
-    document.getElementById('authLayer').style.display = 'none';
-    document.getElementById('appArea').style.display = 'block';
+    authLayer.style.display = 'none'; appArea.style.display = 'block';
+    if(currentUser.email === "lpcfahad7@gmail.com") adminBtn.style.display = 'block';
+    items = JSON.parse(localStorage.getItem('fahad_data_' + currentUser.email) || '[]');
     render();
 }
 
 function toggleInputs(){
-    const type = document.getElementById('typeInput').value;
-    document.getElementById('thickInput').style.display = (type === 'size') ? 'block' : 'none';
-    document.getElementById('treeContainer').style.display = (type === 'size') ? 'none' : 'block';
-    document.getElementById('kominkContainer').style.display = (type === 'size') ? 'block' : 'none';
-    if(type === 'size') document.getElementById('kominkInput').value = items.length + 1;
+    const isSize = typeInput.value === 'size';
+    thickInput.style.display = isSize ? 'block' : 'none';
+    treeContainer.style.display = isSize ? 'none' : 'block';
+    kominkContainer.style.display = isSize ? 'block' : 'none';
+    if(isSize) kominkInput.value = items.length + 1;
 }
 
 function updatePiece() {
-    let tNo = document.getElementById('treeInput').value;
+    let tNo = treeInput.value;
     let count = items.filter(i => i.tree == tNo && i.type === 'log').length;
-    document.getElementById('pieceInput').value = tNo ? count + 1 : "";
+    pieceInput.value = tNo ? count + 1 : "";
 }
 
 function addItem() {
-    let type = document.getElementById('typeInput').value;
-    let v1 = +document.getElementById('v1Input').value;
-    let v2 = +document.getElementById('v2Input').value;
-    let th = +document.getElementById('thickInput').value || 0;
-    let tree = (type === 'log') ? document.getElementById('treeInput').value : document.getElementById('kominkInput').value;
-
-    if(!tree || !v1 || !v2) return alert("সব ঘর পূরণ করুন!");
-
+    let type = typeInput.value;
+    let v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0;
+    let tree = (type === 'log') ? treeInput.value : kominkInput.value;
+    if(!tree || !v1 || !v2) return alert("Fill all fields!");
     let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
-    items.push({ tree, v1, v2, th, type, cft: +cft.toFixed(2) });
-    
-    localStorage.setItem('fahad_data', JSON.stringify(items));
-    render();
-    
-    document.getElementById('v1Input').value = "";
-    document.getElementById('v2Input').value = "";
-    document.getElementById('thickInput').value = "";
-    if(type === 'log') updatePiece(); else document.getElementById('kominkInput').value = items.length + 1;
+    items.push({ id: Date.now(), tree, v1, v2, th, type, cft: +cft.toFixed(2) });
+    saveAndRender();
+    v1Input.value = v2Input.value = thickInput.value = "";
+    if(type === 'log') updatePiece(); else kominkInput.value = items.length + 1;
 }
 
 function render() {
-    document.getElementById('tableBody').innerHTML = items.slice().reverse().map(i => `
+    let kw = searchInput.value.toLowerCase();
+    tableBody.innerHTML = items.filter(i => String(i.tree).includes(kw)).slice().reverse().map(i => `
         <tr>
-            <td>${i.type==='log' ? 'Tree:'+i.tree : 'SL:'+i.tree}</td>
-            <td>${i.v1}${i.th?'x'+i.th:''}" x ${i.v2}'</td>
-            <td>${i.cft} CFT</td>
+            <td>${i.type==='log'?'T:'+i.tree:'SL:'+i.tree}</td>
+            <td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td>
+            <td>${i.cft}</td>
+            <td><button onclick="deleteItem(${i.id})" style="background:none; border:none; color:red; font-weight:bold;">X</button></td>
         </tr>
     `).join('');
-    document.getElementById('treeStat').innerText = new Set(items.map(i => i.tree)).size;
-    document.getElementById('pieceStat').innerText = items.length;
-    document.getElementById('cftStat').innerText = items.reduce((s,i) => s + i.cft, 0).toFixed(2);
+    treeStat.innerText = new Set(items.map(i => i.tree)).size;
+    pieceStat.innerText = items.length;
+    cftStat.innerText = items.reduce((s,i) => s + i.cft, 0).toFixed(2);
 }
 
+function deleteItem(id) { if(confirm("Delete?")) { items = items.filter(i => i.id !== id); saveAndRender(); } }
+function saveAndRender() { localStorage.setItem('fahad_data_' + currentUser.email, JSON.stringify(items)); render(); }
+function clearAllData() { if(confirm("Clear All?")) { items = []; saveAndRender(); } }
+function openBackupModal() { backupModal.style.display = 'flex'; }
+function closeBackupModal() { backupModal.style.display = 'none'; }
+function confirmBackup() {
+    let name = backupFileName.value || 'backup';
+    let blob = new Blob([JSON.stringify(items)], {type: "application/json"});
+    let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name + ".json"; a.click();
+    closeBackupModal();
+}
+function openFromFile(e) {
+    let reader = new FileReader();
+    reader.onload = (event) => { items = JSON.parse(event.target.result); saveAndRender(); };
+    reader.readAsText(e.target.files[0]);
+}
+function exportExcel() {
+    let ws = XLSX.utils.json_to_sheet(items);
+    let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data");
+    XLSX.writeFile(wb, (gardenName.value || "WoodData") + ".xlsx");
+}
 function logout() { sessionStorage.clear(); location.reload(); }
 if(currentUser) initApp();
 </script>
-
 </body>
 </html>
