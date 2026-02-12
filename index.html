@@ -18,7 +18,6 @@
             margin:0; font-family: 'Poppins', sans-serif; min-height: 100vh; 
             background: #00121d; color: white; overflow-x: hidden; position: relative;
         }
-        /* Background Logo Fixed */
         #bgLogo {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 320px; height: 320px;
@@ -37,8 +36,8 @@
         #authLayer { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: #00121d; z-index: 10000; }
         #appArea { display:none; padding: 15px; max-width: 900px; margin: auto; }
         .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .data-table th { background: rgba(255,255,255,0.1); padding: 10px; font-size: 12px; text-align: left; }
-        .data-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+        .data-table th { background: rgba(255,255,255,0.1); padding: 10px; font-size: 11px; text-align: left; }
+        .data-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
         #backupModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:11000; align-items:center; justify-content:center; }
         @media print {
             #bgLogo, #appArea, #authLayer { display: none !important; }
@@ -74,7 +73,7 @@
 
 <div id="appArea">
     <header id="mainHeader" style="text-align:center; margin-bottom:15px; display:none;">
-        <h3 style="margin:0; color:var(--primary);">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h3>
+        <h3 style="margin:0; color:var(--primary); font-size: 16px;">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h3>
     </header>
     
     <div class="glass-card" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
@@ -87,7 +86,7 @@
     </div>
 
     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:20px;">
-        <div class="stat-box"><small id="slLabel">TOTAL SL</small><br><b id="treeStat">0</b></div>
+        <div class="stat-box"><small id="slLabel">TOTAL TREE</small><br><b id="treeStat">0</b></div>
         <div class="stat-box"><small>PIECES</small><br><b id="pieceStat">0</b></div>
         <div class="stat-box"><small>TOTAL CFT</small><br><b id="cftStat">0.00</b></div>
     </div>
@@ -99,13 +98,16 @@
                 <option value="size">Sawn Wood (সাইজ)</option>
             </select>
             <div id="treeContainer" style="flex:1">
-                <input type="number" id="treeInput" class="nav-input" placeholder="Tree No">
+                <input type="number" id="treeInput" class="nav-input" placeholder="Tree No" oninput="updatePiece()">
             </div>
             <div id="kominkContainer" style="flex:1; display:none">
                 <input type="text" id="kominkInput" placeholder="SL No" readonly style="opacity:0.7">
             </div>
         </div>
         <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <div id="pcContainer" style="flex:0.6">
+                <input type="number" id="pieceInput" class="nav-input" placeholder="Pc No" readonly style="opacity:0.7">
+            </div>
             <input type="number" id="v1Input" class="nav-input" placeholder="Girth/Width" style="flex:1">
             <input type="number" id="thickInput" class="nav-input" placeholder="Thick" style="flex:1; display:none">
             <input type="number" id="v2Input" class="nav-input" placeholder="Length" style="flex:1">
@@ -116,19 +118,19 @@
     <div class="glass-card">
         <input type="text" id="gardenName" placeholder="বাগানের নাম..." style="text-align:center; border:none; border-bottom:1px solid white; background:none; margin-bottom:15px; color: var(--primary);">
         <table class="data-table">
-            <thead><tr><th>ID/Tree</th><th>Size</th><th>CFT</th><th>Action</th></tr></thead>
+            <thead><tr><th>ID/PC</th><th>Measurement</th><th>CFT</th><th>Action</th></tr></thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-let items = JSON.parse(localStorage.getItem('fahad_data_final') || '[]');
+let items = JSON.parse(localStorage.getItem('fahad_data_final_v3') || '[]');
 let currentUser = JSON.parse(sessionStorage.getItem('active_user') || 'null');
 
 // Arrow Key Navigation
 document.addEventListener('keydown', function(e) {
-    const inputs = Array.from(document.querySelectorAll('.nav-input:not([style*="display: none"])'));
+    const inputs = Array.from(document.querySelectorAll('.nav-input:not([style*="display: none"]):not([readonly])'));
     const index = inputs.indexOf(document.activeElement);
     if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         if (index < inputs.length - 1) inputs[index + 1].focus();
@@ -143,7 +145,7 @@ function processAuth() {
     if(emailIn.value === "lpcfahad7@gmail.com" && passIn.value === "547087") {
         currentUser = { email: emailIn.value }; sessionStorage.setItem('active_user', JSON.stringify(currentUser));
         initApp();
-    } else { alert("Failed!"); }
+    } else { alert("Login Failed!"); }
 }
 
 function initApp() {
@@ -156,22 +158,30 @@ function toggleInputs(){
     thickInput.style.display = isSize ? 'block' : 'none';
     treeContainer.style.display = isSize ? 'none' : 'block';
     kominkContainer.style.display = isSize ? 'block' : 'none';
+    pcContainer.style.display = isSize ? 'none' : 'block';
     mainHeader.style.display = isSize ? 'none' : 'block';
     slLabel.innerText = isSize ? "TOTAL SL" : "TOTAL TREE";
     if(isSize) kominkInput.value = items.filter(i => i.type === 'size').length + 1;
     render();
 }
 
+function updatePiece() {
+    let tNo = treeInput.value;
+    let count = items.filter(i => i.tree == tNo && i.type === 'log').length;
+    pieceInput.value = tNo ? count + 1 : "";
+}
+
 function addItem() {
     let type = typeInput.value;
     let v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0;
     let tree = (type === 'log') ? treeInput.value : kominkInput.value;
+    let pc = (type === 'log') ? pieceInput.value : 1;
     if(!tree || !v1 || !v2) return;
     let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
-    items.push({ id: Date.now(), tree, v1, v2, th, type, cft: +cft.toFixed(2) });
-    localStorage.setItem('fahad_data_final', JSON.stringify(items));
+    items.push({ id: Date.now(), tree, pc, v1, v2, th, type, cft: +cft.toFixed(2) });
+    localStorage.setItem('fahad_data_final_v3', JSON.stringify(items));
     v1Input.value = v2Input.value = thickInput.value = "";
-    if(type === 'log') treeInput.focus(); else {
+    if(type === 'log') { treeInput.focus(); updatePiece(); } else {
         kominkInput.value = items.filter(i => i.type === 'size').length + 1;
         v1Input.focus();
     }
@@ -183,7 +193,7 @@ function render() {
     const filtered = items.filter(i => i.type === currentType);
     tableBody.innerHTML = filtered.slice().reverse().map(i => `
         <tr>
-            <td>${i.type==='log'?'T:'+i.tree:'SL:'+i.tree}</td>
+            <td>${i.type==='log' ? i.tree+'/'+i.pc : 'SL:'+i.tree}</td>
             <td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td>
             <td>${i.cft}</td>
             <td><button onclick="deleteItem(${i.id})" style="color:red; background:none; border:none;">X</button></td>
@@ -194,8 +204,8 @@ function render() {
     cftStat.innerText = filtered.reduce((s,i) => s + i.cft, 0).toFixed(2);
 }
 
-function deleteItem(id) { if(confirm("Delete?")) { items = items.filter(i => i.id !== id); localStorage.setItem('fahad_data_final', JSON.stringify(items)); render(); } }
-function clearAllData() { if(confirm("Clear All?")) { items = []; localStorage.setItem('fahad_data_final', JSON.stringify(items)); render(); } }
+function deleteItem(id) { if(confirm("Delete?")) { items = items.filter(i => i.id !== id); localStorage.setItem('fahad_data_final_v3', JSON.stringify(items)); render(); } }
+function clearAllData() { if(confirm("Clear All?")) { items = []; localStorage.setItem('fahad_data_final_v3', JSON.stringify(items)); render(); } }
 function logout() { sessionStorage.clear(); location.reload(); }
 function openBackupModal() { backupModal.style.display = 'flex'; }
 function closeBackupModal() { backupModal.style.display = 'none'; }
