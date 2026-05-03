@@ -1,201 +1,201 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>লেবার ম্যানেজমেন্ট সিস্টেম</title>
-    <style>
-        :root { --primary: #2c3e50; --secondary: #27ae60; --accent: #2980b9; --light: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light); margin: 0; padding: 20px; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: var(--primary); border-bottom: 2px solid var(--secondary); padding-bottom: 10px; }
-        
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: #ddd; border-radius: 5px; font-weight: bold; }
-        .tab-btn.active { background: var(--secondary); color: white; }
-        
-        .section { display: none; }
-        .section.active { display: block; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Labor Pro System</title>
 
-        .form-group { margin-bottom: 15px; }
-        input, select, button { padding: 10px; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; margin-top: 5px; }
-        button { background: var(--accent); color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { opacity: 0.9; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: var(--primary); color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-
-        .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .card { background: var(--primary); color: white; padding: 20px; border-radius: 8px; text-align: center; }
-    </style>
+<style>
+body{font-family:sans-serif;background:#f1f5f9;margin:0}
+.container{max-width:1100px;margin:auto;padding:20px}
+.card{background:#fff;padding:20px;border-radius:10px;margin-bottom:20px;box-shadow:0 5px 15px rgba(0,0,0,0.1)}
+button{padding:10px;border:none;background:#3b82f6;color:#fff;border-radius:6px;cursor:pointer}
+input,select{padding:10px;width:100%;margin-top:8px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border:1px solid #ddd}
+th{background:#1e293b;color:#fff}
+.actions button{margin-right:5px}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <h2>শ্রমিক ব্যবস্থাপনা সিস্টেম</h2>
 
-    <div class="tabs">
-        <button class="tab-btn active" onclick="showTab('dashboard')">ড্যাশবোর্ড</button>
-        <button class="tab-btn" onclick="showTab('master')">শিট ১: মাস্টার লিস্ট</button>
-        <button class="tab-btn" onclick="showTab('daily')">শিট ২: ডেইলি লগ</button>
-        <button class="tab-btn" onclick="showTab('report')">শিট ৩: ফাইনাল রিপোর্ট</button>
-    </div>
+<!-- LOGIN -->
+<div id="loginBox" class="card">
+<h3>Login</h3>
+<input id="user" placeholder="Username">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+</div>
 
-    <div id="dashboard" class="section active">
-        <div class="dashboard-cards">
-            <div class="card">
-                <h3 id="total-labors">০</h3>
-                <p>মোট লেবার</p>
-            </div>
-            <div class="card" style="background: var(--secondary);">
-                <h3 id="total-due">০</h3>
-                <p>মোট বকেয়া (Due)</p>
-            </div>
-        </div>
-    </div>
+<!-- APP -->
+<div id="app" style="display:none">
 
-    <div id="master" class="section">
-        <h3>নতুন লেবার যোগ করুন</h3>
-        <div class="form-group">
-            <input type="text" id="l-name" placeholder="নাম">
-            <select id="l-type">
-                <option value="Daily">দৈনিক</option>
-                <option value="Monthly">মাসিক</option>
-            </select>
-            <input type="number" id="l-rate" placeholder="নির্ধারিত মজুরি (টাকা)">
-            <input type="text" id="l-phone" placeholder="মোবাইল নম্বর">
-            <button onclick="addLabor()" style="margin-top: 10px;">সংরক্ষণ করুন</button>
-        </div>
-        <table id="labor-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>নাম</th>
-                    <th>ধরন</th>
-                    <th>মজুরি</th>
-                    <th>মোবাইল</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+<div class="card">
+<h2>Labor Management PRO</h2>
+<button onclick="exportCSV()">⬇ Export Excel</button>
+<button onclick="backup()">💾 Backup</button>
+<button onclick="logout()">Logout</button>
+</div>
 
-    <div id="daily" class="section">
-        <h3>দৈনিক হাজিরা ও অগ্রিম</h3>
-        <div class="form-group">
-            <input type="date" id="attendance-date">
-            <select id="attendance-id"></select>
-            <select id="is-present">
-                <option value="1">উপস্থিত (Present)</option>
-                <option value="0">অনুপস্থিত (Absent)</option>
-            </select>
-            <input type="number" id="overtime" placeholder="অতিরিক্ত কাজ (ঘণ্টা)" value="0">
-            <input type="number" id="advance" placeholder="আজকের অগ্রিম পেমেন্ট" value="0">
-            <button onclick="saveAttendance()" style="margin-top: 10px;">এন্ট্রি দিন</button>
-        </div>
-    </div>
+<div class="card">
+<h3>Add Labor</h3>
+<input id="name" placeholder="Name">
+<input id="rate" type="number" placeholder="Rate">
+<button onclick="addLabor()">Add</button>
+</div>
 
-    <div id="report" class="section">
-        <h3>সারসংক্ষেপ রিপোর্ট</h3>
-        <table id="report-table">
-            <thead>
-                <tr>
-                    <th>নাম</th>
-                    <th>মোট দিন</th>
-                    <th>অর্জিত মজুরি</th>
-                    <th>গৃহীত অগ্রিম</th>
-                    <th>বকেয়া (Due)</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+<div class="card">
+<h3>Labor List</h3>
+<table>
+<thead>
+<tr><th>Name</th><th>Rate</th><th>Action</th></tr>
+</thead>
+<tbody id="list"></tbody>
+</table>
+</div>
+
+<div class="card">
+<h3>Attendance</h3>
+<input type="date" id="date">
+<select id="labor"></select>
+<input id="advance" type="number" placeholder="Advance">
+<button onclick="save()">Save</button>
+</div>
+
+<div class="card">
+<h3>Report</h3>
+<input type="date" id="from"> to
+<input type="date" id="to">
+<button onclick="update()">Filter</button>
+
+<table>
+<thead>
+<tr><th>Name</th><th>Days</th><th>Earned</th><th>Paid</th><th>Due</th></tr>
+</thead>
+<tbody id="report"></tbody>
+</table>
+</div>
+
+</div>
 </div>
 
 <script>
-    let labors = JSON.parse(localStorage.getItem('labors')) || [];
-    let attendance = JSON.parse(localStorage.getItem('attendance')) || [];
+let labors = JSON.parse(localStorage.labors||"[]");
+let logs = JSON.parse(localStorage.logs||"[]");
 
-    function showTab(tabId) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        event.target.classList.add('active');
-        updateUI();
-    }
+function login(){
+    if(user.value=="admin" && pass.value=="1234"){
+        loginBox.style.display="none";
+        app.style.display="block";
+        update();
+    }else alert("Wrong login");
+}
 
-    function addLabor() {
-        const labor = {
-            id: Date.now(),
-            name: document.getElementById('l-name').value,
-            type: document.getElementById('l-type').value,
-            rate: parseFloat(document.getElementById('l-rate').value),
-            phone: document.getElementById('l-phone').value
-        };
-        if(!labor.name || !labor.rate) return alert("সব তথ্য দিন");
-        labors.push(labor);
-        localStorage.setItem('labors', JSON.stringify(labors));
-        updateUI();
-    }
+function logout(){
+    location.reload();
+}
 
-    function saveAttendance() {
-        const entry = {
-            date: document.getElementById('attendance-date').value,
-            laborId: document.getElementById('attendance-id').value,
-            present: parseInt(document.getElementById('is-present').value),
-            ot: parseFloat(document.getElementById('overtime').value),
-            advance: parseFloat(document.getElementById('advance').value)
-        };
-        if(!entry.date || !entry.laborId) return alert("তারিখ ও আইডি সিলেক্ট করুন");
-        attendance.push(entry);
-        localStorage.setItem('attendance', JSON.stringify(attendance));
-        alert("এন্ট্রি সফল হয়েছে!");
-    }
+function addLabor(){
+    if(!name.value || !rate.value) return alert("Fill");
+    labors.push({id:Date.now(),name:name.value,rate:+rate.value});
+    localStorage.labors=JSON.stringify(labors);
+    update();
+}
 
-    function updateUI() {
-        // মাস্টার লিস্ট আপডেট
-        const laborBody = document.querySelector("#labor-table tbody");
-        const attendanceSelect = document.getElementById('attendance-id');
-        laborBody.innerHTML = "";
-        attendanceSelect.innerHTML = "<option value=''>লেবার সিলেক্ট করুন</option>";
-        
-        labors.forEach(l => {
-            laborBody.innerHTML += `<tr><td>${l.id.toString().slice(-4)}</td><td>${l.name}</td><td>${l.type}</td><td>${l.rate}</td><td>${l.phone}</td></tr>`;
-            attendanceSelect.innerHTML += `<option value="${l.id}">${l.name}</option>`;
-        });
+function del(id){
+    labors = labors.filter(x=>x.id!=id);
+    localStorage.labors=JSON.stringify(labors);
+    update();
+}
 
-        // রিপোর্ট আপডেট
-        const reportBody = document.querySelector("#report-table tbody");
-        reportBody.innerHTML = "";
-        let totalDueOverall = 0;
+function save(){
+    logs.push({
+        id:labor.value,
+        date:date.value,
+        advance:+advance.value||0
+    });
+    localStorage.logs=JSON.stringify(logs);
+    alert("Saved");
+}
 
-        labors.forEach(l => {
-            let filteredAtt = attendance.filter(a => a.laborId == l.id);
-            let days = filteredAtt.filter(a => a.present === 1).length;
-            let earned = days * l.rate;
-            let paid = filteredAtt.reduce((sum, a) => sum + a.advance, 0);
-            let due = earned - paid;
-            totalDueOverall += due;
+function exportCSV(){
+    let csv="Name,Days,Earned,Paid,Due\n";
 
-            reportBody.innerHTML += `<tr>
-                <td>${l.name}</td>
-                <td>${days}</td>
-                <td>${earned}</td>
-                <td>${paid}</td>
-                <td style="color:${due > 0 ? 'red':'green'}"><b>${due}</b></td>
-            </tr>`;
-        });
+    labors.forEach(l=>{
+        let my=logs.filter(x=>x.id==l.id);
+        let d=my.length;
+        let e=d*l.rate;
+        let p=my.reduce((s,x)=>s+x.advance,0);
+        let due=e-p;
 
-        // ড্যাশবোর্ড আপডেট
-        document.getElementById('total-labors').innerText = labors.length;
-        document.getElementById('total-due').innerText = totalDueOverall + " ৳";
-    }
+        csv+=`${l.name},${d},${e},${p},${due}\n`;
+    });
 
-    // শুরুতে ডাটা লোড করা
-    updateUI();
-    document.getElementById('attendance-date').valueAsDate = new Date();
+    let blob=new Blob([csv]);
+    let a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="report.csv";
+    a.click();
+}
+
+function backup(){
+    let data = JSON.stringify({labors,logs});
+    let blob=new Blob([data]);
+    let a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="backup.json";
+    a.click();
+}
+
+function update(){
+    list.innerHTML="";
+    labor.innerHTML="";
+
+    labors.forEach(l=>{
+        list.innerHTML+=`
+        <tr>
+        <td>${l.name}</td>
+        <td>${l.rate}</td>
+        <td class="actions">
+        <button onclick="del(${l.id})">❌</button>
+        </td>
+        </tr>`;
+
+        labor.innerHTML+=`<option value="${l.id}">${l.name}</option>`;
+    });
+
+    let f=from.value;
+    let t=to.value;
+
+    report.innerHTML="";
+
+    labors.forEach(l=>{
+        let my = logs.filter(x=>x.id==l.id);
+
+        if(f && t){
+            my = my.filter(x=>x.date>=f && x.date<=t);
+        }
+
+        let d=my.length;
+        let e=d*l.rate;
+        let p=my.reduce((s,x)=>s+x.advance,0);
+        let due=e-p;
+
+        report.innerHTML+=`
+        <tr>
+        <td>${l.name}</td>
+        <td>${d}</td>
+        <td>${e}</td>
+        <td>${p}</td>
+        <td style="color:${due>0?'red':'green'}">${due}</td>
+        </tr>`;
+    });
+}
+
+date.valueAsDate=new Date();
 </script>
 
 </body>
