@@ -1,209 +1,202 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>BFIDCWOODHISAB - FAHAD BRO</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>লেবার ম্যানেজমেন্ট সিস্টেম</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-        :root {
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --primary: #00ffd5;
-            --btn-grad: linear-gradient(145deg, #00ffd5, #008c75);
-            --btn-danger-grad: linear-gradient(145deg, #ff4d4d, #b30000);
-            --btn-white-grad: linear-gradient(145deg, #ffffff, #d1d1d1);
-        }
-        body { margin:0; font-family: 'Poppins', sans-serif; min-height: 100vh; background: #00121d; color: white; overflow-x: hidden; position: relative; }
-        #bgLogo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; height: 320px; background-image: url('https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Bangladesh_Forest_Industries_Development_Corporation_logo.png/220px-Bangladesh_Forest_Industries_Development_Corporation_logo.png'); background-repeat: no-repeat; background-position: center; background-size: contain; opacity: 0.12; z-index: -1; pointer-events: none; }
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 25px; padding: 20px; margin-bottom: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
-        .btn-web { padding: 12px 18px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; transition: all 0.3s ease; font-size: 11px; text-transform: uppercase; display: inline-flex; align-items: center; justify-content: center; }
-        .btn-primary { background: var(--btn-grad); color: #00121d; }
-        .btn-danger { background: var(--btn-danger-grad); color: white; }
-        .btn-white { background: var(--btn-white-grad); color: #000; }
-        input, select { width: 100%; padding: 12px; margin-top: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: #fff; outline: none; box-sizing: border-box; }
-        .stat-box { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 15px; text-align: center; border-bottom: 3px solid var(--primary); }
-        .stat-box b { font-size: 18px; color: var(--primary); }
-        #authLayer { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: #00121d; z-index: 10000; }
-        #appArea { display:none; padding: 15px; max-width: 900px; margin: auto; }
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .data-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 12px; }
-        #backupModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:11000; align-items:center; justify-content:center; }
+        :root { --primary: #2c3e50; --secondary: #27ae60; --accent: #2980b9; --light: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light); margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: var(--primary); border-bottom: 2px solid var(--secondary); padding-bottom: 10px; }
         
-        @media print {
-            #bgLogo, #appArea, #authLayer { display: none !important; }
-            #printArea { display: block !important; color: black !important; }
-            .print-table { width: 100%; border-collapse: collapse; border: 1px solid black !important; }
-            .print-table th, .print-table td { border: 1px solid black !important; padding: 4px; text-align: center; font-size: 10px; color: black !important; }
-        }
-        #printArea { display: none; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: #ddd; border-radius: 5px; font-weight: bold; }
+        .tab-btn.active { background: var(--secondary); color: white; }
+        
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .form-group { margin-bottom: 15px; }
+        input, select, button { padding: 10px; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; margin-top: 5px; }
+        button { background: var(--accent); color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { opacity: 0.9; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: var(--primary); color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+
+        .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .card { background: var(--primary); color: white; padding: 20px; border-radius: 8px; text-align: center; }
     </style>
 </head>
 <body>
-<div id="bgLogo"></div>
-<div id="authLayer">
-    <div class="glass-card" style="width: 310px; text-align: center;">
-        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/02/Bangladesh_Forest_Industries_Development_Corporation_logo.png/220px-Bangladesh_Forest_Industries_Development_Corporation_logo.png" style="width: 70px; margin-bottom: 15px;">
-        <h2 style="margin:0;">BFIDC LOGIN</h2>
-        <input type="email" id="emailIn" placeholder="Email Address">
-        <input type="password" id="passIn" placeholder="Password">
-        <button class="btn-web btn-primary" style="width:100%; margin-top:20px;" onclick="processAuth()">ENTER SYSTEM</button>
-    </div>
-</div>
 
-<div id="backupModal">
-    <div class="glass-card" style="width:280px; text-align:center;">
-        <h3>SAVE BACKUP</h3>
-        <input type="text" id="backupFileName" placeholder="File name...">
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button class="btn-web btn-primary" style="flex:1" onclick="confirmBackup()">Save</button>
-            <button class="btn-web btn-danger" style="flex:1" onclick="closeBackupModal()">X</button>
+<div class="container">
+    <h2>শ্রমিক ব্যবস্থাপনা সিস্টেম</h2>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('dashboard')">ড্যাশবোর্ড</button>
+        <button class="tab-btn" onclick="showTab('master')">শিট ১: মাস্টার লিস্ট</button>
+        <button class="tab-btn" onclick="showTab('daily')">শিট ২: ডেইলি লগ</button>
+        <button class="tab-btn" onclick="showTab('report')">শিট ৩: ফাইনাল রিপোর্ট</button>
+    </div>
+
+    <div id="dashboard" class="section active">
+        <div class="dashboard-cards">
+            <div class="card">
+                <h3 id="total-labors">০</h3>
+                <p>মোট লেবার</p>
+            </div>
+            <div class="card" style="background: var(--secondary);">
+                <h3 id="total-due">০</h3>
+                <p>মোট বকেয়া (Due)</p>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="appArea">
-    <header id="mainHeader" style="text-align:center; margin-bottom:15px; display:block;">
-        <h3 style="margin:0; color:var(--primary); font-size: 16px;">বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন</h3>
-    </header>
-    
-    <div class="glass-card" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
-        <button class="btn-web btn-white" onclick="openBackupModal()">Backup</button>
-        <button class="btn-web btn-white" onclick="document.getElementById('fileInput').click()">Open</button>
-        <input type="file" id="fileInput" style="display:none" onchange="openFromFile(event)">
-        <button class="btn-web btn-white" onclick="exportExcel()">Excel</button>
-        <button class="btn-web btn-white" onclick="triggerPrint()">Print</button>
-        <button class="btn-web btn-danger" onclick="clearAllData()">Clear All</button>
-    </div>
-
-    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:20px;">
-        <div class="stat-box"><small id="slLabel">TOTAL TREE</small><br><b id="treeStat">0</b></div>
-        <div class="stat-box"><small>PIECES</small><br><b id="pieceStat">0</b></div>
-        <div class="stat-box"><small>TOTAL CFT</small><br><b id="cftStat">0.00</b></div>
-    </div>
-
-    <div class="glass-card">
-        <div style="display: flex; gap: 10px;">
-            <select id="typeInput" onchange="toggleInputs()" style="flex:1.5">
-                <option value="log">Round Log (গোল)</option>
-                <option value="size">Sawn Wood (সাইজ)</option>
+    <div id="master" class="section">
+        <h3>নতুন লেবার যোগ করুন</h3>
+        <div class="form-group">
+            <input type="text" id="l-name" placeholder="নাম">
+            <select id="l-type">
+                <option value="Daily">দৈনিক</option>
+                <option value="Monthly">মাসিক</option>
             </select>
-            <div id="treeContainer" style="flex:1">
-                <input type="number" id="treeInput" class="nav-input" placeholder="Tree No" oninput="updatePiece()">
-            </div>
-            <div id="kominkContainer" style="flex:1; display:none">
-                <input type="text" id="kominkInput" placeholder="SL No" readonly style="opacity:0.7">
-            </div>
+            <input type="number" id="l-rate" placeholder="নির্ধারিত মজুরি (টাকা)">
+            <input type="text" id="l-phone" placeholder="মোবাইল নম্বর">
+            <button onclick="addLabor()" style="margin-top: 10px;">সংরক্ষণ করুন</button>
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 8px;">
-            <div id="pcContainer" style="flex:0.6">
-                <input type="number" id="pieceInput" class="nav-input" placeholder="Pc No" readonly style="opacity:0.7">
-            </div>
-            <input type="number" id="v1Input" class="nav-input" placeholder="Girth/Width" style="flex:1">
-            <input type="number" id="thickInput" class="nav-input" placeholder="Thick" style="flex:1; display:none">
-            <input type="number" id="v2Input" class="nav-input" placeholder="Length" style="flex:1">
-        </div>
-        <button class="btn-web btn-primary" id="saveBtn" style="width:100%; margin-top:15px;" onclick="addItem()">SAVE DATA</button>
+        <table id="labor-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>নাম</th>
+                    <th>ধরন</th>
+                    <th>মজুরি</th>
+                    <th>মোবাইল</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 
-    <div class="glass-card">
-        <input type="text" id="gardenName" placeholder="বাগানের নাম..." style="text-align:center; border:none; border-bottom:1px solid white; background:none; margin-bottom:15px; color: var(--primary);">
-        <table class="data-table"><tbody id="tableBody"></tbody></table>
+    <div id="daily" class="section">
+        <h3>দৈনিক হাজিরা ও অগ্রিম</h3>
+        <div class="form-group">
+            <input type="date" id="attendance-date">
+            <select id="attendance-id"></select>
+            <select id="is-present">
+                <option value="1">উপস্থিত (Present)</option>
+                <option value="0">অনুপস্থিত (Absent)</option>
+            </select>
+            <input type="number" id="overtime" placeholder="অতিরিক্ত কাজ (ঘণ্টা)" value="0">
+            <input type="number" id="advance" placeholder="আজকের অগ্রিম পেমেন্ট" value="0">
+            <button onclick="saveAttendance()" style="margin-top: 10px;">এন্ট্রি দিন</button>
+        </div>
+    </div>
+
+    <div id="report" class="section">
+        <h3>সারসংক্ষেপ রিপোর্ট</h3>
+        <table id="report-table">
+            <thead>
+                <tr>
+                    <th>নাম</th>
+                    <th>মোট দিন</th>
+                    <th>অর্জিত মজুরি</th>
+                    <th>গৃহীত অগ্রিম</th>
+                    <th>বকেয়া (Due)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
 </div>
-<div id="printArea"></div>
 
 <script>
-let items = JSON.parse(localStorage.getItem('fahad_final_fixed') || '[]');
-let currentUser = JSON.parse(sessionStorage.getItem('active_user') || 'null');
+    let labors = JSON.parse(localStorage.getItem('labors')) || [];
+    let attendance = JSON.parse(localStorage.getItem('attendance')) || [];
 
-// Arrow Key Navigation
-document.addEventListener('keydown', e => {
-    const inputs = Array.from(document.querySelectorAll('.nav-input:not([style*="display: none"]):not([readonly])'));
-    const idx = inputs.indexOf(document.activeElement);
-    if(e.key === "ArrowRight" || e.key === "ArrowDown") { if(idx < inputs.length-1) inputs[idx+1].focus(); }
-    else if(e.key === "ArrowLeft" || e.key === "ArrowUp") { if(idx > 0) inputs[idx-1].focus(); }
-    else if(e.key === "Enter" && idx === inputs.length-1) addItem();
-});
+    function showTab(tabId) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+        updateUI();
+    }
 
-function processAuth() {
-    if(emailIn.value === "lpcfahad7@gmail.com" && passIn.value === "547087") {
-        currentUser = { email: emailIn.value }; sessionStorage.setItem('active_user', JSON.stringify(currentUser));
-        initApp();
-    } else alert("Error!");
-}
+    function addLabor() {
+        const labor = {
+            id: Date.now(),
+            name: document.getElementById('l-name').value,
+            type: document.getElementById('l-type').value,
+            rate: parseFloat(document.getElementById('l-rate').value),
+            phone: document.getElementById('l-phone').value
+        };
+        if(!labor.name || !labor.rate) return alert("সব তথ্য দিন");
+        labors.push(labor);
+        localStorage.setItem('labors', JSON.stringify(labors));
+        updateUI();
+    }
 
-function initApp() { authLayer.style.display = 'none'; appArea.style.display = 'block'; toggleInputs(); render(); }
+    function saveAttendance() {
+        const entry = {
+            date: document.getElementById('attendance-date').value,
+            laborId: document.getElementById('attendance-id').value,
+            present: parseInt(document.getElementById('is-present').value),
+            ot: parseFloat(document.getElementById('overtime').value),
+            advance: parseFloat(document.getElementById('advance').value)
+        };
+        if(!entry.date || !entry.laborId) return alert("তারিখ ও আইডি সিলেক্ট করুন");
+        attendance.push(entry);
+        localStorage.setItem('attendance', JSON.stringify(attendance));
+        alert("এন্ট্রি সফল হয়েছে!");
+    }
 
-function toggleInputs(){
-    const type = typeInput.value, isSize = (type === 'size');
-    thickInput.style.display = isSize ? 'block' : 'none';
-    treeContainer.style.display = isSize ? 'none' : 'block';
-    kominkContainer.style.display = isSize ? 'block' : 'none';
-    pcContainer.style.display = isSize ? 'none' : 'block';
-    mainHeader.style.display = isSize ? 'none' : 'block';
-    if(isSize) kominkInput.value = items.filter(i => i.type === 'size').length + 1;
-    render();
-}
+    function updateUI() {
+        // মাস্টার লিস্ট আপডেট
+        const laborBody = document.querySelector("#labor-table tbody");
+        const attendanceSelect = document.getElementById('attendance-id');
+        laborBody.innerHTML = "";
+        attendanceSelect.innerHTML = "<option value=''>লেবার সিলেক্ট করুন</option>";
+        
+        labors.forEach(l => {
+            laborBody.innerHTML += `<tr><td>${l.id.toString().slice(-4)}</td><td>${l.name}</td><td>${l.type}</td><td>${l.rate}</td><td>${l.phone}</td></tr>`;
+            attendanceSelect.innerHTML += `<option value="${l.id}">${l.name}</option>`;
+        });
 
-function updatePiece() {
-    let tNo = treeInput.value;
-    let count = items.filter(i => i.tree == tNo && i.type === 'log').length;
-    pieceInput.value = tNo ? count + 1 : "";
-}
+        // রিপোর্ট আপডেট
+        const reportBody = document.querySelector("#report-table tbody");
+        reportBody.innerHTML = "";
+        let totalDueOverall = 0;
 
-function addItem() {
-    let type = typeInput.value, v1 = +v1Input.value, v2 = +v2Input.value, th = +thickInput.value || 0;
-    let tree = (type === 'log') ? treeInput.value : kominkInput.value;
-    let pc = (type === 'log') ? pieceInput.value : 1;
-    if(!tree || !v1 || !v2) return;
-    let cft = (type === 'log') ? ((v1/4)**2 * v2)/144 : (v1 * th * v2)/144;
-    items.push({ id: Date.now(), tree, pc, v1, v2, th, type, cft: +cft.toFixed(2) });
-    localStorage.setItem('fahad_final_fixed', JSON.stringify(items));
-    v1Input.value = v2Input.value = thickInput.value = "";
-    if(type === 'log') { treeInput.focus(); updatePiece(); } else { v1Input.focus(); toggleInputs(); }
-    render();
-}
+        labors.forEach(l => {
+            let filteredAtt = attendance.filter(a => a.laborId == l.id);
+            let days = filteredAtt.filter(a => a.present === 1).length;
+            let earned = days * l.rate;
+            let paid = filteredAtt.reduce((sum, a) => sum + a.advance, 0);
+            let due = earned - paid;
+            totalDueOverall += due;
 
-function render() {
-    const type = typeInput.value, filtered = items.filter(i => i.type === type);
-    tableBody.innerHTML = filtered.slice().reverse().map(i => `
-        <tr><td>${i.type==='log'?i.tree+'/'+i.pc:'SL:'+i.tree}</td>
-        <td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td>
-        <td><button onclick="deleteItem(${i.id})" style="color:red; background:none; border:none;">X</button></td></tr>
-    `).join('');
-    treeStat.innerText = new Set(filtered.map(i => i.tree)).size;
-    pieceStat.innerText = filtered.length;
-    cftStat.innerText = filtered.reduce((s,i) => s + i.cft, 0).toFixed(2);
-}
+            reportBody.innerHTML += `<tr>
+                <td>${l.name}</td>
+                <td>${days}</td>
+                <td>${earned}</td>
+                <td>${paid}</td>
+                <td style="color:${due > 0 ? 'red':'green'}"><b>${due}</b></td>
+            </tr>`;
+        });
 
-function deleteItem(id) { if(confirm("Delete?")) { items = items.filter(i => i.id !== id); localStorage.setItem('fahad_final_fixed', JSON.stringify(items)); render(); } }
-function clearAllData() { if(confirm("Clear?")) { items = []; localStorage.setItem('fahad_final_fixed', JSON.stringify(items)); render(); } }
-function openBackupModal() { backupModal.style.display = 'flex'; }
-function closeBackupModal() { backupModal.style.display = 'none'; }
-function confirmBackup() {
-    let blob = new Blob([JSON.stringify(items)], {type: "application/json"});
-    let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup.json"; a.click();
-    closeBackupModal();
-}
-function openFromFile(e) {
-    let r = new FileReader(); r.onload = (ev) => { items = JSON.parse(ev.target.result); render(); };
-    r.readAsText(e.target.files[0]);
-}
-function triggerPrint() {
-    let html = `<div style="text-align:center;"><h2>${typeInput.value==='log'?'বাংলাদেশ বন শিল্প উন্নয়ন কর্পোরেশন':'সাইজ কাঠের তালিকা'}</h2><p>বাগান: ${gardenName.value}</p></div><table class="print-table"><tr><th>SL</th><th>Size</th><th>CFT</th></tr>`;
-    items.filter(i => i.type === typeInput.value).forEach(i => {
-        html += `<tr><td>${i.type==='log'?i.tree+'/'+i.pc:i.tree}</td><td>${i.v1}${i.th?'x'+i.th:''}"x${i.v2}'</td><td>${i.cft}</td></tr>`;
-    });
-    html += `<tr><td colspan="2">Total</td><td>${cftStat.innerText}</td></tr></table>`;
-    printArea.innerHTML = html; window.print();
-}
-function exportExcel() {
-    let ws = XLSX.utils.json_to_sheet(items.filter(i => i.type === typeInput.value));
-    let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data");
-    XLSX.writeFile(wb, "Data.xlsx");
-}
-if(currentUser) initApp();
+        // ড্যাশবোর্ড আপডেট
+        document.getElementById('total-labors').innerText = labors.length;
+        document.getElementById('total-due').innerText = totalDueOverall + " ৳";
+    }
+
+    // শুরুতে ডাটা লোড করা
+    updateUI();
+    document.getElementById('attendance-date').valueAsDate = new Date();
 </script>
+
 </body>
 </html>
