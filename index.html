@@ -1,202 +1,95 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Labor Pro System</title>
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
 
-<style>
-body{font-family:sans-serif;background:#f1f5f9;margin:0}
-.container{max-width:1100px;margin:auto;padding:20px}
-.card{background:#fff;padding:20px;border-radius:10px;margin-bottom:20px;box-shadow:0 5px 15px rgba(0,0,0,0.1)}
-button{padding:10px;border:none;background:#3b82f6;color:#fff;border-radius:6px;cursor:pointer}
-input,select{padding:10px;width:100%;margin-top:8px}
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px;border:1px solid #ddd}
-th{background:#1e293b;color:#fff}
-.actions button{margin-right:5px}
-</style>
-</head>
+    // Auth helpers
+    function isSignedIn() { return request.auth != null; }
+    function isVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
 
-<body>
+    // Validation Blueprints
+    function isValidWorker(data) {
+      return data.keys().hasAll(['name', 'dailyRate', 'active', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.dailyRate is number && data.dailyRate >= 0 &&
+             data.active is bool &&
+             (!('phone' in data) || (data.phone is string && data.phone.size() <= 20));
+    }
 
-<div class="container">
+    function isValidAttendance(data) {
+      return data.keys().hasAll(['workerId', 'date', 'status', 'createdAt']) &&
+             data.workerId is string &&
+             data.date is string && data.date.matches('^\\\\d{4}-\\\\d{2}-\\\\d{2}$') &&
+             data.status in ['present', 'absent', 'half-day'] &&
+             (!('note' in data) || (data.note is string && data.note.size() <= 500));
+    }
 
-<!-- LOGIN -->
-<div id="loginBox" class="card">
-<h3>Login</h3>
-<input id="user" placeholder="Username">
-<input id="pass" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
-</div>
+    function isValidAdvance(data) {
+      return data.keys().hasAll(['workerId', 'amount', 'date', 'createdAt']) &&
+             data.workerId is string &&
+             data.amount is number && data.amount > 0 &&
+             data.date is string && data.date.matches('^\\\\d{4}-\\\\d{2}-\\\\d{2}$') &&
+             (!('note' in data) || (data.note is string && data.note.size() <= 500));
+    }
 
-<!-- APP -->
-<div id="app" style="display:none">
+    // Workers Collection
+    match /workers/{workerId} {
+      allow list: if isVerified();
+      allow get: if isVerified() && isValidId(workerId);
+      allow create: if isVerified() && isValidId(workerId) && isValidWorker(incoming()) && 
+                    incoming().createdAt == request.time;
+      allow update: if isVerified() && isValidId(workerId) && (
+        // Identity Integrity: Workers info can be updated by verified users
+        isValidWorker(incoming()) &&
+        incoming().createdAt == existing().createdAt &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'dailyRate', 'phone', 'active']) ||
+          (incoming().diff(existing()).affectedKeys().hasOnly(['name', 'dailyRate', 'phone', 'active', 'updatedAt']) && incoming().updatedAt == request.time)
+        )
+      );
+      allow delete: if isVerified() && isValidId(workerId);
+    }
 
-<div class="card">
-<h2>Labor Management PRO</h2>
-<button onclick="exportCSV()">⬇ Export Excel</button>
-<button onclick="backup()">💾 Backup</button>
-<button onclick="logout()">Logout</button>
-</div>
+    // Attendance Collection
+    match /attendance/{attendanceId} {
+      allow list: if isVerified();
+      allow get: if isVerified() && isValidId(attendanceId);
+      allow create: if isVerified() && isValidId(attendanceId) && isValidAttendance(incoming()) && 
+                    incoming().createdAt == request.time;
+      allow update: if isVerified() && isValidId(attendanceId) && isValidAttendance(incoming()) && (
+        incoming().createdAt == existing().createdAt &&
+        incoming().workerId == existing().workerId &&
+        incoming().date == existing().date &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'note']) ||
+          (incoming().diff(existing()).affectedKeys().hasOnly(['status', 'note', 'updatedAt']) && incoming().updatedAt == request.time)
+        )
+      );
+      allow delete: if isVerified() && isValidId(attendanceId);
+    }
 
-<div class="card">
-<h3>Add Labor</h3>
-<input id="name" placeholder="Name">
-<input id="rate" type="number" placeholder="Rate">
-<button onclick="addLabor()">Add</button>
-</div>
-
-<div class="card">
-<h3>Labor List</h3>
-<table>
-<thead>
-<tr><th>Name</th><th>Rate</th><th>Action</th></tr>
-</thead>
-<tbody id="list"></tbody>
-</table>
-</div>
-
-<div class="card">
-<h3>Attendance</h3>
-<input type="date" id="date">
-<select id="labor"></select>
-<input id="advance" type="number" placeholder="Advance">
-<button onclick="save()">Save</button>
-</div>
-
-<div class="card">
-<h3>Report</h3>
-<input type="date" id="from"> to
-<input type="date" id="to">
-<button onclick="update()">Filter</button>
-
-<table>
-<thead>
-<tr><th>Name</th><th>Days</th><th>Earned</th><th>Paid</th><th>Due</th></tr>
-</thead>
-<tbody id="report"></tbody>
-</table>
-</div>
-
-</div>
-</div>
-
-<script>
-let labors = JSON.parse(localStorage.labors||"[]");
-let logs = JSON.parse(localStorage.logs||"[]");
-
-function login(){
-    if(user.value=="admin" && pass.value=="1234"){
-        loginBox.style.display="none";
-        app.style.display="block";
-        update();
-    }else alert("Wrong login");
+    // Advances Collection
+    match /advances/{advanceId} {
+      allow list: if isVerified();
+      allow get: if isVerified() && isValidId(advanceId);
+      allow create: if isVerified() && isValidId(advanceId) && isValidAdvance(incoming()) && 
+                    incoming().createdAt == request.time;
+      allow update: if isVerified() && isValidId(advanceId) && isValidAdvance(incoming()) && (
+        incoming().createdAt == existing().createdAt &&
+        incoming().workerId == existing().workerId &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly(['amount', 'date', 'note']) ||
+          (incoming().diff(existing()).affectedKeys().hasOnly(['amount', 'date', 'note', 'updatedAt']) && incoming().updatedAt == request.time)
+        )
+      );
+      allow delete: if isVerified() && isValidId(advanceId);
+    }
+  }
 }
-
-function logout(){
-    location.reload();
-}
-
-function addLabor(){
-    if(!name.value || !rate.value) return alert("Fill");
-    labors.push({id:Date.now(),name:name.value,rate:+rate.value});
-    localStorage.labors=JSON.stringify(labors);
-    update();
-}
-
-function del(id){
-    labors = labors.filter(x=>x.id!=id);
-    localStorage.labors=JSON.stringify(labors);
-    update();
-}
-
-function save(){
-    logs.push({
-        id:labor.value,
-        date:date.value,
-        advance:+advance.value||0
-    });
-    localStorage.logs=JSON.stringify(logs);
-    alert("Saved");
-}
-
-function exportCSV(){
-    let csv="Name,Days,Earned,Paid,Due\n";
-
-    labors.forEach(l=>{
-        let my=logs.filter(x=>x.id==l.id);
-        let d=my.length;
-        let e=d*l.rate;
-        let p=my.reduce((s,x)=>s+x.advance,0);
-        let due=e-p;
-
-        csv+=`${l.name},${d},${e},${p},${due}\n`;
-    });
-
-    let blob=new Blob([csv]);
-    let a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="report.csv";
-    a.click();
-}
-
-function backup(){
-    let data = JSON.stringify({labors,logs});
-    let blob=new Blob([data]);
-    let a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="backup.json";
-    a.click();
-}
-
-function update(){
-    list.innerHTML="";
-    labor.innerHTML="";
-
-    labors.forEach(l=>{
-        list.innerHTML+=`
-        <tr>
-        <td>${l.name}</td>
-        <td>${l.rate}</td>
-        <td class="actions">
-        <button onclick="del(${l.id})">❌</button>
-        </td>
-        </tr>`;
-
-        labor.innerHTML+=`<option value="${l.id}">${l.name}</option>`;
-    });
-
-    let f=from.value;
-    let t=to.value;
-
-    report.innerHTML="";
-
-    labors.forEach(l=>{
-        let my = logs.filter(x=>x.id==l.id);
-
-        if(f && t){
-            my = my.filter(x=>x.date>=f && x.date<=t);
-        }
-
-        let d=my.length;
-        let e=d*l.rate;
-        let p=my.reduce((s,x)=>s+x.advance,0);
-        let due=e-p;
-
-        report.innerHTML+=`
-        <tr>
-        <td>${l.name}</td>
-        <td>${d}</td>
-        <td>${e}</td>
-        <td>${p}</td>
-        <td style="color:${due>0?'red':'green'}">${due}</td>
-        </tr>`;
-    });
-}
-
-date.valueAsDate=new Date();
-</script>
-
-</body>
-</html>
