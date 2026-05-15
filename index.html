@@ -1,95 +1,537 @@
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Global safety net
-    match /{document=**} {
-      allow read, write: if false;
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>প্রফেশনাল ক্যাশ মেমো | ডিজিটাল শাবা</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #cfdee9;
+            font-family: 'Hind Siliguri', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+        }
+
+        /* Strict A4 dimensions */
+        .a4-memo {
+            width: 210mm;
+            min-height: 297mm;
+            height: auto;
+            background: white;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.25);
+            margin: 0 auto 30px auto;
+            padding: 12mm 12mm 10mm 12mm;
+            position: relative;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .a4-memo {
+                box-shadow: none;
+                margin: 0;
+                padding: 12mm;
+                width: 100%;
+                min-height: 0;
+                height: auto;
+            }
+            .print-hide, .action-col, .no-print, .btn-group {
+                display: none !important;
+            }
+            .remove-row-btn {
+                display: none;
+            }
+            th.action-col, td.action-col {
+                display: none;
+            }
+            .print-show {
+                display: block;
+            }
+            input, textarea {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                font-weight: 500;
+            }
+            .border-b-dotted {
+                border-bottom: 1px dotted #aaa !important;
+            }
+        }
+
+        /* watermark */
+        .watermark-bg {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-28deg);
+            font-size: 6rem;
+            font-weight: 900;
+            color: #cbd5e1;
+            opacity: 0.18;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 0;
+            font-family: monospace;
+            letter-spacing: 6px;
+        }
+
+        .dotted-underline {
+            border-bottom: 1px dashed #94a3b8;
+            min-width: 120px;
+            display: inline-block;
+        }
+
+        .input-clean {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 5px 8px;
+            width: 100%;
+            font-size: 0.8rem;
+            transition: 0.1s;
+        }
+        .input-clean:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79,70,229,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 6px;
+            vertical-align: middle;
+            font-size: 12px;
+        }
+
+        th {
+            background: #1e1b4b;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .total-row {
+            background-color: #f1f5f9;
+            font-weight: 700;
+        }
+
+        .remove-row-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: #b91c1c;
+            font-weight: bold;
+            transition: 0.1s;
+        }
+        .remove-row-btn:hover {
+            transform: scale(1.2);
+            color: #ef4444;
+        }
+
+        @media (max-width: 220mm) {
+            .a4-memo {
+                transform: scale(0.98);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="memoContainer" class="a4-memo relative">
+    <!-- Watermark -->
+    <div class="watermark-bg">DIGITAL SHABA • INVOICE</div>
+
+    <!-- Top decorative bar -->
+    <div class="absolute top-0 left-0 w-full h-1.5 bg-indigo-900 z-10"></div>
+
+    <!-- HEADER SECTION -->
+    <div class="flex justify-between items-start mb-5 relative z-10">
+        <div class="max-w-[60%]">
+            <h1 class="text-3xl font-extrabold text-indigo-950 leading-tight">ডিজিটাল সেবা সার্ভিস</h1>
+            <p class="text-indigo-700 font-semibold text-sm mt-0">⚡ বিশ্বস্ত ডিজিটাল সলিউশন পার্টনার</p>
+            <div class="text-slate-600 text-[11px] mt-3 space-y-0.5">
+                <p class="flex items-center gap-1">📞 মোবাইল: ০১৬৯০০০২৮২৮</p>
+                <p class="flex items-center gap-1">📍 ঠিকানা: শিল্প এলাকা, কাপ্তাই, রাঙ্গামাটি</p>
+                <p>📧 fhfahad.547087@gmail.com</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <div class="bg-indigo-900 text-white font-bold py-2 px-5 rounded-md text-base shadow-md inline-block tracking-wide">
+                🧾 ক্যাশ মেমো / ইনভয়েস
+            </div>
+            <div class="mt-3 space-y-1 text-right text-sm font-medium">
+                <div class="flex justify-end gap-2 items-center">
+                    <span class="text-slate-700">ভাউচার নং:</span>
+                    <input type="text" id="voucherNo" placeholder="INV-2025-001" value="SBA-2409-01" class="input-clean w-36 text-right border-b-2 border-indigo-200">
+                </div>
+                <div class="flex justify-end gap-2 items-center">
+                    <span class="text-slate-700">তারিখ:</span>
+                    <input type="date" id="invoiceDate" class="input-clean w-36 text-right border-b-2 border-indigo-200">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOMER INFORMATION (FILLABLE FIELDS) -->
+    <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 border border-slate-200 rounded-lg mb-5 relative z-10">
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-slate-700">👤 ক্রেতার নাম :</label>
+            <input type="text" id="custName" placeholder="নাম লিখুন" class="input-clean text-sm" value="মোঃ রাসেল মিয়া">
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-slate-700">📱 মোবাইল নং :</label>
+            <input type="text" id="custMobile" placeholder="০১XXXXXXXXX" class="input-clean text-sm" value="০১৮১২৩৪৫৬৭৮">
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-slate-700">🏠 ঠিকানা :</label>
+            <input type="text" id="custAddress" placeholder="ঠিকানা দিন" class="input-clean text-sm" value="কাপ্তাই সদর, রাঙ্গামাটি">
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-slate-700">✉️ ইমেইল :</label>
+            <input type="email" id="custEmail" placeholder="example@mail.com" class="input-clean text-sm" value="rasel@example.com">
+        </div>
+    </div>
+
+    <!-- ITEMS TABLE (DYNAMIC) -->
+    <div class="relative z-10 w-full overflow-x-auto mb-3">
+        <table id="itemsTable" class="min-w-full">
+            <thead>
+                <tr>
+                    <th class="w-8 text-center">#</th>
+                    <th class="text-left">পণ্য/সেবার বিবরণ</th>
+                    <th class="w-20 text-center">পরিমাণ</th>
+                    <th class="w-24 text-right">একক মূল্য (টাকা)</th>
+                    <th class="w-28 text-right">মোট (টাকা)</th>
+                    <th class="w-10 action-col text-center print-hide">অ্যাকশন</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceItemsBody">
+                <!-- Rows injected by JS -->
+            </tbody>
+            <tfoot>
+                <tr class="total-row font-bold">
+                    <td colspan="4" class="text-right text-sm uppercase tracking-wide p-2">সর্বমোট টাকা (গ্র্যান্ড টোটাল) :</td>
+                    <td id="grandTotalCell" class="text-right text-base pr-3 bg-indigo-50 font-black text-indigo-900">৳ 0.00</td>
+                    <td class="action-col print-hide"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Action buttons for row management (visible only on screen) -->
+    <div class="flex flex-wrap justify-between items-center gap-3 mt-2 mb-4 no-print print-hide relative z-10">
+        <div class="flex gap-2">
+            <button id="addRowBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 px-4 rounded-full shadow-sm flex items-center gap-1 transition"><span>➕</span> নতুন আইটেম যোগ করুন</button>
+            <button id="removeLastRowBtn" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-1.5 px-4 rounded-full shadow-sm flex items-center gap-1 transition"><span>➖</span> শেষ সারি মুছুন</button>
+        </div>
+        <div class="text-[11px] text-slate-500 italic">⭐ সর্বোচ্চ ১০টি পণ্য পর্যন্ত (A4 ফিট)</div>
+    </div>
+
+    <!-- SIGNATURE & FOOTER -->
+    <div class="mt-6 flex justify-between items-end px-4 pt-3 relative z-10 border-t border-slate-200">
+        <div class="text-center w-1/3">
+            <div class="border-t border-slate-400 w-32 mx-auto mb-1 pt-2"></div>
+            <p class="text-[11px] font-semibold text-slate-700">ক্রেতার স্বাক্ষর</p>
+        </div>
+        <div class="text-center w-1/3">
+            <div class="border-t border-slate-400 w-32 mx-auto mb-1 pt-2"></div>
+            <p class="text-[11px] font-semibold text-slate-700">কর্তৃপক্ষের স্বাক্ষর</p>
+        </div>
+        <div class="text-center w-1/3 text-right text-[10px] text-slate-400">
+            <p>ধন্যবাদ 🌸 সেবা গ্রহণের জন্য</p>
+        </div>
+    </div>
+    <div class="text-center text-[10px] text-slate-400 italic mt-3 border-t border-dashed pt-2 relative z-10">
+        * এই মেমো আইনগতভাবে স্বীকৃত | সেবা সংক্রান্ত যেকোনো তথ্যে যোগাযোগ করুন *
+    </div>
+</div>
+
+<!-- CONTROL BUTTONS (PDF & PRINT) -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-5 z-50 no-print print-hide bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-xl">
+    <button id="pdfDownloadBtn" class="bg-indigo-700 hover:bg-indigo-800 text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-md flex items-center gap-2 transition-all"><span>📄</span> PDF ডাউনলোড</button>
+    <button onclick="window.print();" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-md flex items-center gap-2 transition-all"><span>🖨️</span> প্রিন্ট করুন</button>
+</div>
+
+<script>
+    // ======================== GLOBALS & CONFIG ========================
+    const MAX_ROWS = 10;        // strict A4 friendly, no overflow
+    let currentRowCount = 0;
+    const tbody = document.getElementById('invoiceItemsBody');
+    const grandTotalCell = document.getElementById('grandTotalCell');
+
+    // Helper: calculate and update total
+    function updateGrandTotal() {
+        let total = 0;
+        const allTotalInputs = document.querySelectorAll('#invoiceItemsBody tr .item-total');
+        allTotalInputs.forEach(input => {
+            let val = parseFloat(input.value);
+            if (!isNaN(val) && isFinite(val)) total += val;
+        });
+        grandTotalCell.innerText = '৳ ' + total.toFixed(2);
     }
 
-    // Auth helpers
-    function isSignedIn() { return request.auth != null; }
-    function isVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
-    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
-    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\\\-]+$'); }
-    function incoming() { return request.resource.data; }
-    function existing() { return resource.data; }
-
-    // Validation Blueprints
-    function isValidWorker(data) {
-      return data.keys().hasAll(['name', 'dailyRate', 'active', 'createdAt']) &&
-             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
-             data.dailyRate is number && data.dailyRate >= 0 &&
-             data.active is bool &&
-             (!('phone' in data) || (data.phone is string && data.phone.size() <= 20));
+    // compute row total (qty * price) and update field + set total field value
+    function computeRowTotal(rowElement) {
+        const qtyInput = rowElement.querySelector('.item-qty');
+        const priceInput = rowElement.querySelector('.item-price');
+        const totalSpan = rowElement.querySelector('.item-total');
+        if (!qtyInput || !priceInput || !totalSpan) return;
+        let qty = parseFloat(qtyInput.value);
+        let price = parseFloat(priceInput.value);
+        if (isNaN(qty)) qty = 0;
+        if (isNaN(price)) price = 0;
+        const rowTotal = qty * price;
+        totalSpan.value = rowTotal.toFixed(2);
+        updateGrandTotal();
     }
 
-    function isValidAttendance(data) {
-      return data.keys().hasAll(['workerId', 'date', 'status', 'createdAt']) &&
-             data.workerId is string &&
-             data.date is string && data.date.matches('^\\\\d{4}-\\\\d{2}-\\\\d{2}$') &&
-             data.status in ['present', 'absent', 'half-day'] &&
-             (!('note' in data) || (data.note is string && data.note.size() <= 500));
+    // attach event listeners to qty/price inside a specific row
+    function attachRowEvents(row) {
+        const qtyField = row.querySelector('.item-qty');
+        const priceField = row.querySelector('.item-price');
+        if (qtyField) {
+            qtyField.removeEventListener('input', row._qtyHandler);
+            const qtyHandler = () => computeRowTotal(row);
+            qtyField.addEventListener('input', qtyHandler);
+            row._qtyHandler = qtyHandler;
+        }
+        if (priceField) {
+            priceField.removeEventListener('input', row._priceHandler);
+            const priceHandler = () => computeRowTotal(row);
+            priceField.addEventListener('input', priceHandler);
+            row._priceHandler = priceHandler;
+        }
+        // remove button action inside row (if any)
+        const removeBtn = row.querySelector('.remove-row-btn');
+        if (removeBtn) {
+            removeBtn.removeEventListener('click', row._removeHandler);
+            const removeHandler = () => {
+                if (currentRowCount <= 1) {
+                    alert("অন্তত একটি আইটেম রাখা আবশ্যক!");
+                    return;
+                }
+                row.remove();
+                currentRowCount--;
+                reindexSerialNumbers();
+                updateGrandTotal();
+            };
+            removeBtn.addEventListener('click', removeHandler);
+            row._removeHandler = removeHandler;
+        }
     }
 
-    function isValidAdvance(data) {
-      return data.keys().hasAll(['workerId', 'amount', 'date', 'createdAt']) &&
-             data.workerId is string &&
-             data.amount is number && data.amount > 0 &&
-             data.date is string && data.date.matches('^\\\\d{4}-\\\\d{2}-\\\\d{2}$') &&
-             (!('note' in data) || (data.note is string && data.note.size() <= 500));
+    // Reindex serial numbers (first column)
+    function reindexSerialNumbers() {
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach((row, idx) => {
+            const serialCell = row.querySelector('.serial-num');
+            if (serialCell) serialCell.innerText = (idx + 1).toString();
+        });
+        currentRowCount = rows.length;
+        // enable/disable UI based on max rows
+        const addBtn = document.getElementById('addRowBtn');
+        if(addBtn) {
+            if(currentRowCount >= MAX_ROWS) addBtn.disabled = true;
+            else addBtn.disabled = false;
+        }
+        const removeLastBtn = document.getElementById('removeLastRowBtn');
+        if(removeLastBtn && currentRowCount <= 1) removeLastBtn.disabled = true;
+        else if(removeLastBtn) removeLastBtn.disabled = false;
     }
 
-    // Workers Collection
-    match /workers/{workerId} {
-      allow list: if isVerified();
-      allow get: if isVerified() && isValidId(workerId);
-      allow create: if isVerified() && isValidId(workerId) && isValidWorker(incoming()) && 
-                    incoming().createdAt == request.time;
-      allow update: if isVerified() && isValidId(workerId) && (
-        // Identity Integrity: Workers info can be updated by verified users
-        isValidWorker(incoming()) &&
-        incoming().createdAt == existing().createdAt &&
-        (
-          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'dailyRate', 'phone', 'active']) ||
-          (incoming().diff(existing()).affectedKeys().hasOnly(['name', 'dailyRate', 'phone', 'active', 'updatedAt']) && incoming().updatedAt == request.time)
-        )
-      );
-      allow delete: if isVerified() && isValidId(workerId);
+    // create new row with blank fields
+    function createNewRow(serial = null) {
+        const newSerial = serial !== null ? serial : (currentRowCount + 1);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="text-center serial-num font-medium">${newSerial}</td>
+            <td><input type="text" class="input-clean w-full text-sm product-desc" placeholder="পণ্যের নাম / সেবার বিবরণ" value=""></td>
+            <td class="text-center"><input type="number" step="0.01" class="input-clean w-20 text-center item-qty" value="1" min="0.01"></td>
+            <td class="text-right"><input type="number" step="0.01" class="input-clean w-full text-right item-price" value="0.00" min="0"></td>
+            <td class="text-right"><input type="text" class="input-clean w-full text-right font-bold bg-slate-100 item-total" value="0.00" readonly style="background:#f1f5f9;"></td>
+            <td class="text-center action-col print-hide"><button type="button" class="remove-row-btn text-red-600 font-bold text-lg">✖</button></td>
+        `;
+        // attach events
+        attachRowEvents(tr);
+        return tr;
     }
 
-    // Attendance Collection
-    match /attendance/{attendanceId} {
-      allow list: if isVerified();
-      allow get: if isVerified() && isValidId(attendanceId);
-      allow create: if isVerified() && isValidId(attendanceId) && isValidAttendance(incoming()) && 
-                    incoming().createdAt == request.time;
-      allow update: if isVerified() && isValidId(attendanceId) && isValidAttendance(incoming()) && (
-        incoming().createdAt == existing().createdAt &&
-        incoming().workerId == existing().workerId &&
-        incoming().date == existing().date &&
-        (
-          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'note']) ||
-          (incoming().diff(existing()).affectedKeys().hasOnly(['status', 'note', 'updatedAt']) && incoming().updatedAt == request.time)
-        )
-      );
-      allow delete: if isVerified() && isValidId(attendanceId);
+    // Add row function
+    function addNewItemRow() {
+        if (currentRowCount >= MAX_ROWS) {
+            alert(`সর্বোচ্চ ${MAX_ROWS} টি আইটেম যোগ করা যাবে। A4 পৃষ্ঠা ফিট রাখতে সীমা নির্ধারিত।`);
+            return;
+        }
+        const newRow = createNewRow(currentRowCount + 1);
+        tbody.appendChild(newRow);
+        currentRowCount++;
+        reindexSerialNumbers();
+        // small optimization: recalc totals after add
+        updateGrandTotal();
     }
 
-    // Advances Collection
-    match /advances/{advanceId} {
-      allow list: if isVerified();
-      allow get: if isVerified() && isValidId(advanceId);
-      allow create: if isVerified() && isValidId(advanceId) && isValidAdvance(incoming()) && 
-                    incoming().createdAt == request.time;
-      allow update: if isVerified() && isValidId(advanceId) && isValidAdvance(incoming()) && (
-        incoming().createdAt == existing().createdAt &&
-        incoming().workerId == existing().workerId &&
-        (
-          incoming().diff(existing()).affectedKeys().hasOnly(['amount', 'date', 'note']) ||
-          (incoming().diff(existing()).affectedKeys().hasOnly(['amount', 'date', 'note', 'updatedAt']) && incoming().updatedAt == request.time)
-        )
-      );
-      allow delete: if isVerified() && isValidId(advanceId);
+    function removeLastRow() {
+        if (currentRowCount <= 1) {
+            alert("কমপক্ষে একটি আইটেম সারি অবশ্যই থাকতে হবে!");
+            return;
+        }
+        const rows = tbody.querySelectorAll('tr');
+        if(rows.length > 0) {
+            rows[rows.length-1].remove();
+            currentRowCount--;
+            reindexSerialNumbers();
+            updateGrandTotal();
+        }
     }
-  }
-}
+
+    // Set Default Example Data (3 demo rows) - professional sample
+    function setDefaultRows() {
+        tbody.innerHTML = '';
+        const demoItems = [
+            { desc: "ওয়েব ডিজাইন ও ডেভেলপমেন্ট সার্ভিস", qty: 1, price: 3500 },
+            { desc: "ডিজিটাল মার্কেটিং ক্যাম্পেইন ম্যানেজমেন্ট", qty: 1, price: 2200 },
+            { desc: "গ্রাফিক্স ডিজাইন (ব্যানার/পোস্টার)", qty: 2, price: 850 }
+        ];
+        demoItems.forEach((item, idx) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="text-center serial-num font-medium">${idx+1}</td>
+                <td><input type="text" class="input-clean w-full text-sm product-desc" value="${item.desc}"></td>
+                <td class="text-center"><input type="number" step="0.01" class="input-clean w-20 text-center item-qty" value="${item.qty}"></td>
+                <td class="text-right"><input type="number" step="0.01" class="input-clean w-full text-right item-price" value="${item.price}"></td>
+                <td class="text-right"><input type="text" class="input-clean w-full text-right font-bold bg-slate-100 item-total" value="${(item.qty * item.price).toFixed(2)}" readonly style="background:#f1f5f9;"></td>
+                <td class="text-center action-col print-hide"><button type="button" class="remove-row-btn text-red-600 font-bold text-lg">✖</button></td>
+            `;
+            attachRowEvents(row);
+            tbody.appendChild(row);
+        });
+        currentRowCount = demoItems.length;
+        reindexSerialNumbers();
+        updateGrandTotal();
+    }
+
+    // Set default date (today)
+    function setDefaultDate() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const dateInput = document.getElementById('invoiceDate');
+        if(dateInput) dateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    // PDF GENERATION with clean layout (hide action column and buttons temporarily)
+    async function generatePDF() {
+        // hide action column & screen control buttons + add/remove row button group to get clean invoice pdf
+        const actionCols = document.querySelectorAll('.action-col');
+        const allRemoveBtns = document.querySelectorAll('.remove-row-btn');
+        const addRowBtnDiv = document.getElementById('addRowBtn');
+        const removeLastBtnDiv = document.getElementById('removeLastRowBtn');
+        const btnGroupDiv = document.querySelector('.flex.flex-wrap.justify-between.items-center.gap-3.mt-2.mb-4');
+        
+        // store original display states
+        const originalActionDisplay = [];
+        actionCols.forEach((col, i) => {
+            originalActionDisplay[i] = col.style.display;
+            col.style.display = 'none';
+        });
+        allRemoveBtns.forEach(btn => btn.style.display = 'none');
+        if(addRowBtnDiv) addRowBtnDiv.style.display = 'none';
+        if(removeLastBtnDiv) removeLastBtnDiv.style.display = 'none';
+        if(btnGroupDiv) btnGroupDiv.style.display = 'none';
+        
+        // Also hide the fixed buttons during pdf generation? we hide bottom group separately but they are outside the container, keep as is will not affect content
+        const container = document.getElementById('memoContainer');
+        
+        // Optional: add small temporary class for clean input borders
+        try {
+            const opt = {
+                margin: [0, 0, 0, 0],
+                filename: 'Digital_Shaba_Cash_Memo.pdf',
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 2.2, letterRendering: true, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            await html2pdf().set(opt).from(container).save();
+        } catch(err) {
+            console.error("PDF error", err);
+            alert("PDF তৈরি করতে সমস্যা, আবার চেষ্টা করুন।");
+        } finally {
+            // restore visibility
+            actionCols.forEach((col, i) => {
+                col.style.display = originalActionDisplay[i] || '';
+            });
+            allRemoveBtns.forEach(btn => btn.style.display = '');
+            if(addRowBtnDiv) addRowBtnDiv.style.display = 'flex';
+            if(removeLastBtnDiv) removeLastBtnDiv.style.display = 'flex';
+            if(btnGroupDiv) btnGroupDiv.style.display = 'flex';
+        }
+    }
+
+    // ensure total rows count and no overflow: after add and remove edge adjusts
+    function enforceMaxRowLimit() {
+        if(currentRowCount > MAX_ROWS) {
+            const rows = tbody.querySelectorAll('tr');
+            for(let i = MAX_ROWS; i < rows.length; i++) {
+                rows[i].remove();
+            }
+            currentRowCount = MAX_ROWS;
+            reindexSerialNumbers();
+            updateGrandTotal();
+        }
+    }
+
+    // initialization
+    function init() {
+        setDefaultRows();
+        setDefaultDate();
+        // attach global buttons
+        const addBtn = document.getElementById('addRowBtn');
+        const removeLastBtn = document.getElementById('removeLastRowBtn');
+        if(addBtn) addBtn.addEventListener('click', addNewItemRow);
+        if(removeLastBtn) removeLastBtn.addEventListener('click', removeLastRow);
+        
+        // PDF download handler
+        const pdfBtn = document.getElementById('pdfDownloadBtn');
+        if(pdfBtn) pdfBtn.addEventListener('click', generatePDF);
+        
+        // additional safe: recalc on any user keyup for inputs like product desc no needed
+        // also ensure global limit
+        window.addEventListener('load', () => {
+            enforceMaxRowLimit();
+            updateGrandTotal();
+        });
+        // optional: handle if any row delete from inside
+        // initial reindex
+        reindexSerialNumbers();
+        updateGrandTotal();
+    }
+
+    // call initializer
+    init();
+</script>
+</body>
+</html>
