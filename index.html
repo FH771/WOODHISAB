@@ -9,115 +9,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: #eef2f5;
-            font-family: 'Hind Siliguri', sans-serif;
-            padding: 20px;
-        }
-        /* A4 Invoice Print Style */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #eef2f5; font-family: 'Hind Siliguri', sans-serif; padding: 20px; }
         @media print {
-            body {
-                background: white;
-                padding: 0;
-                margin: 0;
-            }
-            .no-print, .print-hide, .print-nav, .dashboard-actions, .report-filters, .action-col, .remove-row-btn, .control-buttons, .nav-tabs, .print\:hidden {
-                display: none !important;
-            }
-            .a4-memo {
-                box-shadow: none;
-                margin: 0;
-                padding: 12mm;
-                width: 100%;
-                min-height: 0;
-                height: auto;
-            }
-            input, textarea {
-                border: none !important;
-                background: transparent !important;
-                padding: 0 !important;
-            }
-            .print-full-page {
-                page-break-after: avoid;
-                page-break-inside: avoid;
-            }
+            body { background: white; padding: 0; margin: 0; }
+            .no-print, .print-hide, .print-nav, .dashboard-actions, .report-filters, .action-col, .remove-row-btn, .control-buttons, .nav-tabs, .print\:hidden { display: none !important; }
+            .a4-memo { box-shadow: none; margin: 0; padding: 12mm; width: 100%; min-height: 0; height: auto; }
+            input, textarea { border: none !important; background: transparent !important; padding: 0 !important; }
+            .print-full-page { page-break-after: avoid; page-break-inside: avoid; }
         }
-        .a4-memo {
-            width: 210mm;
-            min-height: 297mm;
-            background: white;
-            margin: 0 auto 20px auto;
-            padding: 12mm;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-            border-radius: 8px;
-        }
-        .input-clean {
-            background: #f9fafb;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 6px 10px;
-            width: 100%;
-            font-size: 0.8rem;
-            transition: 0.2s;
-        }
-        .input-clean:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 2px rgba(79,70,229,0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #cbd5e1;
-            padding: 8px 6px;
-            vertical-align: middle;
-            font-size: 12px;
-        }
-        th {
-            background: #1e1b4b;
-            color: white;
-            font-weight: 600;
-        }
-        .total-row {
-            background: #f1f5f9;
-            font-weight: 700;
-        }
-        .remove-row-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: #b91c1c;
-        }
-        .tab-active {
-            background: #4f46e5;
-            color: white;
-            border-radius: 40px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .scroll-table {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .report-card {
-            transition: 0.2s;
-        }
-        .report-card:hover {
-            transform: translateY(-3px);
-        }
-        @media (max-width: 1024px) {
-            .a4-memo {
-                width: 100%;
-                padding: 10mm;
-            }
-        }
+        .a4-memo { width: 210mm; min-height: 297mm; background: white; margin: 0 auto 20px auto; padding: 12mm; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border-radius: 8px; }
+        .input-clean { background: #f9fafb; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 10px; width: 100%; font-size: 0.8rem; transition: 0.2s; }
+        .input-clean:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #cbd5e1; padding: 8px 6px; vertical-align: middle; font-size: 12px; }
+        th { background: #1e1b4b; color: white; font-weight: 600; }
+        .total-row { background: #f1f5f9; font-weight: 700; }
+        .remove-row-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #b91c1c; }
+        .tab-active { background: #4f46e5; color: white; border-radius: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .scroll-table { max-height: 400px; overflow-y: auto; }
+        .report-card { transition: 0.2s; }
+        .report-card:hover { transform: translateY(-3px); }
+        @media (max-width: 1024px) { .a4-memo { width: 100%; padding: 10mm; } }
     </style>
 </head>
 <body>
@@ -132,10 +45,9 @@
     </div>
 </div>
 
-<!-- INVOICE TAB (Existing Memo with improvements) -->
+<!-- INVOICE TAB with DISCOUNT -->
 <div id="invoiceTab" class="tab-content">
     <div id="memoContainer" class="a4-memo relative mx-auto">
-        <!-- Top bar -->
         <div class="absolute top-0 left-0 w-full h-1.5 bg-indigo-900"></div>
         <div class="flex justify-between items-start mb-5">
             <div>
@@ -149,7 +61,7 @@
             <div class="text-right">
                 <div class="bg-indigo-900 text-white font-bold py-2 px-5 rounded-md">🧾 ক্যাশ মেমো</div>
                 <div class="mt-2 space-y-1">
-                    <input type="text" id="voucherNo" placeholder="ভাউচার নং" value="SBA-"+new Date().getTime().toString().slice(-6) class="input-clean w-40 text-right text-sm">
+                    <input type="text" id="voucherNo" placeholder="ভাউচার নং" class="input-clean w-40 text-right text-sm">
                     <input type="date" id="invoiceDate" class="input-clean w-40 text-right text-sm">
                 </div>
             </div>
@@ -157,10 +69,10 @@
 
         <!-- Customer Info -->
         <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg mb-5">
-            <input type="text" id="custName" placeholder="ক্রেতার নাম" class="input-clean text-sm" value="মোঃ রাসেল মিয়া">
-            <input type="text" id="custMobile" placeholder="মোবাইল" class="input-clean text-sm" value="০১৮১২৩৪৫৬৭৮">
-            <input type="text" id="custAddress" placeholder="ঠিকানা" class="input-clean text-sm" value="কাপ্তাই সদর">
-            <input type="email" id="custEmail" placeholder="ইমেইল" class="input-clean text-sm" value="rasel@example.com">
+            <input type="text" id="custName" placeholder="ক্রেতার নাম" class="input-clean text-sm">
+            <input type="text" id="custMobile" placeholder="মোবাইল" class="input-clean text-sm">
+            <input type="text" id="custAddress" placeholder="ঠিকানা" class="input-clean text-sm">
+            <input type="email" id="custEmail" placeholder="ইমেইল" class="input-clean text-sm">
         </div>
 
         <!-- Items Table -->
@@ -171,12 +83,14 @@
                 </thead>
                 <tbody id="invoiceItemsBody"></tbody>
                 <tfoot>
-                    <tr class="total-row"><td colspan="4" class="text-right font-bold">সর্বমোট:</td><td id="grandTotalCell" class="text-right font-black text-indigo-900">৳ 0.00</td><td class="action-col"></td></tr>
+                    <tr class="bg-gray-50"><td colspan="4" class="text-right font-semibold">সাব-টোটাল:</td><td id="subtotalCell" class="text-right font-medium">৳ 0.00</td><td class="action-col"></td></tr>
+                    <tr id="discountRow"><td colspan="4" class="text-right font-semibold">ছাড় (<input type="number" id="discountPercent" class="w-16 input-clean inline-block text-center" step="any" value="0"> % অথবা <input type="number" id="discountFlat" class="w-20 input-clean inline-block text-center" step="any" value="0"> টাকা):</td><td id="discountAmountCell" class="text-right text-red-600 font-medium">- ৳ 0.00</td><td class="action-col"></td></tr>
+                    <tr class="total-row"><td colspan="4" class="text-right font-bold text-lg">সর্বমোট (ছাড় পর):</td><td id="grandTotalCell" class="text-right font-black text-indigo-900 text-lg">৳ 0.00</td><td class="action-col"></td></tr>
                 </tfoot>
             </table>
         </div>
 
-        <!-- Buttons for invoice -->
+        <!-- Buttons -->
         <div class="flex flex-wrap gap-3 mt-3 no-print print-hide">
             <button id="addRowBtn" class="bg-emerald-600 text-white px-4 py-1.5 rounded-full text-sm font-bold">➕ আইটেম যোগ</button>
             <button id="removeLastRowBtn" class="bg-amber-600 text-white px-4 py-1.5 rounded-full text-sm font-bold">➖ শেষ সারি মুছুন</button>
@@ -197,7 +111,7 @@
 <!-- SALES RECORDS TAB -->
 <div id="recordsTab" class="tab-content hidden">
     <div class="bg-white rounded-xl shadow p-5 max-w-6xl mx-auto">
-        <h2 class="text-2xl font-bold text-indigo-900 mb-4">📋 সকল বিক্রয় রেকর্ড</h2>
+        <h2 class="text-2xl font-bold text-indigo-900 mb-4">📋 সকল বিক্রয় রেকর্ড (ছাড়সহ)</h2>
         <div class="flex gap-3 mb-4 flex-wrap">
             <input type="text" id="searchInvoice" placeholder="ভাউচার / ক্রেতা নাম" class="input-clean w-64">
             <input type="date" id="filterDate" class="input-clean w-48">
@@ -205,108 +119,96 @@
         </div>
         <div class="overflow-x-auto scroll-table">
             <table class="min-w-full bg-white border">
-                <thead class="bg-indigo-800 text-white"><tr><th>তারিখ</th><th>ভাউচার নং</th><th>ক্রেতা</th><th>মোবাইল</th><th>মোট টাকা</th><th>অ্যাকশন</th></tr></thead>
+                <thead class="bg-indigo-800 text-white"><tr><th>তারিখ</th><th>ভাউচার</th><th>ক্রেতা</th><th>মোবাইল</th><th>সাব-টোটাল</th><th>ছাড়</th><th>নেট পেয়েবল</th><th>অ্যাকশন</th></tr></thead>
                 <tbody id="salesListBody"></tbody>
             </table>
         </div>
-        <div class="mt-4 text-right font-bold">মোট বিক্রয়: <span id="totalSalesAmount" class="text-indigo-700">০</span> টাকা</div>
+        <div class="mt-4 text-right font-bold">মোট বিক্রয় (নেট): <span id="totalSalesAmount" class="text-indigo-700">০</span> টাকা</div>
     </div>
 </div>
 
-<!-- REPORTS TAB (Daily, Weekly, Yearly) -->
+<!-- REPORTS TAB -->
 <div id="reportsTab" class="tab-content hidden">
     <div class="bg-white rounded-xl shadow p-5 max-w-6xl mx-auto">
-        <h2 class="text-2xl font-bold text-indigo-900 mb-4">📈 বিক্রয় রিপোর্ট</h2>
+        <h2 class="text-2xl font-bold text-indigo-900 mb-4">📈 বিক্রয় রিপোর্ট (ছাড়সহ)</h2>
         <div class="flex gap-4 mb-6 flex-wrap">
             <button data-period="daily" class="period-btn bg-indigo-600 text-white px-5 py-2 rounded-full">দৈনিক রিপোর্ট</button>
             <button data-period="weekly" class="period-btn bg-gray-200 px-5 py-2 rounded-full">সাপ্তাহিক রিপোর্ট</button>
             <button data-period="yearly" class="period-btn bg-gray-200 px-5 py-2 rounded-full">বার্ষিক রিপোর্ট</button>
         </div>
         <div id="reportSummary" class="mb-5 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-        <div id="reportDetails" class="overflow-x-auto">
-            <table class="min-w-full border"><thead class="bg-indigo-700 text-white"><tr><th>সময়কাল</th><th>মোট বিক্রয় (টাকা)</th><th>লেনদেন সংখ্যা</th></tr></thead><tbody id="reportTableBody"></tbody></table>
-        </div>
+        <div class="overflow-x-auto"><table class="min-w-full border"><thead class="bg-indigo-700 text-white"><tr><th>সময়কাল</th><th>মোট বিক্রয় (নেট)</th><th>লেনদেন সংখ্যা</th></tr></thead><tbody id="reportTableBody"></tbody></table></div>
     </div>
 </div>
 
-<!-- DASHBOARD TAB (Accounting Overview) -->
+<!-- DASHBOARD TAB -->
 <div id="dashboardTab" class="tab-content hidden">
     <div class="bg-white rounded-xl shadow p-5 max-w-6xl mx-auto">
         <h2 class="text-2xl font-bold text-indigo-900 mb-4">📊 ড্যাশবোর্ড & হিসাব সংক্ষেপ</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-            <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white p-5 rounded-2xl shadow"><p class="text-sm">মোট বিক্রয় (সর্বকাল)</p><p id="totalRevenue" class="text-3xl font-bold">০ টাকা</p></div>
-            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-5 rounded-2xl shadow"><p class="text-sm">মোট ইনভয়েস সংখ্যা</p><p id="totalInvoicesCount" class="text-3xl font-bold">০</p></div>
-            <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white p-5 rounded-2xl shadow"><p class="text-sm">বর্তমান মাসের বিক্রয়</p><p id="monthlySales" class="text-3xl font-bold">০ টাকা</p></div>
+            <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white p-5 rounded-2xl"><p class="text-sm">মোট বিক্রয় (নেট)</p><p id="totalRevenue" class="text-3xl font-bold">০ টাকা</p></div>
+            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-5 rounded-2xl"><p class="text-sm">মোট ইনভয়েস সংখ্যা</p><p id="totalInvoicesCount" class="text-3xl font-bold">০</p></div>
+            <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white p-5 rounded-2xl"><p class="text-sm">বর্তমান মাসের বিক্রয়</p><p id="monthlySales" class="text-3xl font-bold">০ টাকা</p></div>
         </div>
-        <div class="mb-6">
-            <canvas id="salesChart" width="400" height="200" style="max-height: 300px;"></canvas>
-        </div>
-        <div class="bg-gray-50 p-4 rounded-xl">
-            <h3 class="font-bold text-lg mb-2">📌 দ্রুত পরিসংখ্যান</h3>
-            <div id="quickStats" class="grid grid-cols-2 gap-3 text-sm"></div>
-        </div>
+        <div class="mb-6"><canvas id="salesChart" width="400" height="200" style="max-height: 300px;"></canvas></div>
+        <div class="bg-gray-50 p-4 rounded-xl"><h3 class="font-bold text-lg mb-2">📌 দ্রুত পরিসংখ্যান</h3><div id="quickStats" class="grid grid-cols-2 gap-3 text-sm"></div></div>
     </div>
 </div>
 
 <script>
-    // ---------- GLOBAL DATA ----------
-    let allInvoices = [];   // array of invoice objects
+    // ---------- GLOBAL ----------
+    let allInvoices = [];
     let currentRowCount = 0;
     const MAX_ROWS = 10;
     let chartInstance = null;
 
-    // DOM Elements for Invoice
+    // DOM Elements
     const tbody = document.getElementById('invoiceItemsBody');
+    const subtotalCell = document.getElementById('subtotalCell');
+    const discountPercent = document.getElementById('discountPercent');
+    const discountFlat = document.getElementById('discountFlat');
+    const discountAmountCell = document.getElementById('discountAmountCell');
     const grandTotalCell = document.getElementById('grandTotalCell');
-    const addRowBtn = document.getElementById('addRowBtn');
-    const removeLastBtn = document.getElementById('removeLastRowBtn');
-    const saveInvoiceBtn = document.getElementById('saveInvoiceBtn');
-    const printInvoiceBtn = document.getElementById('printInvoiceBtn');
 
-    // Helper: Load data from localStorage
-    function loadInvoicesFromStorage() {
-        const stored = localStorage.getItem('shop_invoices');
-        if(stored) {
-            allInvoices = JSON.parse(stored);
-        } else {
-            // demo sample data for professional look
-            allInvoices = [];
-            // optional seed data
-        }
-        updateAllUI();
+    // Helper: compute subtotal from items
+    function computeSubtotal() {
+        let sum = 0;
+        document.querySelectorAll('#invoiceItemsBody tr .item-total').forEach(inp => {
+            let v = parseFloat(inp.value);
+            if(!isNaN(v)) sum += v;
+        });
+        subtotalCell.innerText = '৳ ' + sum.toFixed(2);
+        return sum;
     }
 
-    function saveInvoicesToStorage() {
-        localStorage.setItem('shop_invoices', JSON.stringify(allInvoices));
-        updateAllUI();
+    // Recalculate discount and grand total
+    function updateDiscountAndTotal() {
+        const subtotal = computeSubtotal();
+        let discPercent = parseFloat(discountPercent.value) || 0;
+        let discFlat = parseFloat(discountFlat.value) || 0;
+        let discountAmount = 0;
+        if (discPercent > 0) discountAmount = (subtotal * discPercent) / 100;
+        else if (discFlat > 0) discountAmount = Math.min(discFlat, subtotal);
+        // if both given, prefer percentage (clear flat)
+        if (discPercent > 0 && discFlat > 0) { discountFlat.value = 0; discFlat = 0; discountAmount = (subtotal * discPercent) / 100; }
+        discountAmountCell.innerText = '- ৳ ' + discountAmount.toFixed(2);
+        const finalTotal = subtotal - discountAmount;
+        grandTotalCell.innerText = '৳ ' + finalTotal.toFixed(2);
+        return finalTotal;
     }
 
-    // Update all tabs & dashboard
-    function updateAllUI() {
-        renderSalesList();
-        renderDashboard();
-        renderReports();  // will render current active period (daily)
-        updateInvoiceSaveStatus(); // just refresh
-    }
+    // Event listeners for discount fields
+    discountPercent.addEventListener('input', function() { if(this.value) discountFlat.value = 0; updateDiscountAndTotal(); });
+    discountFlat.addEventListener('input', function() { if(this.value) discountPercent.value = 0; updateDiscountAndTotal(); });
 
-    // ---------------- INVOICE BUILDER -----------------
+    // Row management (similar to before, but ensure update totals)
     function computeRowTotal(row) {
         const qty = parseFloat(row.querySelector('.item-qty')?.value) || 0;
         const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
         const total = qty * price;
         const totalField = row.querySelector('.item-total');
         if(totalField) totalField.value = total.toFixed(2);
-        updateGrandTotal();
-    }
-
-    function updateGrandTotal() {
-        let sum = 0;
-        document.querySelectorAll('#invoiceItemsBody tr .item-total').forEach(inp => {
-            let v = parseFloat(inp.value);
-            if(!isNaN(v)) sum += v;
-        });
-        grandTotalCell.innerText = '৳ ' + sum.toFixed(2);
-        return sum;
+        updateDiscountAndTotal(); // refresh everything
     }
 
     function attachRowEvents(row) {
@@ -321,20 +223,17 @@
                 row.remove();
                 currentRowCount--;
                 reindexSerialNumbers();
-                updateGrandTotal();
+                updateDiscountAndTotal();
             });
         }
     }
 
     function reindexSerialNumbers() {
         const rows = tbody.querySelectorAll('tr');
-        rows.forEach((r, idx) => {
-            const serialCell = r.querySelector('.serial-num');
-            if(serialCell) serialCell.innerText = (idx+1).toString();
-        });
+        rows.forEach((r, idx) => { const serialCell = r.querySelector('.serial-num'); if(serialCell) serialCell.innerText = (idx+1).toString(); });
         currentRowCount = rows.length;
-        if(addRowBtn) addRowBtn.disabled = currentRowCount >= MAX_ROWS;
-        if(removeLastBtn) removeLastBtn.disabled = currentRowCount <= 1;
+        document.getElementById('addRowBtn').disabled = currentRowCount >= MAX_ROWS;
+        document.getElementById('removeLastRowBtn').disabled = currentRowCount <= 1;
     }
 
     function createNewRow(serial, data = null) {
@@ -365,7 +264,9 @@
         demo.forEach((item, i) => tbody.appendChild(createNewRow(i+1, item)));
         currentRowCount = demo.length;
         reindexSerialNumbers();
-        updateGrandTotal();
+        discountPercent.value = 0;
+        discountFlat.value = 0;
+        updateDiscountAndTotal();
     }
 
     function getCurrentInvoiceObject() {
@@ -379,6 +280,12 @@
                 total: (parseFloat(row.querySelector('.item-qty')?.value)||0) * (parseFloat(row.querySelector('.item-price')?.value)||0)
             });
         });
+        const subtotal = computeSubtotal();
+        const discPercentVal = parseFloat(discountPercent.value) || 0;
+        const discFlatVal = parseFloat(discountFlat.value) || 0;
+        let discountAmount = 0;
+        if(discPercentVal > 0) discountAmount = (subtotal * discPercentVal) / 100;
+        else if(discFlatVal > 0) discountAmount = discFlatVal;
         return {
             id: Date.now(),
             voucher: document.getElementById('voucherNo').value,
@@ -390,45 +297,45 @@
                 email: document.getElementById('custEmail').value
             },
             items: items,
-            grandTotal: updateGrandTotal(),
+            subtotal: subtotal,
+            discountPercent: discPercentVal,
+            discountFlat: discFlatVal,
+            discountAmount: discountAmount,
+            grandTotal: subtotal - discountAmount,
             timestamp: new Date().toISOString()
         };
     }
 
     function saveCurrentInvoiceToHistory() {
-        const newInvoice = getCurrentInvoiceObject();
-        if(newInvoice.items.length === 0 || newInvoice.grandTotal === 0) {
-            alert("কোনো পণ্য যোগ করুন অথবা মোট টাকা শূন্য!");
-            return false;
-        }
-        if(!newInvoice.date) newInvoice.date = new Date().toISOString().slice(0,10);
-        allInvoices.unshift(newInvoice);
+        const inv = getCurrentInvoiceObject();
+        if(inv.items.length === 0 || inv.subtotal === 0) { alert("কোনো পণ্য যোগ করুন!"); return false; }
+        if(!inv.date) inv.date = new Date().toISOString().slice(0,10);
+        allInvoices.unshift(inv);
         saveInvoicesToStorage();
-        alert("ইনভয়েস সফলভাবে সংরক্ষিত হয়েছে!");
-        resetInvoiceForm();  // fresh form for next invoice
+        alert("ইনভয়েস সংরক্ষিত (ছাড়সহ)!");
+        resetInvoiceForm();
         return true;
     }
 
     function resetInvoiceForm() {
-        // reset fields except voucher auto generate
         document.getElementById('custName').value = '';
         document.getElementById('custMobile').value = '';
         document.getElementById('custAddress').value = '';
         document.getElementById('custEmail').value = '';
         document.getElementById('voucherNo').value = 'SBA-'+new Date().getTime().toString().slice(-6);
-        setDefaultRows(); // default demo rows again
+        setDefaultRows();
         setTodayDate();
+        discountPercent.value = 0;
+        discountFlat.value = 0;
+        updateDiscountAndTotal();
     }
 
     function setTodayDate() {
-        const today = new Date().toISOString().slice(0,10);
-        document.getElementById('invoiceDate').value = today;
+        document.getElementById('invoiceDate').value = new Date().toISOString().slice(0,10);
     }
 
-    // Print Invoice (full A4)
+    // Print / PDF with discount included
     async function printInvoicePDF() {
-        const originalTitle = document.title;
-        document.title = "ইনভয়েস_"+document.getElementById('voucherNo').value;
         const element = document.getElementById('memoContainer');
         const hideItems = document.querySelectorAll('.no-print, .print-hide, .action-col, .remove-row-btn, #addRowBtn, #removeLastRowBtn, #saveInvoiceBtn, #printInvoiceBtn');
         let displays = [];
@@ -438,169 +345,119 @@
             await html2pdf().set(opt).from(element).save();
         } catch(e) { alert("PDF error"); }
         hideItems.forEach((el, idx) => el.style.display = displays[idx]);
-        document.title = originalTitle;
     }
 
-    // ---------------- SALES RECORDS -----------------
+    // Storage
+    function loadInvoicesFromStorage() {
+        const stored = localStorage.getItem('shop_invoices_discount');
+        if(stored) allInvoices = JSON.parse(stored);
+        else allInvoices = [];
+        updateAllUI();
+    }
+    function saveInvoicesToStorage() {
+        localStorage.setItem('shop_invoices_discount', JSON.stringify(allInvoices));
+        updateAllUI();
+    }
+
+    function updateAllUI() { renderSalesList(); renderDashboard(); renderReports(); }
+
+    // Sales List with discount
     function renderSalesList() {
         const tbodySales = document.getElementById('salesListBody');
         const searchTerm = document.getElementById('searchInvoice')?.value.toLowerCase() || '';
         const filterDate = document.getElementById('filterDate')?.value || '';
-        let filtered = [...allInvoices];
-        if(searchTerm) filtered = filtered.filter(inv => inv.voucher.toLowerCase().includes(searchTerm) || inv.customer.name.toLowerCase().includes(searchTerm));
-        if(filterDate) filtered = filtered.filter(inv => inv.date === filterDate);
-        let totalAmount = 0;
-        if(!tbodySales) return;
+        let filtered = allInvoices.filter(inv => {
+            if(searchTerm && !inv.voucher.toLowerCase().includes(searchTerm) && !inv.customer.name.toLowerCase().includes(searchTerm)) return false;
+            if(filterDate && inv.date !== filterDate) return false;
+            return true;
+        });
+        let totalNet = 0;
         tbodySales.innerHTML = '';
         filtered.forEach(inv => {
-            totalAmount += inv.grandTotal;
-            const row = `<tr class="border-b hover:bg-gray-50"><td class="p-2">${inv.date}</td><td>${inv.voucher}</td><td>${inv.customer.name}</td><td>${inv.customer.mobile}</td><td class="font-bold">${inv.grandTotal.toFixed(2)}</td><td><button onclick="deleteInvoice(${inv.id})" class="bg-red-500 text-white px-3 py-1 rounded text-xs">মুছুন</button></td></tr>`;
-            tbodySales.insertAdjacentHTML('beforeend', row);
+            totalNet += inv.grandTotal;
+            tbodySales.insertAdjacentHTML('beforeend', `<tr class="border-b"><td class="p-2">${inv.date}</td><td>${inv.voucher}</td><td>${inv.customer.name}</td><td>${inv.customer.mobile}</td><td class="text-right">${inv.subtotal.toFixed(2)}</td><td class="text-right text-red-600">${inv.discountAmount.toFixed(2)}</td><td class="font-bold text-right">${inv.grandTotal.toFixed(2)}</td><td><button onclick="deleteInvoice(${inv.id})" class="bg-red-500 text-white px-2 py-1 rounded text-xs">মুছুন</button></td></tr>`);
         });
-        document.getElementById('totalSalesAmount').innerText = totalAmount.toFixed(2);
+        document.getElementById('totalSalesAmount').innerText = totalNet.toFixed(2);
     }
 
     window.deleteInvoice = function(id) {
-        if(confirm("ইনভয়েস ডিলিট করবেন?")){
-            allInvoices = allInvoices.filter(inv => inv.id !== id);
-            saveInvoicesToStorage();
-            renderSalesList();
-            renderDashboard();
-            renderReports();
-        }
+        if(confirm("ইনভয়েস ডিলিট করবেন?")) { allInvoices = allInvoices.filter(inv => inv.id !== id); saveInvoicesToStorage(); }
     };
 
-    // ---------------- REPORTS (Daily, Weekly, Yearly) ----------------
-    let currentPeriod = 'daily';
+    // Reports respecting discount (net sales)
     function renderReports() {
         if(!document.getElementById('reportTableBody')) return;
         const groups = new Map();
-        if(currentPeriod === 'daily') {
-            allInvoices.forEach(inv => {
-                const day = inv.date;
-                if(!groups.has(day)) groups.set(day, { total: 0, count: 0 });
-                groups.get(day).total += inv.grandTotal;
-                groups.get(day).count += 1;
-            });
-            const sorted = Array.from(groups.keys()).sort().reverse();
-            let html = ''; let overall = 0;
-            sorted.forEach(d => { let g = groups.get(d); overall += g.total; html += `<tr><td>${d}</td><td class="font-bold">${g.total.toFixed(2)}</td><td>${g.count}</td></tr>`; });
+        const period = currentPeriod;
+        if(period === 'daily') {
+            allInvoices.forEach(inv => { const day = inv.date; if(!groups.has(day)) groups.set(day, { total: 0, count: 0 }); groups.get(day).total += inv.grandTotal; groups.get(day).count++; });
+            let overall = 0, html = '';
+            Array.from(groups.keys()).sort().reverse().forEach(d => { let g = groups.get(d); overall += g.total; html += `<tr><td>${d}</td><td class="font-bold">${g.total.toFixed(2)}</td><td>${g.count}</td></tr>`; });
             document.getElementById('reportTableBody').innerHTML = html || '<tr><td colspan="3">কোনো রেকর্ড নেই</td></tr>';
-            document.getElementById('reportSummary').innerHTML = `<div class="bg-indigo-100 p-4 rounded-xl"><p class="text-sm">দৈনিক রিপোর্ট</p><p class="text-2xl font-bold">মোট: ${overall.toFixed(2)} ৳</p></div>`;
-        }
-        else if(currentPeriod === 'weekly') {
-            allInvoices.forEach(inv => {
-                const dateObj = new Date(inv.date);
-                const year = dateObj.getFullYear();
-                const week = getWeekNumber(dateObj);
-                const key = `${year}-W${week}`;
-                if(!groups.has(key)) groups.set(key, { total: 0, count: 0 });
-                groups.get(key).total += inv.grandTotal;
-                groups.get(key).count += 1;
-            });
-            let html = ''; let overall = 0;
-            Array.from(groups.keys()).sort().reverse().forEach(k => {
-                let g = groups.get(k); overall += g.total;
-                html += `<tr><td>সপ্তাহ ${k}</td><td>${g.total.toFixed(2)}</td><td>${g.count}</td></tr>`;
-            });
+            document.getElementById('reportSummary').innerHTML = `<div class="bg-indigo-100 p-4 rounded-xl"><p class="text-sm">দৈনিক রিপোর্ট (নেট)</p><p class="text-2xl font-bold">মোট: ${overall.toFixed(2)} ৳</p></div>`;
+        } else if(period === 'weekly') {
+            allInvoices.forEach(inv => { const d = new Date(inv.date); const week = getWeekNumber(d); const key = `${d.getFullYear()}-W${week}`; if(!groups.has(key)) groups.set(key, { total:0, count:0 }); groups.get(key).total += inv.grandTotal; groups.get(key).count++; });
+            let overall=0, html='';
+            Array.from(groups.keys()).sort().reverse().forEach(k => { let g = groups.get(k); overall+=g.total; html+=`<tr><td>সপ্তাহ ${k}</td><td>${g.total.toFixed(2)}</td><td>${g.count}</td></tr>`; });
             document.getElementById('reportTableBody').innerHTML = html;
             document.getElementById('reportSummary').innerHTML = `<div class="bg-amber-100 p-4 rounded-xl"><p class="text-sm">সাপ্তাহিক রিপোর্ট</p><p class="text-2xl font-bold">মোট: ${overall.toFixed(2)} ৳</p></div>`;
-        }
-        else if(currentPeriod === 'yearly') {
-            allInvoices.forEach(inv => {
-                const year = inv.date.slice(0,4);
-                if(!groups.has(year)) groups.set(year, { total: 0, count: 0 });
-                groups.get(year).total += inv.grandTotal;
-                groups.get(year).count += 1;
-            });
-            let html = ''; let overall = 0;
-            Array.from(groups.keys()).sort().reverse().forEach(y => {
-                let g = groups.get(y); overall += g.total;
-                html += `<tr><td>${y}</td><td>${g.total.toFixed(2)}</td><td>${g.count}</td></tr>`;
-            });
+        } else {
+            allInvoices.forEach(inv => { const year = inv.date.slice(0,4); if(!groups.has(year)) groups.set(year, { total:0, count:0 }); groups.get(year).total += inv.grandTotal; groups.get(year).count++; });
+            let overall=0, html='';
+            Array.from(groups.keys()).sort().reverse().forEach(y => { let g = groups.get(y); overall+=g.total; html+=`<tr><td>${y}</td><td>${g.total.toFixed(2)}</td><td>${g.count}</td></tr>`; });
             document.getElementById('reportTableBody').innerHTML = html;
             document.getElementById('reportSummary').innerHTML = `<div class="bg-green-100 p-4 rounded-xl"><p class="text-sm">বার্ষিক রিপোর্ট</p><p class="text-2xl font-bold">মোট: ${overall.toFixed(2)} ৳</p></div>`;
         }
     }
+    function getWeekNumber(d) { const date = new Date(d.getTime()); date.setHours(0,0,0,0); date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7); const week1 = new Date(date.getFullYear(), 0, 4); return 1 + Math.round(((date - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7); }
 
-    function getWeekNumber(d) {
-        const date = new Date(d.getTime());
-        date.setHours(0,0,0,0);
-        date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-        const week1 = new Date(date.getFullYear(), 0, 4);
-        return 1 + Math.round(((date - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-    }
-
-    // DASHBOARD
+    // Dashboard
     function renderDashboard() {
-        let totalRev = 0;
-        allInvoices.forEach(i => totalRev += i.grandTotal);
-        document.getElementById('totalRevenue').innerHTML = totalRev.toFixed(2) + ' টাকা';
+        let totalNet = allInvoices.reduce((s,inv)=>s+inv.grandTotal,0);
+        document.getElementById('totalRevenue').innerHTML = totalNet.toFixed(2) + ' টাকা';
         document.getElementById('totalInvoicesCount').innerText = allInvoices.length;
         const currentMonth = new Date().toISOString().slice(0,7);
-        let monthSales = 0;
-        allInvoices.forEach(i => { if(i.date.startsWith(currentMonth)) monthSales += i.grandTotal; });
+        let monthSales = allInvoices.filter(i=>i.date.startsWith(currentMonth)).reduce((s,i)=>s+i.grandTotal,0);
         document.getElementById('monthlySales').innerHTML = monthSales.toFixed(2) + ' টাকা';
-        // quick stats
         const today = new Date().toISOString().slice(0,10);
-        let todaySales = 0, weekSales = 0;
-        allInvoices.forEach(i => { if(i.date === today) todaySales += i.grandTotal; });
-        const last7 = new Date(); last7.setDate(last7.getDate()-7);
-        allInvoices.forEach(i => { if(i.date >= last7.toISOString().slice(0,10)) weekSales += i.grandTotal; });
+        let todaySales = allInvoices.filter(i=>i.date===today).reduce((s,i)=>s+i.grandTotal,0);
+        let weekSales = 0; const last7 = new Date(); last7.setDate(last7.getDate()-7);
+        allInvoices.forEach(i=>{ if(i.date >= last7.toISOString().slice(0,10)) weekSales+=i.grandTotal; });
         document.getElementById('quickStats').innerHTML = `<div class="bg-blue-50 p-2 rounded">আজকের বিক্রয়: ${todaySales.toFixed(2)} ৳</div><div class="bg-green-50 p-2 rounded">গত ৭ দিনে: ${weekSales.toFixed(2)} ৳</div>`;
-        // chart: last 7 days
         if(chartInstance) chartInstance.destroy();
         const ctx = document.getElementById('salesChart')?.getContext('2d');
         if(ctx){
-            const last7Days = [];
-            for(let i=6;i>=0;i--){ let d = new Date(); d.setDate(d.getDate()-i); last7Days.push(d.toISOString().slice(0,10)); }
-            const dataPoints = last7Days.map(day => allInvoices.filter(inv => inv.date === day).reduce((s,inv)=>s+inv.grandTotal,0));
-            chartInstance = new Chart(ctx, { type: 'line', data: { labels: last7Days, datasets: [{ label: 'দৈনিক বিক্রয় (টাকা)', data: dataPoints, borderColor: '#4f46e5', tension: 0.3, fill: true }] } });
+            let last7Days = []; for(let i=6;i>=0;i--){ let d=new Date(); d.setDate(d.getDate()-i); last7Days.push(d.toISOString().slice(0,10)); }
+            const dataPoints = last7Days.map(day => allInvoices.filter(inv=>inv.date===day).reduce((s,i)=>s+i.grandTotal,0));
+            chartInstance = new Chart(ctx, { type: 'line', data: { labels: last7Days, datasets: [{ label: 'নেট দৈনিক বিক্রয় (টাকা)', data: dataPoints, borderColor: '#4f46e5', tension: 0.3, fill: true }] } });
         }
     }
 
-    // Helper escape
-    function escapeHtml(str){ if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;});}
+    // Helper
+    function escapeHtml(str){ if(!str) return ''; return str.replace(/[&<>]/g, m=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
 
-    // TABS handling
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tabId = btn.getAttribute('data-tab');
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active', 'bg-indigo-600', 'text-white'));
-            btn.classList.add('tab-active', 'bg-indigo-600', 'text-white');
-            if(tabId === 'recordsTab') renderSalesList();
-            if(tabId === 'reportsTab') renderReports();
-            if(tabId === 'dashboardTab') renderDashboard();
-        });
-    });
-    document.querySelectorAll('.period-btn').forEach(p => {
-        p.addEventListener('click', (e) => {
-            currentPeriod = e.target.getAttribute('data-period');
-            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('bg-indigo-600','text-white','bg-gray-200')); 
-            e.target.classList.add('bg-indigo-600','text-white');
-            renderReports();
-        });
-    });
+    // TABS and initialization
+    let currentPeriod = 'daily';
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click',()=>{
+        const id = btn.getAttribute('data-tab');
+        document.querySelectorAll('.tab-content').forEach(tc=>tc.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('tab-active','bg-indigo-600','text-white'));
+        btn.classList.add('tab-active','bg-indigo-600','text-white');
+        if(id==='recordsTab') renderSalesList(); if(id==='reportsTab') renderReports(); if(id==='dashboardTab') renderDashboard();
+    }));
+    document.querySelectorAll('.period-btn').forEach(p=>p.addEventListener('click',(e)=>{ currentPeriod=e.target.getAttribute('data-period'); document.querySelectorAll('.period-btn').forEach(btn=>btn.classList.remove('bg-indigo-600','text-white')); e.target.classList.add('bg-indigo-600','text-white'); renderReports(); }));
     document.getElementById('searchInvoice')?.addEventListener('input', renderSalesList);
     document.getElementById('filterDate')?.addEventListener('change', renderSalesList);
-    document.getElementById('clearFilterBtn')?.addEventListener('click', () => { document.getElementById('searchInvoice').value=''; document.getElementById('filterDate').value=''; renderSalesList(); });
-
-    // Invoice events
-    addRowBtn.addEventListener('click', () => { if(currentRowCount<MAX_ROWS){ tbody.appendChild(createNewRow(currentRowCount+1,null)); currentRowCount++; reindexSerialNumbers(); updateGrandTotal();} else alert("সর্বোচ্চ ১০টি"); });
-    removeLastBtn.addEventListener('click', () => { if(currentRowCount>1){ const rows = tbody.querySelectorAll('tr'); rows[rows.length-1].remove(); currentRowCount--; reindexSerialNumbers(); updateGrandTotal();} else alert("অন্তত ১টি রেখে দিন"); });
-    saveInvoiceBtn.addEventListener('click', saveCurrentInvoiceToHistory);
-    printInvoiceBtn.addEventListener('click', printInvoicePDF);
-    
-    // initialization
+    document.getElementById('clearFilterBtn')?.addEventListener('click',()=>{ document.getElementById('searchInvoice').value=''; document.getElementById('filterDate').value=''; renderSalesList(); });
+    document.getElementById('addRowBtn').addEventListener('click',()=>{ if(currentRowCount<MAX_ROWS){ tbody.appendChild(createNewRow(currentRowCount+1,null)); currentRowCount++; reindexSerialNumbers(); updateDiscountAndTotal();} else alert("সর্বোচ্চ ১০টি"); });
+    document.getElementById('removeLastRowBtn').addEventListener('click',()=>{ if(currentRowCount>1){ const rows = tbody.querySelectorAll('tr'); rows[rows.length-1].remove(); currentRowCount--; reindexSerialNumbers(); updateDiscountAndTotal();} else alert("অন্তত ১টি রাখুন"); });
+    document.getElementById('saveInvoiceBtn').addEventListener('click', saveCurrentInvoiceToHistory);
+    document.getElementById('printInvoiceBtn').addEventListener('click', printInvoicePDF);
     loadInvoicesFromStorage();
     setDefaultRows();
     setTodayDate();
     document.getElementById('voucherNo').value = 'SBA-'+new Date().getTime().toString().slice(-6);
-    renderSalesList();
-    renderDashboard();
-    renderReports();
 </script>
 </body>
 </html>
