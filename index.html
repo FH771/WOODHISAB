@@ -47,21 +47,109 @@
 <div id="invoiceTab" class="tab-content">
     <div id="memoContainer" class="a4-memo relative mx-auto">
         <div class="absolute top-0 left-0 w-full h-1.5 bg-indigo-900"></div>
+        
+        <!-- Header Section (SBA and Date moved to Left Side) -->
         <div class="flex justify-between items-start mb-5">
-            <div><h1 class="text-3xl font-extrabold text-indigo-950">ডিজিটাল সেবা সার্ভিস</h1><p class="text-indigo-700 font-semibold text-sm">⚡ বিশ্বস্ত ডিজিটাল সリューション পার্টনার</p><div class="text-slate-600 text-[11px] mt-2"><p>📞 ০১৬৯০০০২৮২৮ | 📍 শিল্প এলাকা, কাপ্তাই, রাঙ্গামাটি</p><p>📧 digital@shaba.com.bd</p></div></div>
-            <div class="text-right"><div class="bg-indigo-900 text-white font-bold py-2 px-5 rounded-md">🧾 ক্যাশ মেমো</div><div class="mt-2 space-y-1"><input type="text" id="voucherNo" placeholder="ভাউচার নং" class="input-clean w-40 text-right text-sm"><input type="date" id="invoiceDate" class="input-clean w-40 text-right text-sm"></div></div>
+            <div class="text-left space-y-1">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-indigo-950">ভাউচার:</span>
+                    <input type="text" id="voucherNo" value="SBA-" class="input-clean w-36 text-left text-sm font-semibold">
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-indigo-950">তারিখ:</span>
+                    <input type="date" id="invoiceDate" class="input-clean w-36 text-left text-sm">
+                </div>
+            </div>
+            <div class="text-right">
+                <h1 class="text-3xl font-extrabold text-indigo-950">ডিজিটাল সেবা সার্ভিস</h1>
+                <p class="text-indigo-700 font-semibold text-sm">⚡ বিশ্বস্ত ডিজিটাল সリューション পার্টনার</p>
+                <div class="text-slate-600 text-[11px] mt-2">
+                    <p>📞 ০১৬৯০০০২৮২৮ | 📍 শিল্প এলাকা, কাপ্তাই, রাঙ্গামাটি</p>
+                    <p>📧 digital@shaba.com.bd</p>
+                </div>
+                <div class="bg-indigo-900 text-white font-bold py-1 px-4 rounded-md inline-block mt-2 text-xs">🧾 ক্যাশ মেমো</div>
+            </div>
         </div>
-        <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg mb-5"><input type="text" id="custName" placeholder="ক্রেতার নাম" class="input-clean text-sm"><input type="text" id="custMobile" placeholder="মোবাইল" class="input-clean text-sm"><input type="text" id="custAddress" placeholder="ঠিকানা" class="input-clean text-sm"><input type="email" id="custEmail" placeholder="ইমেইল" class="input-clean text-sm"></div>
-        <div class="overflow-x-auto mb-3"><table id="itemsTable"><thead><tr><th class="w-8">#</th><th>পণ্যের বিবরণ</th><th class="w-20">পরিমাণ</th><th class="w-24">দর</th><th class="w-28">মোট</th><th class="w-10 action-col">অ্যাকশন</th></tr></thead><tbody id="invoiceItemsBody"></tbody><tfoot><tr class="bg-gray-50"><td colspan="4" class="text-right font-semibold">সাব-টোটাল:</td><td id="subtotalCell" class="text-right font-medium"></td></tr><tr id="discountRow" style="display: none;"><td colspan="4" class="text-right font-semibold">ছাড় (<input type="number" id="discountPercent" class="w-16 input-clean inline-block text-center" step="any"> % অথবা <input type="number" id="discountFlat" class="w-20 input-clean inline-block text-center" step="any"> টাকা):</td><td id="discountAmountCell" class="text-right text-red-600 font-medium"></td><td class="action-col"></td></tr><tr class="total-row"><td colspan="4" class="text-right font-bold text-lg">সর্বমোট (ছাড় পর):</td><td id="grandTotalCell" class="text-right font-black text-indigo-900 text-lg"></td><td class="action-col"></td></tr></tfoot></table></div>
-        <div class="flex flex-wrap gap-3 mt-3 no-print print-hide"><button id="addRowBtn" class="bg-emerald-600 text-white px-4 py-1.5 rounded-full text-sm font-bold">➕ আইটেম যোগ</button><button id="removeLastRowBtn" class="bg-amber-600 text-white px-4 py-1.5 rounded-full text-sm font-bold">➖ শেষ সারি মুছুন</button><button id="saveInvoiceBtn" class="bg-indigo-700 text-white px-5 py-1.5 rounded-full text-sm font-bold">💾 ইনভয়েস সংরক্ষণ করুন</button><button id="printInvoiceBtn" class="bg-gray-700 text-white px-5 py-1.5 rounded-full text-sm font-bold">🖨️ প্রিন্ট / PDF</button></div>
-        <div class="mt-6 flex justify-between px-4 pt-4 border-t"><div class="text-center"><div class="border-t w-28 mb-1"></div><p class="text-[10px]">ক্রেতার স্বাক্ষর</p></div><div class="text-center"><div class="border-t w-28 mb-1"></div><p class="text-[10px]">কর্তৃপক্ষের স্বাক্ষর</p></div><div class="text-right text-[10px] text-gray-400">ধন্যবাদ 🌸</div></div>
+        
+        <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg mb-5">
+            <input type="text" id="custName" placeholder="ক্রেতার নাম" class="input-clean text-sm">
+            <input type="text" id="custMobile" placeholder="মোবাইল" class="input-clean text-sm">
+            <input type="text" id="custAddress" placeholder="ঠিকানা" class="input-clean text-sm">
+            <input type="email" id="custEmail" placeholder="ইমেইল" class="input-clean text-sm">
+        </div>
+
+        <div class="overflow-x-auto mb-3">
+            <table id="itemsTable">
+                <thead>
+                    <tr>
+                        <th class="w-8">#</th>
+                        <th>পণ্যের বিবরণ</th>
+                        <th class="w-20">পরিমাণ</th>
+                        <th class="w-24">দর</th>
+                        <th class="w-28">মোট</th>
+                        <th class="w-10 action-col">অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceItemsBody"></tbody>
+                <tfoot>
+                    <tr class="bg-gray-50">
+                        <td colspan="4" class="text-right font-semibold">সাব-টোটাল:</td>
+                        <td id="subtotalCell" class="text-right font-medium"></td>
+                        <td class="action-col"></td>
+                    </tr>
+                    <tr id="discountRow" style="display: none;">
+                        <td colspan="4" class="text-right font-semibold">
+                            ছাড় (<input type="number" id="discountPercent" class="w-16 input-clean inline-block text-center" step="any"> % অথবা 
+                            <input type="number" id="discountFlat" class="w-20 input-clean inline-block text-center" step="any"> টাকা):
+                        </td>
+                        <td id="discountAmountCell" class="text-right text-red-600 font-medium"></td>
+                        <td class="action-col"></td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="4" class="text-right font-bold text-lg">সর্বমোট (ছাড় পর):</td>
+                        <td id="grandTotalCell" class="text-right font-black text-indigo-900 text-lg"></td>
+                        <td class="action-col"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="flex flex-wrap gap-3 mt-3 no-print print-hide">
+            <button id="addRowBtn" class="bg-emerald-600 text-white px-4 py-1.5 rounded-full text-sm font-bold">➕ আইটেম যোগ</button>
+            <button id="removeLastRowBtn" class="bg-amber-600 text-white px-4 py-1.5 rounded-full text-sm font-bold">➖ শেষ সারি মুছুন</button>
+            <button id="blankMemoBtn" class="bg-blue-600 text-white px-4 py-1.5 rounded-full text-sm font-bold">📄 খালি মেমো তৈরি করুন</button>
+            <button id="saveInvoiceBtn" class="bg-indigo-700 text-white px-5 py-1.5 rounded-full text-sm font-bold">💾 ইনভয়েস সংরক্ষণ করুন</button>
+            <button id="printInvoiceBtn" class="bg-gray-700 text-white px-5 py-1.5 rounded-full text-sm font-bold">🖨️ প্রিন্ট / PDF</button>
+        </div>
+
+        <div class="mt-6 flex justify-between px-4 pt-4 border-t">
+            <div class="text-center"><div class="border-t w-28 mb-1"></div><p class="text-[10px]">ক্রেতার স্বাক্ষর</p></div>
+            <div class="text-center"><div class="border-t w-28 mb-1"></div><p class="text-[10px]">কর্তৃপক্ষের স্বাক্ষর</p></div>
+            <div class="text-right text-[10px] text-gray-400">ধন্যবাদ 🌸</div>
+        </div>
         <div class="text-center text-[10px] text-gray-400 mt-2">* সেবা গ্রহণের জন্য ধন্যবাদ *</div>
     </div>
 </div>
 
 <!-- SALES RECORDS TAB -->
 <div id="recordsTab" class="tab-content hidden">
-    <div class="bg-white rounded-xl shadow p-5 max-w-6xl mx-auto"><h2 class="text-2xl font-bold text-indigo-900 mb-4">📋 সকল বিক্রয় রেকর্ড (ছাড়সহ)</h2><div class="flex gap-3 mb-4 flex-wrap"><input type="text" id="searchInvoice" placeholder="ভাউচার / ক্রেতা নাম" class="input-clean w-64"><input type="date" id="filterDate" class="input-clean w-48"><button id="clearFilterBtn" class="bg-gray-500 text-white px-4 rounded-lg">রিসেট</button></div><div class="overflow-x-auto scroll-table"><table class="min-w-full bg-white border"><thead class="bg-indigo-800 text-white"><tr><th>তারিখ</th><th>ভাউচার</th><th>ক্রেতা</th><th>মোবাইল</th><th>সাব-টোটাল</th><th>ছাড়</th><th>নেট পেয়েবল</th><th>অ্যাকশন</th></tr></thead><tbody id="salesListBody"></tbody></table></div><div class="mt-4 text-right font-bold">মোট বিক্রয় (নেট): <span id="totalSalesAmount" class="text-indigo-700">০</span> টাকা</div></div>
+    <div class="bg-white rounded-xl shadow p-5 max-w-6xl mx-auto">
+        <h2 class="text-2xl font-bold text-indigo-900 mb-4">📋 সকল বিক্রয় রেকর্ড (ছাড়সহ)</h2>
+        <div class="flex gap-3 mb-4 flex-wrap">
+            <input type="text" id="searchInvoice" placeholder="ভাউচার / ক্রেতা নাম" class="input-clean w-64">
+            <input type="date" id="filterDate" class="input-clean w-48">
+            <button id="clearFilterBtn" class="bg-gray-500 text-white px-4 rounded-lg">রিসেট</button>
+        </div>
+        <div class="overflow-x-auto scroll-table">
+            <table class="min-w-full bg-white border">
+                <thead class="bg-indigo-800 text-white">
+                    <tr><th>তারিখ</th><th>ভাউচার</th><th>ক্রেতা</th><th>মোবাইল</th><th>সাব-টোটাল</th><th>ছাড়</th><th>নেট পেয়েবল</th><th>অ্যাকশন</th></tr>
+                </thead>
+                <tbody id="salesListBody"></tbody>
+            </table>
+        </div>
+        <div class="mt-4 text-right font-bold">মোট বিক্রয় (নেট): <span id="totalSalesAmount" class="text-indigo-700">০</span> টাকা</div>
+    </div>
 </div>
 
 <!-- PURCHASE TAB -->
@@ -95,7 +183,23 @@
 
 <!-- REPORTS TAB -->
 <div id="reportsTab" class="tab-content hidden">
-    <div class="bg-white rounded-xl shadow p-5 max-w-6xl mx-auto"><h2 class="text-2xl font-bold text-indigo-900 mb-4">📈 বিক্রয় রিপোর্ট (ছাড়সহ)</h2><div class="flex gap-4 mb-6 flex-wrap"><button data-period="daily" class="period-btn bg-indigo-600 text-white px-5 py-2 rounded-full">দৈনিক</button><button data-period="weekly" class="period-btn bg-gray-200 px-5 py-2 rounded-full">সাপ্তাহিক</button><button data-period="yearly" class="period-btn bg-gray-200 px-5 py-2 rounded-full">বার্ষিক</button></div><div id="reportSummary" class="mb-5 grid grid-cols-1 md:grid-cols-3 gap-4"></div><div class="overflow-x-auto"><table class="min-w-full border"><thead class="bg-indigo-700 text-white"><tr><th>সময়কাল</th><th>মোট বিক্রয় (নেট)</th><th>লেনদেন সংখ্যা</th></tr></thead><tbody id="reportTableBody"></tbody></table></div></div>
+    <div class="bg-white rounded-xl shadow p-5 max-w-6xl mx-auto">
+        <h2 class="text-2xl font-bold text-indigo-900 mb-4">📈 বিক্রয় রিপোর্ট (ছাড়সহ)</h2>
+        <div class="flex gap-4 mb-6 flex-wrap">
+            <button data-period="daily" class="period-btn bg-indigo-600 text-white px-5 py-2 rounded-full">দৈনিক</button>
+            <button data-period="weekly" class="period-btn bg-gray-200 px-5 py-2 rounded-full">সাপ্তাহিক</button>
+            <button data-period="yearly" class="period-btn bg-gray-200 px-5 py-2 rounded-full">বার্ষিক</button>
+        </div>
+        <div id="reportSummary" class="mb-5 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full border">
+                <thead class="bg-indigo-700 text-white">
+                    <tr><th>সময়কাল</th><th>মোট বিক্রয় (নেট)</th><th>লেনদেন সংখ্যা</th></tr>
+                </thead>
+                <tbody id="reportTableBody"></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <!-- DASHBOARD TAB -->
@@ -121,6 +225,7 @@
     let chartInstance = null;
     let currentPeriod = 'daily';
 
+    // DOM Elements
     const tbody = document.getElementById('invoiceItemsBody');
     const subtotalCell = document.getElementById('subtotalCell');
     const discountPercent = document.getElementById('discountPercent');
@@ -133,8 +238,8 @@
     function computeSubtotal() { 
         let sum = 0; 
         document.querySelectorAll('#invoiceItemsBody tr').forEach(row => {
-            let totalInp = row.querySelector('.item-total');
-            let v = parseFloat(totalInp ? totalInp.value : 0);
+            let totalField = row.querySelector('.item-total');
+            let v = parseFloat(totalField ? totalField.value : 0);
             if (!isNaN(v)) sum += v; 
         }); 
         subtotalCell.innerText = sum > 0 ? '৳ ' + sum.toFixed(2) : ''; 
@@ -176,7 +281,7 @@
         
         let delBtn = row.querySelector('.remove-row-btn'); 
         if(delBtn) delBtn.addEventListener('click', () => { 
-            if(currentRowCount <= 1) { alert("অন্তত একটি পণ্য থাকতে হবে"); return; } 
+            if(currentRowCount <= 1) { alert("একটি আইটেম অবশ্যই থাকতে হবে!"); return; } 
             row.remove(); 
             currentRowCount--; 
             reindexSerialNumbers(); 
@@ -214,19 +319,15 @@
         return tr; 
     }
 
+    // ফর্ম রিসেট ফাংশন (ডিফল্ট ফ্রেশ ফাঁকা উইন্ডো)
     function resetInvoiceForm() { 
         document.getElementById('custName').value = ''; 
         document.getElementById('custMobile').value = ''; 
         document.getElementById('custAddress').value = ''; 
         document.getElementById('custEmail').value = ''; 
-        
-        // ১. ভাউচার নাম্বার শুধু SBA- থাকবে, কোনো র্যান্ডম সংখ্যা থাকবে না
         document.getElementById('voucherNo').value = 'SBA-'; 
-        
-        // ২. তারিখ ডিফল্ট অবস্থায় সম্পূর্ণ খালি থাকবে
         document.getElementById('invoiceDate').value = ''; 
         
-        // ৩. ডেমো ডাটা রিমুভ করে একদম ফ্রেশ খালি ঘর জেনারেট হবে
         tbody.innerHTML = '';
         tbody.appendChild(createNewRow(1)); 
         
@@ -235,6 +336,26 @@
         discountPercent.value = ''; 
         discountFlat.value = ''; 
         updateDiscountAndTotal(); 
+    }
+
+    // খালি মেমো তৈরি করার ফাংশন (কাস্টমারকে ব্ল্যাঙ্ক মেমো দেওয়ার অপশন)
+    function clearForBlankMemo() {
+        document.getElementById('custName').value = ''; 
+        document.getElementById('custMobile').value = ''; 
+        document.getElementById('custAddress').value = ''; 
+        document.getElementById('custEmail').value = ''; 
+        document.getElementById('invoiceDate').value = '';
+        
+        tbody.innerHTML = '';
+        // ৫টি ফাঁকা সারি তৈরি করে দেওয়া যাতে মেমো দেখতে প্রফেশনাল লাগে
+        for(let i=1; i<=5; i++) {
+            tbody.appendChild(createNewRow(i));
+        }
+        currentRowCount = 5;
+        reindexSerialNumbers();
+        discountPercent.value = ''; 
+        discountFlat.value = ''; 
+        updateDiscountAndTotal();
     }
 
     function getCurrentInvoiceObject() { 
@@ -270,23 +391,23 @@
 
     function saveCurrentInvoiceToHistory() { 
         let inv = getCurrentInvoiceObject(); 
-        if(inv.items.length === 0 || inv.subtotal === 0) { alert("কোনো পণ্য বা সঠিক হিসাব যোগ করুন!"); return false; } 
+        if(inv.items.length === 0 || inv.subtotal === 0) { alert("মেমোতে কোনো প্রোডাক্টের হিসাব নেই! মেমো খালি থাকলে সেভ করার প্রয়োজন নেই, সরাসরি প্রিন্ট করুন।"); return false; } 
         allInvoices.unshift(inv); 
         saveAllData(); 
-        alert("ইনভয়েস সংরক্ষিত হয়েছে!"); 
+        alert("ইনভয়েস রেকর্ড সংরক্ষিত হয়েছে!"); 
         resetInvoiceForm(); 
         return true; 
     }
 
     async function printInvoicePDF() { 
         let element = document.getElementById('memoContainer'); 
-        let hideItems = document.querySelectorAll('.no-print, .print-hide, .action-col, .remove-row-btn, #addRowBtn, #removeLastRowBtn, #saveInvoiceBtn, #printInvoiceBtn'); 
+        let hideItems = document.querySelectorAll('.no-print, .print-hide, .action-col, .remove-row-btn, #addRowBtn, #removeLastRowBtn, #blankMemoBtn, #saveInvoiceBtn, #printInvoiceBtn'); 
         let displays = []; 
         hideItems.forEach((el, idx) => { displays[idx] = el.style.display; el.style.display = 'none'; }); 
         try { 
             let opt = { margin: [0, 0, 0, 0], filename: `Memo_${document.getElementById('voucherNo').value}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; 
             await html2pdf().set(opt).from(element).save(); 
-        } catch(e) { alert("PDF তৈরি করতে সমস্যা হয়েছে"); } 
+        } catch(e) { alert("PDF করতে সমস্যা হয়েছে"); } 
         hideItems.forEach((el, idx) => el.style.display = displays[idx]); 
     }
 
@@ -298,7 +419,7 @@
         let price = parseFloat(document.getElementById('purchasePrice').value);
         let date = document.getElementById('purchaseDate').value;
         let note = document.getElementById('purchaseNote').value;
-        if(!product || isNaN(qty) || qty <= 0 || isNaN(price) || price < 0) { alert("পণ্যের নাম, সঠিক পরিমাণ ও মূল্য দিন"); return; }
+        if(!product || isNaN(qty) || qty <= 0 || isNaN(price) || price < 0) { alert("পণ্যের নাম, পরিমাণ ও সঠিক মূল্য দিন"); return; }
         if(!date) date = new Date().toISOString().slice(0, 10);
         let total = qty * price;
         let purchaseObj = { id: Date.now(), product, supplier, qty, unitPrice: price, total, date, note };
@@ -440,8 +561,9 @@
     document.getElementById('filterDate')?.addEventListener('change', renderSalesList);
     document.getElementById('clearFilterBtn')?.addEventListener('click', () => { document.getElementById('searchInvoice').value = ''; document.getElementById('filterDate').value = ''; renderSalesList(); });
     
-    document.getElementById('addRowBtn').addEventListener('click', () => { if(currentRowCount < MAX_ROWS) { tbody.appendChild(createNewRow(currentRowCount + 1, null)); currentRowCount++; reindexSerialNumbers(); updateDiscountAndTotal(); } else alert("সর্বোচ্চ ১০টি সারি যোগ করা সম্ভব"); });
+    document.getElementById('addRowBtn').addEventListener('click', () => { if(currentRowCount < MAX_ROWS) { tbody.appendChild(createNewRow(currentRowCount + 1, null)); currentRowCount++; reindexSerialNumbers(); updateDiscountAndTotal(); } else alert("সর্বোচ্চ ১০টি সারি সম্ভব"); });
     document.getElementById('removeLastRowBtn').addEventListener('click', () => { if(currentRowCount > 1) { let rows = tbody.querySelectorAll('tr'); rows[rows.length - 1].remove(); currentRowCount--; reindexSerialNumbers(); updateDiscountAndTotal(); } else alert("অন্তত ১টি সারি রাখুন"); });
+    document.getElementById('blankMemoBtn').addEventListener('click', clearForBlankMemo);
     document.getElementById('saveInvoiceBtn').addEventListener('click', saveCurrentInvoiceToHistory);
     document.getElementById('printInvoiceBtn').addEventListener('click', printInvoicePDF);
     document.getElementById('addPurchaseBtn').addEventListener('click', addPurchase);
